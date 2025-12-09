@@ -1,0 +1,367 @@
+<!DOCTYPE>
+<html>
+<head><meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="author" content="ThemeZaa">
+        <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+        <meta name="description" content="Elevate your online presence with Crafto - a modern, versatile, multipurpose Bootstrap 5 responsive HTML5, SCSS template using highly creative 52+ ready demos.">
+    <title>{{title}}</title>
+   <link rel="shortcut icon" href="/images/favicon.png">
+        <link rel="apple-touch-icon" href="/images/apple-touch-icon-57x57.png">
+        <link rel="apple-touch-icon" sizes="72x72" href="/images/apple-touch-icon-72x72.png">
+        <link rel="apple-touch-icon" sizes="114x114" href="/images/apple-touch-icon-114x114.png">
+        <!-- google fonts preconnect -->
+        <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <!-- bubblemorph add-on files -->
+        <link rel='stylesheet' href='/revolution/revolution-addons/bubblemorph/css/revolution.addon.bubblemorph.css' type='text/css' media='all' />
+        <!-- slider revolution CSS files -->
+        <link rel="stylesheet" type="text/css" href="/revolution/css/settings.css">
+        <link rel="stylesheet" type="text/css" href="/revolution/css/layers.css">
+        <link rel="stylesheet" type="text/css" href="/revolution/css/navigation.css">
+        <!-- style sheets and font icons  -->
+        <link rel="stylesheet" href="/css/vendors.min.css"/>
+        <link rel="stylesheet" href="/css/icon.min.css"/>
+        <link rel="stylesheet" href="/css/style.css"/>
+        <link rel="stylesheet" href="/css/responsive.css"/>
+        <link rel="stylesheet" href="/demos/jewellery-store/clothing-store.css" />
+        <link rel="stylesheet" href="/demos/jewellery-store/jewellery-store.css" />
+        {{!-- <link rel="stylesheet" href="/demos/jewellery-store/spa-salon.css" /> --}}
+
+</head>
+<body>
+
+    {{> header}}
+
+    <main>
+        {{{body}}}
+    </main>
+
+    {{> footer}}
+
+
+<!-- javascript libraries -->
+        <script type="text/javascript" src="/js/jquery.js"></script>
+        <script type="text/javascript" src="/js/vendors.min.js"></script>
+        <!-- slider revolution core javaScript files -->
+        <script type="text/javascript" src="/revolution/js/jquery.themepunch.tools.min.js"></script>
+        <script type="text/javascript" src="/revolution/js/jquery.themepunch.revolution.min.js"></script>
+
+       
+        <script type='text/javascript' src='/revolution/revolution-addons/bubblemorph/js/revolution.addon.bubblemorph.min.js'></script>
+        <!-- Slider's main "init" script -->
+        <script type="text/javascript">
+            var revapi263,
+                    tpj;
+            (function () {
+                if (!/loaded|interactive|complete/.test(document.readyState))
+                    document.addEventListener("DOMContentLoaded", onLoad);
+                else
+                    onLoad();
+                function onLoad() {
+                    if (tpj === undefined) {
+                        tpj = jQuery;
+                        if ("off" == "on")
+                            tpj.noConflict();
+                    }
+                    if (tpj("#jewellery-store-slider").revolution == undefined) {
+                        revslider_showDoubleJqueryError("#jewellery-store-slider");
+                    } else {
+                        revapi263 = tpj("#jewellery-store-slider").show().revolution({
+                            sliderType: "standard",
+                            /* sets the Slider's default timeline */
+                            delay: 9000,
+                            /* options are 'auto', 'fullwidth' or 'fullscreen' */
+                            sliderLayout: 'fullscreen',
+                            /* RESPECT ASPECT RATIO */
+                            autoHeight: 'off',
+                            /* options that disable autoplay */
+                            stopLoop: 'off',
+                            stopAfterLoops: -1,
+                            stopAtSlide: -1,
+                            navigation: {
+                                keyboardNavigation: "on",
+                                keyboard_direction: "horizontal",
+                                mouseScrollNavigation: "off",
+                                mouseScrollReverse: "default",
+                                onHoverStop: "off",
+                                touch: {
+                                    touchenabled: "on",
+                                    touchOnDesktop: "on",
+                                    swipe_threshold: 75,
+                                    swipe_min_touches: 1,
+                                    swipe_direction: "horizontal",
+                                    drag_block_vertical: true
+                                },
+                                arrows: {
+                                    enable: true,
+                                    style: 'uranus',
+                                    tmp: '',
+                                    rtl: false,
+                                    hide_onleave: false,
+                                    hide_onmobile: true,
+                                    hide_under: 767,
+                                    hide_over: 9999,
+                                    hide_delay: 200,
+                                    hide_delay_mobile: 1200,
+                                    left: {
+                                        h_align: "right",
+                                        v_align: "top",
+                                        h_offset: 0,
+                                        v_offset: 0,
+                                    },
+                                    right: {
+                                        h_align: "right",
+                                        v_align: "bottom",
+                                        h_offset: 0,
+                                        v_offset: 0,
+                                    }
+                                }
+                            },
+                            /* [DESKTOP, LAPTOP, TABLET, SMARTPHONE] */
+                            responsiveLevels: [1240, 1024, 768, 480],
+                            /* [DESKTOP, LAPTOP, TABLET, SMARTPHONE] */
+                            gridwidth: [1220, 1024, 768, 480],
+                            /* [DESKTOP, LAPTOP, TABLET, SMARTPHONE] */
+                            gridheight: [970, 970, 960, 720],
+                            /* [DESKTOP, LAPTOP, TABLET, SMARTPHONE] */
+                            visibilityLevels: [1240, 1024, 1024, 480],
+                            /* Lazy Load options are "all", "smart", "single" and "none" */
+                            lazyType: "smart",
+                            spinner: "spinner0",
+                            shadow: 0,
+                            shuffle: "off",
+                            fullScreenAutoWidth: "off",
+                            fullScreenAlignForce: "off",
+                            fullScreenOffsetContainer: "nav, .header-top-bar",
+                            fullScreenOffset: "-1",
+                            disableProgressBar: "on",
+                            hideThumbsOnMobile: "off",
+                            hideSliderAtLimit: 0,
+                            hideCaptionAtLimit: 0,
+                            hideAllCaptionAtLilmit: 0,
+                            debugMode: false,
+                            fallbacks: {
+                                simplifyAll: "off",
+                                nextSlideOnWindowFocus: "off",
+                                disableFocusListener: false,
+                            }
+                        });
+                    }
+                    ; /* END OF revapi call */
+                    BubbleMorphAddOn(jQuery, revapi263, false)
+                }
+                ;
+            }()); /* END OF WRAPPING FUNCTION */
+        </script>
+        <script type="text/javascript" src="/js/main.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+  new Swiper("#heroSlider", {
+    slidesPerView: 1,
+    loop: true,
+    effect: "fade",
+
+    autoplay: {
+      delay: 5000,
+      disableOnInteraction: false,
+    },
+
+    pagination: {
+      el: "#heroSlider .swiper-pagination",
+      clickable: true,
+    },
+
+    navigation: {
+      nextEl: ".slider-one-slide-next-1",
+      prevEl: ".slider-one-slide-prev-1",
+    },
+
+    keyboard: {
+      enabled: true,
+      onlyInViewport: true,
+    }
+  });
+
+});
+
+
+
+
+const menuBtn = document.querySelector(".header-push-button .push-button");
+const menu = document.querySelector(".push-menu");
+const overlay = document.querySelector(".menu-overlay");
+const forCategory = document.querySelector("#forcategory");
+
+// Current menu state
+let currentMenu = 'main'; // 'main' or submenu ID
+
+// Detect header height dynamically
+function updateHeaderHeight() {
+    const header = document.querySelector("header.header-with-topbar");
+    if (header) {
+        const height = header.offsetHeight;
+        document.documentElement.style.setProperty("--header-height", height + "px");
+    }
+}
+updateHeaderHeight();
+window.addEventListener("resize", updateHeaderHeight);
+
+// Open / close menu
+menuBtn.addEventListener("click", () => {
+    menu.classList.toggle("open");
+    overlay.classList.toggle("show");
+    menuBtn.classList.toggle("open");
+    
+    // Reset to main menu when opening
+    if (menu.classList.contains("open")) {
+        showMenu('main');
+    } else {
+        currentMenu = 'main';
+    }
+});
+
+// Function to show any menu (main or submenu)
+function showMenu(menuId) {
+    // Hide everything first
+    forCategory.style.display = 'none';
+    const allSubmenus = menu.querySelectorAll('.submenu-panel');
+    allSubmenus.forEach(panel => {
+        panel.style.display = 'none';
+    });
+    
+    // Show requested menu
+    if (menuId === 'main') {
+        forCategory.style.display = 'block';
+        currentMenu = 'main';
+    } else {
+        const targetSubmenu = menu.querySelector(`.submenu-panel[data-menu="${menuId}"]`);
+        if (targetSubmenu) {
+            targetSubmenu.style.display = 'block';
+            currentMenu = menuId;
+        }
+    }
+}
+
+// Function to get parent menu ID based on current menu
+function getParentMenu(currentMenuId) {
+    // Define parent-child relationships
+    const parentMap = {
+        // Level 1 submenus (parent is main)
+        'men': 'main',
+        'women': 'main',
+        'unisex': 'main',
+        'gifting': 'main',
+        
+        // Men's submenus (parent is 'men')
+        'men-rings': 'men',
+        'men-bracelets': 'men',
+        'men-pendants': 'men',
+        'men-earrings': 'men',
+        
+        // Women's submenus (parent is 'women')
+        'women-rings': 'women',
+        'women-earrings': 'women',
+        'women-bracelets': 'women',
+        'women-pendants': 'women',
+        'women-necklaces': 'women',
+        'women-chains': 'women',
+        
+        // Unisex submenus (parent is 'unisex')
+        'unisex-pendants': 'unisex',
+        'unisex-earrings': 'unisex',
+        
+        // Gifting submenus (parent is 'gifting')
+        'for-him': 'gifting',
+        'for-her': 'gifting'
+    };
+    
+    return parentMap[currentMenuId] || 'main';
+}
+
+// Close on overlay click
+overlay.addEventListener("click", () => {
+    menu.classList.remove("open");
+    overlay.classList.remove("show");
+    menuBtn.classList.remove("open");
+    currentMenu = 'main';
+});
+
+// Handle all menu clicks using event delegation
+document.addEventListener('click', (e) => {
+    const target = e.target;
+    
+    // Handle submenu toggle clicks
+    if (target.classList.contains('submenu-toggle')) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const submenuId = target.getAttribute('data-submenu');
+        if (submenuId) {
+            showMenu(submenuId);
+        }
+    }
+    
+    // Handle back button clicks
+    else if (target.classList.contains('back-button') || 
+             (target.closest('.back-button') && target.tagName === 'A')) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Go back to parent menu
+        const parentMenu = getParentMenu(currentMenu);
+        showMenu(parentMenu);
+    }
+    
+    // Close menu when clicking regular links
+    else if (target.classList.contains('nav-link') && 
+             !target.classList.contains('submenu-toggle') &&
+             !target.closest('.back-button') &&
+             menu.classList.contains('open')) {
+        
+        setTimeout(() => {
+            menu.classList.remove("open");
+            overlay.classList.remove("show");
+            menuBtn.classList.remove("open");
+            currentMenu = 'main';
+        }, 300);
+    }
+});
+
+// Close sidebar when clicking outside
+document.addEventListener('click', (e) => {
+    if (menu.classList.contains('open')) {
+        const isClickInsideMenu = menu.contains(e.target);
+        const isClickOnMenuBtn = menuBtn.contains(e.target);
+        
+        if (!isClickInsideMenu && !isClickOnMenuBtn) {
+            menu.classList.remove("open");
+            overlay.classList.remove("show");
+            menuBtn.classList.remove("open");
+            currentMenu = 'main';
+        }
+    }
+});
+
+// Close sidebar with Escape key
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && menu.classList.contains('open')) {
+        // If not in main menu, go back to parent
+        if (currentMenu !== 'main') {
+            const parentMenu = getParentMenu(currentMenu);
+            showMenu(parentMenu);
+        } else {
+            // If in main menu, close sidebar
+            menu.classList.remove("open");
+            overlay.classList.remove("show");
+            menuBtn.classList.remove("open");
+            currentMenu = 'main';
+        }
+    }
+});
+</script>
+
+
+        </body>
+</html>
