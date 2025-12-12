@@ -1,0 +1,516 @@
+<!-- (Copy entire block and replace your existing one) -->
+<h2 class="section-title">Products</h2>
+
+<!-- FILTER ROW -->
+<div class="products-filter-row">
+  <div class="filter-item">
+    <label>Category</label>
+    <select id="filterCategory"><option value="">All</option></select>
+  </div>
+
+  <div class="filter-item">
+    <label>Subcategory</label>
+    <select id="filterSubCategory"><option value="">All</option></select>
+  </div>
+
+  <div class="filter-item">
+    <label>Collection</label>
+    <select id="filterCollection"><option value="">All</option></select>
+  </div>
+
+  <button id="clearFilters" class="small-btn">Reset</button>
+
+  <div class="filter-spacer"></div>
+
+  <input id="productSearchInput" class="search-bar" placeholder="Search by name, SKU or ID">
+  <button id="createProductBtn" class="action-btn">+ New Product</button>
+</div>
+
+<!-- TABLE -->
+<table class="admin-table" id="productsTable">
+  <thead>
+    <tr>
+      <th>Image</th>
+      <th>Name</th>
+      <th>Category</th>
+      <th>Subcategory</th>
+      <th>Collection</th>
+      <th>Price</th>
+      <th>SKU</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody id="productsTableBody">
+    <tr><td colspan="8">Loading...</td></tr>
+  </tbody>
+</table>
+
+<div id="productsPagination" class="pagination"></div>
+
+<!-- IMAGE ZOOM -->
+<div id="imageZoomModal" class="zoom-modal" aria-hidden="true" style="display:none;">
+  <div class="zoom-box">
+    <button id="zoomPrev" class="zoom-nav">‹</button>
+    <img id="zoomImg" src="" alt="zoomed">
+    <button id="zoomNext" class="zoom-nav">›</button>
+    <button id="zoomClose" class="zoom-close">✕</button>
+  </div>
+</div>
+
+<!-- PRODUCT MODAL -->
+<div id="productModal" class="edit-modal" aria-hidden="true" style="display:none;">
+  <div class="product-box">
+
+    <h3 id="productModalTitle">Edit Product</h3>
+
+    <input type="hidden" id="editProductId">
+
+    <div class="grid-2">
+      <div>
+        <label>Name</label>
+        <input id="editProductName" type="text" placeholder="Product name">
+      </div>
+      <div>
+        <label>SKU</label>
+        <input id="editProductSku" type="text" placeholder="SKU">
+      </div>
+    </div>
+
+    <label>Description</label>
+    <textarea id="editProductDescription" rows="3"></textarea>
+
+    <div class="grid-3">
+      <div>
+        <label>Price (₹)</label>
+        <input type="number" id="editProductPrice" step="0.01">
+      </div>
+      <div>
+        <label>Category</label>
+        <input id="editProductCategory" type="text">
+      </div>
+      <div>
+        <label>Subcategory</label>
+        <input id="editProductSubCategory" type="text">
+      </div>
+    </div>
+
+    <div class="grid-3">
+      <div>
+        <label>Collection</label>
+        <input id="editProductCollection" type="text">
+      </div>
+      <div>
+        <label>Length/Size</label>
+        <input id="editProductLength" type="text">
+      </div>
+      <div>
+        <label>Dimensions</label>
+        <input id="editProductDimensions" type="text">
+      </div>
+    </div>
+
+    <div class="grid-3">
+      <div>
+        <label>Diamonds</label>
+        <input id="editProductDiamonds" type="text">
+      </div>
+      <div>
+        <label>Gemstone Color</label>
+        <input id="editProductGemstones" type="text">
+      </div>
+      <div>
+        <label>Metal</label>
+        <input id="editProductMetal" type="text">
+      </div>
+    </div>
+
+    <label>Finish</label>
+    <input id="editProductFinish" type="text">
+
+    <label style="margin-top:12px;">Images (4 max) — click to preview</label>
+    <div class="image-grid">
+      <div class="img-cell">
+        <img id="previewImg1" src="/images/placeholder.png" alt="img1" onclick="openZoomFromModal(1)">
+        <input type="file" id="fileImg1" accept="image/*">
+      </div>
+      <div class="img-cell">
+        <img id="previewImg2" src="/images/placeholder.png" alt="img2" onclick="openZoomFromModal(2)">
+        <input type="file" id="fileImg2" accept="image/*">
+      </div>
+      <div class="img-cell">
+        <img id="previewImg3" src="/images/placeholder.png" alt="img3" onclick="openZoomFromModal(3)">
+        <input type="file" id="fileImg3" accept="image/*">
+      </div>
+      <div class="img-cell">
+        <img id="previewImg4" src="/images/placeholder.png" alt="img4" onclick="openZoomFromModal(4)">
+        <input type="file" id="fileImg4" accept="image/*">
+      </div>
+    </div>
+
+   <h4>Variants Count</h4>
+<input id="editProductVariants" type="number" placeholder="Enter number of variants" style="padding:8px;border-radius:6px;border:1px solid #333;background:#0f0f0f;color:#fff;width:200px;">
+
+
+    <div class="modal-actions">
+      <button id="saveProductBtn" class="save-btn">Save</button>
+      <button id="cancelProductBtn" class="close-btn">Cancel</button>
+    </div>
+
+    <div id="productModalMsg" style="margin-top:8px;display:none;color:#fff;"></div>
+  </div>
+</div>
+
+<style>
+/* layout */
+.products-filter-row {
+  display: grid;
+  grid-template-columns: 180px 180px 180px 80px 1fr 320px 140px;
+  gap: 12px;
+  margin-bottom: 18px;
+  align-items: end;
+}
+.filter-item label { font-size:12px;color:#bbb;display:block;margin-bottom:6px; }
+.search-bar { padding:10px;border-radius:8px;border:1px solid #333;background:#101010;color:#fff;width:100%; }
+.small-btn{padding:8px 10px;border-radius:8px;background:#222;color:#fff;border:1px solid #333;cursor:pointer;}
+.action-btn{padding:10px 12px;border-radius:8px;background:#00c471;color:#000;border:none;cursor:pointer;}
+.admin-table th, .admin-table td { padding:12px; }
+
+/* product modal wide */
+.product-box{
+  width:920px!important; max-width:96%; background:#1d1d1d;padding:22px;border-radius:12px; max-height:90vh; overflow:auto;
+}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.image-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:8px;}
+.img-cell{background:#0f0f0f;padding:8px;border-radius:8px;display:flex;flex-direction:column;gap:8px;align-items:center;}
+.img-cell img{width:100%;height:110px;object-fit:cover;border-radius:6px;cursor:pointer;background:#222;}
+.modal-actions{display:flex;justify-content:flex-end;gap:12px;margin-top:14px;}
+.zoom-modal{position:fixed;inset:0;background:rgba(0,0,0,0.85);display:none;align-items:center;justify-content:center;z-index:99999;}
+.zoom-box{display:flex;align-items:center;gap:16px;position:relative;}
+.zoom-box img{max-height:80vh;max-width:80vw;border-radius:8px;}
+.zoom-close{position:absolute;right:8px;top:8px;padding:6px 8px;background:#ff6b6b;color:#fff;border-radius:6px;border:none;cursor:pointer;}
+.page-btn{padding:6px 10px;background:#222;color:#fff;border-radius:6px;margin-right:6px;}
+.active-page{background:#00c471;color:#000;}
+.variant-row input{padding:6px;border-radius:6px;border:1px solid #333;background:#0f0f0f;color:#fff;}
+.small-muted{color:#999;padding:6px 0;}
+.save-btn{padding:10px 14px;border-radius:8px;background:#00c471;border:none;cursor:pointer;}
+.close-btn{padding:10px 14px;border-radius:8px;background:#444;border:none;cursor:pointer;color:#fff;}
+.delete-btn{padding:8px 10px;border-radius:6px;background:#ff6b6b;border:none;color:#fff;cursor:pointer;margin-left:6px;}
+</style>
+
+<!-- JS -->
+<script>
+(function(){
+  const token = localStorage.getItem("token");
+  if (!token) return console.warn("no token for admin products");
+
+  window.allProducts = [];
+  window.productPage = 1;
+  window.productRows = 10;
+
+  const $ = id => document.getElementById(id);
+  const clean = v => (!v || v === "-" ? "" : v);
+
+  function escapeHtml(s){
+    return (s||"").toString()
+      .replace(/&/g,"&amp;")
+      .replace(/</g,"&lt;")
+      .replace(/>/g,"&gt;")
+      .replace(/"/g,"&quot;")
+      .replace(/'/g,"&#39;");
+  }
+
+  function showToast(msg, type="success"){
+    const el = document.createElement("div");
+    el.textContent = msg;
+    el.style.cssText = `
+      position:fixed;right:20px;top:20px;padding:10px 14px;
+      border-radius:8px;background:${type==="error"?"#ff4747":"#00c471"};
+      color:${type==="error"?"#fff":"#000"};z-index:999999;
+    `;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),2400);
+  }
+
+  // LOAD PRODUCTS
+  async function loadProducts(){
+    try {
+      const res = await fetch("/admin/allproducts", { 
+        headers:{ Authorization:"Bearer "+token } 
+      });
+      const d = await res.json();
+      window.allProducts = d.products || [];
+      populateFilters();
+      renderProductsPaged();
+    } catch (err){
+      console.error(err);
+      $("productsTableBody").innerHTML = 
+        `<tr><td colspan="8">Failed to load products</td></tr>`;
+    }
+  }
+
+  function populateFilters(){
+    const cats = new Set(), subs = new Set(), cols = new Set();
+
+    window.allProducts.forEach(p=>{
+      if (p.category) cats.add(p.category);
+      if (p.sub_category) subs.add(p.sub_category);
+      if (p.collection_name) cols.add(p.collection_name);
+    });
+
+    fillSelect("filterCategory", cats);
+    fillSelect("filterSubCategory", subs);
+    fillSelect("filterCollection", cols);
+  }
+
+  function fillSelect(id, set){
+    const el = $(id);
+    el.innerHTML = 
+      `<option value="">All</option>` +
+      [...set].map(v=>
+        `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`
+      ).join("");
+  }
+
+  function getFilterAndSearch(){
+    return {
+      q: ($("productSearchInput").value || "").toLowerCase().trim(),
+      fCat: $("filterCategory").value || "",
+      fSub: $("filterSubCategory").value || "",
+      fCol: $("filterCollection").value || ""
+    };
+  }
+
+  function renderProductsPaged(){
+    const tbody = $("productsTableBody");
+    const { q, fCat, fSub, fCol } = getFilterAndSearch();
+
+    let list = window.allProducts.filter(p=>{
+      if (fCat && p.category !== fCat) return false;
+      if (fSub && p.sub_category !== fSub) return false;
+      if (fCol && p.collection_name !== fCol) return false;
+
+      const t = `${p.name} ${p.sku} ${p.id}`.toLowerCase();
+      return !q || t.includes(q);
+    });
+
+    const total = list.length;
+    const start = (window.productPage - 1) * window.productRows;
+    const items = list.slice(start, start + window.productRows);
+
+    if (!items.length){
+      tbody.innerHTML = 
+        `<tr><td colspan="8" style="text-align:center;">No products found</td></tr>`;
+      renderPagination(total);
+      return;
+    }
+
+    tbody.innerHTML = items.map(p=>{
+      const img = p.image1 ? `/uploads/${p.image1}` : "/images/placeholder.png";
+      return `
+        <tr>
+          <td><img src="${img}" style="width:72px;height:60px;object-fit:cover;border-radius:6px;cursor:pointer" onclick="openZoomProduct(${p.id},1)"></td>
+          <td>${escapeHtml(p.name)}</td>
+          <td>${escapeHtml(p.category)}</td>
+          <td>${escapeHtml(p.sub_category)}</td>
+          <td>${escapeHtml(p.collection_name)}</td>
+          <td>₹${p.price}</td>
+          <td>${escapeHtml(p.sku)}</td>
+          <td>
+            <button class="action-btn" onclick="openProductEdit(${p.id})">Edit</button>
+            <button class="delete-btn" onclick="deleteProduct(${p.id})">Delete</button>
+          </td>
+        </tr>
+      `;
+    }).join("");
+
+    renderPagination(total);
+  }
+
+  function renderPagination(total){
+    const el = $("productsPagination");
+    const pages = Math.max(1, Math.ceil(total / window.productRows));
+    el.innerHTML = "";
+
+    for (let i=1;i<=pages;i++){
+      const b = document.createElement("button");
+      b.textContent = i;
+      b.className = "page-btn" + (i===window.productPage?" active-page":"");
+      b.onclick = ()=>{ window.productPage=i; renderProductsPaged(); };
+      el.appendChild(b);
+    }
+  }
+
+  // ZOOM
+  let zoomState = { images:[], idx:0 };
+
+  function buildImageList(pid){
+    const p = window.allProducts.find(x=>x.id==pid);
+    return [p.image1,p.image2,p.image3,p.image4]
+      .filter(Boolean)
+      .map(x=>`/uploads/${x}`);
+  }
+
+  window.openZoomProduct = function(pid,index){
+    zoomState.images = buildImageList(pid);
+    zoomState.idx = index-1;
+    $("zoomImg").src = zoomState.images[zoomState.idx];
+    $("imageZoomModal").style.display="flex";
+  };
+
+  $("zoomPrev").onclick = ()=>{
+    zoomState.idx = (zoomState.idx - 1 + zoomState.images.length) % zoomState.images.length;
+    $("zoomImg").src = zoomState.images[zoomState.idx];
+  };
+  $("zoomNext").onclick = ()=>{
+    zoomState.idx = (zoomState.idx + 1) % zoomState.images.length;
+    $("zoomImg").src = zoomState.images[zoomState.idx];
+  };
+  $("zoomClose").onclick = ()=> $("imageZoomModal").style.display="none";
+
+  // EDIT PRODUCT
+  window.openProductEdit = function(id){
+    const p = window.allProducts.find(x=>x.id==id);
+
+    $("productModalTitle").innerText = "Edit Product";
+    $("editProductId").value = p.id;
+
+    $("editProductName").value = p.name;
+    $("editProductDescription").value = p.description;
+    $("editProductPrice").value = p.price;
+    $("editProductCategory").value = p.category;
+    $("editProductSubCategory").value = p.sub_category;
+    $("editProductCollection").value = p.collection_name;
+    $("editProductSku").value = p.sku;
+    $("editProductLength").value = p.length_size;
+    $("editProductDimensions").value = p.dimensions;
+    $("editProductDiamonds").value = p.diamonds;
+    $("editProductGemstones").value = p.gemstones_color;
+    $("editProductMetal").value = p.metal;
+    $("editProductFinish").value = p.finish;
+
+    $("editProductVariants").value = Number(p.variants) || 0;
+
+    ["1","2","3","4"].forEach(i=>{
+      $(`previewImg${i}`).src = p[`image${i}`] 
+        ? `/uploads/${p[`image${i}`]}`
+        : "/images/placeholder.png";
+    });
+
+    $("productModal").style.display="flex";
+  };
+
+  // CREATE PRODUCT
+  $("createProductBtn").onclick = ()=>{
+    $("productModalTitle").innerText = "Create Product";
+    $("editProductId").value = "";
+
+    [
+      "editProductName","editProductDescription","editProductPrice",
+      "editProductCategory","editProductSubCategory","editProductCollection",
+      "editProductSku","editProductLength","editProductDimensions",
+      "editProductDiamonds","editProductGemstones","editProductMetal",
+      "editProductFinish","editProductVariants"
+    ].forEach(id=>$(id).value="");
+
+    ["1","2","3","4"].forEach(i=>{
+      $(`previewImg${i}`).src="/images/placeholder.png";
+    });
+
+    $("productModal").style.display="flex";
+  };
+
+  $("cancelProductBtn").onclick = ()=>
+    $("productModal").style.display="none";
+
+  // image preview
+  ["1","2","3","4"].forEach(i=>{
+    $(`fileImg${i}`).onchange = e=>{
+      const f = e.target.files[0];
+      if (!f) return;
+      const r = new FileReader();
+      r.onload = ev=> $(`previewImg${i}`).src = ev.target.result;
+      r.readAsDataURL(f);
+    };
+  });
+
+  // SAVE PRODUCT
+  $("saveProductBtn").onclick = async()=>{
+    const id = $("editProductId").value;
+
+    const data = {
+      name: $("editProductName").value,
+      description: $("editProductDescription").value,
+      price: $("editProductPrice").value,
+      category: $("editProductCategory").value,
+      sub_category: $("editProductSubCategory").value,
+      collection_name: $("editProductCollection").value,
+      sku: $("editProductSku").value,
+      length_size: $("editProductLength").value,
+      dimensions: $("editProductDimensions").value,
+      diamonds: $("editProductDiamonds").value,
+      gemstones_color: $("editProductGemstones").value,
+      metal: $("editProductMetal").value,
+      finish: $("editProductFinish").value,
+      variants: Number($("editProductVariants").value) || 0
+    };
+
+    const fd = new FormData();
+    Object.entries(data).forEach(([k,v])=> fd.append(k,v));
+
+    ["1","2","3","4"].forEach(i=>{
+      const f = $(`fileImg${i}`).files[0];
+      if (f) fd.append(`image${i}`, f);
+    });
+
+    const res = await fetch(
+      id ? `/admin/products/${id}` : "/admin/products",
+      {
+        method:"POST",
+        headers:{ Authorization:"Bearer "+token },
+        body: fd
+      }
+    );
+
+    if (!res.ok) return showToast("Save failed","error");
+
+    showToast("Product saved");
+    $("productModal").style.display="none";
+    loadProducts();
+  };
+
+  // DELETE
+  window.deleteProduct = async(id)=>{
+    if(!confirm("Delete this product?")) return;
+    await fetch(`/admin/products/${id}/delete`,{
+      method:"POST",
+      headers:{ Authorization:"Bearer "+token }
+    });
+    showToast("Deleted");
+    loadProducts();
+  };
+
+  function setupControls(){
+    ["productSearchInput","filterCategory","filterSubCategory","filterCollection"]
+      .forEach(id=>{
+        $(id).oninput = ()=>{ window.productPage=1; renderProductsPaged(); };
+      });
+
+    $("clearFilters").onclick = ()=>{
+      $("filterCategory").value="";
+      $("filterSubCategory").value="";
+      $("filterCollection").value="";
+      $("productSearchInput").value="";
+      window.productPage=1;
+      renderProductsPaged();
+    };
+  }
+
+  // INIT
+  setTimeout(()=>{
+    setupControls();
+    loadProducts();
+  },60);
+
+})();
+</script>

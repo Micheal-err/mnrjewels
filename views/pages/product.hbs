@@ -1,0 +1,488 @@
+{{!-- PRODUCT PAGE --}}
+
+<!-- breadcrumb -->
+<section class="top-space-margin border-top border-color-extra-medium-gray pt-20px pb-20px ps-35px pe-35px lg-ps-25px lg-pe-25px md-ps-15px md-pe-15px sm-ps-0 sm-pe-0">
+  <div class="container-fluid">
+    <div class="row align-items-center">
+      <div class="col-12 breadcrumb breadcrumb-style-01 fs-15 alt-font">
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/category">Shop</a></li>
+          <li>{{product.name}}</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MAIN PRODUCT SECTION -->
+<section class="single-product-page pt-60px md-pt-30px pb-0">
+  <div class="container">
+    <div class="row align-items-start">
+
+      {{!-- LEFT: IMAGE GALLERY --}}
+      <div class="col-lg-6 mb-40px md-mb-30px">
+        <div class="product-gallery d-flex">
+
+          {{!-- Vertical thumbnails --}}
+          <div class="product-gallery-thumbs me-20px">
+            {{#each images}}
+              <button
+                type="button"
+                class="product-thumb-btn"
+                data-src="/uploads/{{this}}"
+              >
+                <img
+                  src="/uploads/{{this}}"
+                  alt="{{../product.name}}"
+                  class="product-thumb-img"
+                />
+              </button>
+            {{/each}}
+
+            {{!-- If no images, show 1 placeholder thumb --}}
+            {{#unless images.[0]}}
+              <button type="button" class="product-thumb-btn" data-src="https://via.placeholder.com/600x765">
+                <img
+                  src="https://via.placeholder.com/600x765"
+                  alt="{{product.name}}"
+                  class="product-thumb-img"
+                />
+              </button>
+            {{/unless}}
+          </div>
+
+          {{!-- Main image --}}
+          <div class="product-gallery-main">
+            {{#if images.[0]}}
+              <img
+                id="productMainImage"
+                src="/uploads/{{images.[0]}}"
+                alt="{{product.name}}"
+                class="product-main-img"
+              />
+            {{else}}
+              <img
+                id="productMainImage"
+                src="https://via.placeholder.com/600x765"
+                alt="{{product.name}}"
+                class="product-main-img"
+              />
+            {{/if}}
+          </div>
+        </div>
+      </div>
+
+      {{!-- RIGHT: PRODUCT INFO --}}
+      <div class="col-lg-6 product-info">
+
+        {{!-- Brand / collection --}}
+        <div class="mb-5px fs-14 text-uppercase text-dark-gray">
+          {{#if product.collection_name}}
+            <span class="alt-font fw-500">{{product.collection_name}}</span>
+          {{else}}
+            <span class="alt-font fw-500">{{product.category}}</span>
+          {{/if}}
+        </div>
+
+        {{!-- Name + price --}}
+        <h1 class="alt-font text-dark-gray fw-600 fs-28 mb-10px">
+          {{product.name}}
+        </h1>
+
+        <div class="mb-15px">
+          <span class="text-dark-gray fs-24 fw-600">
+            ₹{{product.price}}
+          </span>
+        </div>
+
+        {{!-- Metal / finish line --}}
+        <div class="mb-10px fs-14 text-uppercase text-dark-gray">
+          {{#if product.metal}}
+            <span class="alt-font fw-500">Metal:&nbsp;</span>
+            <span class="fw-400 text-capitalize">{{product.metal}}</span>
+          {{/if}}
+
+          {{#if product.finish}}
+            <span class="mx-5px">•</span>
+            <span class="alt-font fw-500">Finish:&nbsp;</span>
+            <span class="fw-400 text-capitalize">{{product.finish}}</span>
+          {{/if}}
+        </div>
+
+        {{!-- Colour + size + size guide --}}
+        <div class="d-flex flex-wrap align-items-center mb-20px gap-2">
+          {{#if product.finish}}
+            <div class="d-flex align-items-center me-25px">
+              <span class="fs-13 text-uppercase text-dark-gray me-10px alt-font fw-500">
+                Colour
+              </span>
+              <span class="d-inline-flex align-items-center">
+                <span
+                  class="d-inline-block rounded-circle me-8px"
+                  style="width:16px;height:16px;border:1px solid #ccc;background:#f5f5f5;"
+                ></span>
+                <span class="fs-14 text-capitalize fw-400">{{product.finish}}</span>
+              </span>
+            </div>
+          {{/if}}
+
+          {{#if product.length_size}}
+            <div class="d-flex align-items-center ms-auto">
+              <span class="fs-13 text-uppercase text-dark-gray me-10px alt-font fw-500">
+                Size
+              </span>
+              <span class="fs-14 fw-400">{{product.length_size}}</span>
+              <a href="#tab"
+                 class="fs-12 text-decoration-underline ms-10px alt-font text-dark-gray">
+                Size guide
+              </a>
+            </div>
+          {{/if}}
+        </div>
+
+        {{!-- Quantity + Add to cart + Wishlist --}}
+        <div class="d-flex align-items-center flex-column flex-sm-row mb-20px position-relative">
+
+          <div class="quantity me-15px xs-mb-15px order-1 d-flex align-items-center">
+            <button type="button"
+                    class="qty-minus"
+                    data-target="#productQty">
+              -
+            </button>
+            <input
+              class="qty-text"
+              type="text"
+              id="productQty"
+              value="1"
+              inputmode="numeric"
+            />
+            <button type="button"
+                    class="qty-plus"
+                    data-target="#productQty">
+              +
+            </button>
+          </div>
+
+          <a href="javascript:void(0);"
+             class="btn btn-cart btn-extra-large btn-switch-text btn-box-shadow btn-none-transform btn-dark-gray left-icon border-radius-5px me-15px xs-me-0 order-3 order-sm-2 flex-grow-1">
+            <span>
+              <span><i class="feather icon-feather-shopping-bag"></i></span>
+              <span class="btn-double-text ls-0px flex-shrink-0" data-text="Add to cart">
+                Add to cart
+              </span>
+            </span>
+          </a>
+
+          <button type="button"
+                  class="wishlist d-flex align-items-center justify-content-center border border-radius-5px border-color-extra-medium-gray bg-white px-3 py-2 order-2 order-sm-3">
+            <i class="feather icon-feather-heart icon-small text-dark-gray"></i>
+          </button>
+        </div>
+
+        {{!-- Short description --}}
+        <div class="mb-20px fs-14 lh-22 text-dark-gray">
+          {{product.description}}
+        </div>
+
+        {{!-- Details bullets --}}
+        <div class="mb-15px">
+          <div class="d-flex align-items-center mb-8px">
+            <span class="me-10px">
+              <i class="feather icon-feather-check-circle text-dark-gray"></i>
+            </span>
+            <span class="fs-13 text-uppercase alt-font fw-500">
+              Hypoallergenic
+            </span>
+          </div>
+          <div class="d-flex align-items-center mb-8px">
+            <span class="me-10px">
+              <i class="feather icon-feather-check-circle text-dark-gray"></i>
+            </span>
+            <span class="fs-13 text-uppercase alt-font fw-500">
+              Non-toxic &amp; corrosion-resistant
+            </span>
+          </div>
+          <div class="d-flex align-items-center mb-8px">
+            <span class="me-10px">
+              <i class="feather icon-feather-check-circle text-dark-gray"></i>
+            </span>
+            <span class="fs-13 text-uppercase alt-font fw-500">
+              Highly durable for everyday wear
+            </span>
+          </div>
+        </div>
+
+        {{!-- View more details --}}
+        <div class="mt-15px mb-20px">
+          <a href="#tab"
+             class="fs-13 text-uppercase alt-font text-dark-gray text-decoration-underline">
+            View more details
+          </a>
+        </div>
+
+        {{!-- Delivery / shipping --}}
+        <div class="row mb-15px">
+          <div class="col-12 icon-with-text-style-08">
+            <div class="feature-box feature-box-left-icon d-inline-flex align-middle">
+              <div class="feature-box-icon me-10px">
+                <i class="feather icon-feather-truck top-8px position-relative align-middle text-dark-gray"></i>
+              </div>
+              <div class="feature-box-content">
+                <span>
+                  <span class="alt-font text-dark-gray fw-500">Estimated delivery:</span>
+                  <span class="fw-400">3–7 business days</span>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 icon-with-text-style-08 mb-10px">
+            <div class="feature-box feature-box-left-icon d-inline-flex align-middle">
+              <div class="feature-box-icon me-10px">
+                <i class="feather icon-feather-archive top-8px position-relative align-middle text-dark-gray"></i>
+              </div>
+              <div class="feature-box-content">
+                <span>
+                  <span class="alt-font text-dark-gray fw-500">Free shipping &amp; returns:</span>
+                  <span class="fw-400">On all orders over ₹999</span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {{!-- Category / SKU --}}
+        <div class="mt-10px fs-13">
+          <span class="text-dark-gray alt-font fw-500">Category:</span>
+          <span class="text-capitalize fw-400">{{product.category}}</span>
+          {{#if product.sub_category}},
+            <span class="text-capitalize fw-400">{{product.sub_category}}</span>
+          {{/if}}
+          {{#if product.collection_name}},
+            <span class="text-capitalize fw-400">{{product.collection_name}}</span>
+          {{/if}}
+        </div>
+        <div class="fs-13 mt-5px">
+          <span class="text-dark-gray alt-font fw-500">SKU:</span>
+          <span class="fw-400">{{product.sku}}</span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TABS SECTION (DETAILS) -->
+<section id="tab" class="pb-0 pt-40px sm-pt-30px">
+  <div class="container">
+    <div class="row">
+      <div class="col-12 tab-style-04">
+        <ul class="nav nav-tabs border-0 justify-content-center alt-font fs-18">
+          <li class="nav-item">
+            <a data-bs-toggle="tab" href="#tab_description" class="nav-link active">
+              Description<span class="tab-border bg-dark-gray"></span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#tab_additional">
+              Additional information<span class="tab-border bg-dark-gray"></span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#tab_shipping">
+              Shipping &amp; return<span class="tab-border bg-dark-gray"></span>
+            </a>
+          </li>
+        </ul>
+
+        <div class="mb-4 h-1px w-100 bg-extra-medium-gray sm-mt-10px xs-mb-8"></div>
+
+        <div class="tab-content">
+          {{!-- DESCRIPTION TAB --}}
+          <div class="tab-pane fade in active show" id="tab_description">
+            <div class="row align-items-center justify-content-center mb-5 sm-mb-10">
+              <div class="col-lg-6 md-mb-30px">
+                <h4 class="alt-font text-dark-gray fw-500 mb-15px">
+                  {{product.name}} – crafted in {{product.metal}} with {{product.finish}} finish.
+                </h4>
+                <p class="w-90 lg-w-100">
+                  {{product.description}}
+                </p>
+              </div>
+              <div class="col-lg-5 col-md-8">
+                {{#if images.[0]}}
+                  <img src="/uploads/{{images.[0]}}" alt="{{product.name}}" class="w-100" />
+                {{else}}
+                  <img src="https://via.placeholder.com/580x555" alt="{{product.name}}" class="w-100" />
+                {{/if}}
+              </div>
+            </div>
+          </div>
+
+          {{!-- ADDITIONAL INFO TAB --}}
+          <div class="tab-pane fade" id="tab_additional">
+            <div class="row m-0">
+              <div class="col-12">
+                <div class="row">
+                  <div class="col-lg-3 col-md-4 col-sm-4 pt-10px pb-10px text-dark-gray alt-font fw-500">
+                    SKU
+                  </div>
+                  <div class="col-lg-9 col-md-8 col-sm-8 pt-10px pb-10px fw-400">
+                    {{product.sku}}
+                  </div>
+                </div>
+                <div class="row bg-very-light-gray">
+                  <div class="col-lg-3 col-md-4 col-sm-4 pt-10px pb-10px text-dark-gray alt-font fw-500">
+                    Category
+                  </div>
+                  <div class="col-lg-9 col-md-8 col-sm-8 pt-10px pb-10px text-capitalize fw-400">
+                    {{product.category}}
+                    {{#if product.sub_category}}, {{product.sub_category}}{{/if}}
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-lg-3 col-md-4 col-sm-4 pt-10px pb-10px text-dark-gray alt-font fw-500">
+                    Collection
+                  </div>
+                  <div class="col-lg-9 col-md-8 col-sm-8 pt-10px pb-10px text-capitalize fw-400">
+                    {{product.collection_name}}
+                  </div>
+                </div>
+                <div class="row bg-very-light-gray">
+                  <div class="col-lg-3 col-md-4 col-sm-4 pt-10px pb-10px text-dark-gray alt-font fw-500">
+                    Length / size
+                  </div>
+                  <div class="col-lg-9 col-md-8 col-sm-8 pt-10px pb-10px fw-400">
+                    {{product.length_size}}
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-lg-3 col-md-4 col-sm-4 pt-10px pb-10px text-dark-gray alt-font fw-500">
+                    Dimensions
+                  </div>
+                  <div class="col-lg-9 col-md-8 col-sm-8 pt-10px pb-10px fw-400">
+                    {{product.dimensions}}
+                  </div>
+                </div>
+                <div class="row bg-very-light-gray">
+                  <div class="col-lg-3 col-md-4 col-sm-4 pt-10px pb-10px text-dark-gray alt-font fw-500">
+                    Diamonds
+                  </div>
+                  <div class="col-lg-9 col-md-8 col-sm-8 pt-10px pb-10px fw-400">
+                    {{product.diamonds}}
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-lg-3 col-md-4 col-sm-4 pt-10px pb-10px text-dark-gray alt-font fw-500">
+                    Gemstones color
+                  </div>
+                  <div class="col-lg-9 col-md-8 col-sm-8 pt-10px pb-10px text-capitalize fw-400">
+                    {{product.gemstones_color}}
+                  </div>
+                </div>
+                <div class="row bg-very-light-gray">
+                  <div class="col-lg-3 col-md-4 col-sm-4 pt-10px pb-10px text-dark-gray alt-font fw-500">
+                    Metal / finish
+                  </div>
+                  <div class="col-lg-9 col-md-8 col-sm-8 pt-10px pb-10px text-capitalize fw-400">
+                    {{product.metal}} / {{product.finish}}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {{!-- SHIPPING TAB --}}
+          <div class="tab-pane fade" id="tab_shipping">
+            <div class="row">
+              <div class="col-md-6 last-paragraph-no-margin sm-mb-30px">
+                <div class="fs-20 alt-font text-dark-gray mb-20px fw-500">
+                  Shipping information
+                </div>
+                <p class="mb-0">
+                  <span class="fw-500 text-dark-gray">Standard:</span>
+                  <span class="fw-400">Arrives in 5–8 business days</span>
+                </p>
+                <p>
+                  <span class="fw-500 text-dark-gray">Express:</span>
+                  <span class="fw-400">Arrives in 2–3 business days</span>
+                </p>
+                <p class="w-80 md-w-100">
+                  Free shipping for orders above ₹999. All shipments are insured and securely packed.
+                </p>
+              </div>
+              <div class="col-md-6 last-paragraph-no-margin">
+                <div class="fs-20 alt-font text-dark-gray mb-20px fw-500">
+                  Return information
+                </div>
+                <p class="w-80 md-w-100">
+                  Easy 7-day return or exchange in unused condition with original packaging.
+                </p>
+                <p class="w-80 md-w-100">
+                  Refunds are processed back to your original payment method after quality check.
+                </p>
+              </div>
+            </div>
+          </div>
+
+        </div> <!-- /.tab-content -->
+      </div>
+    </div>
+  </div>
+</section>
+{{!-- REVIEWS SECTION (PARTIAL) --}}
+{{> reviews product=product}}
+
+<!-- YOU MAY ALSO LIKE -->
+<section class="pt-40px pb-60px">
+  <div class="container">
+    <div class="row justify-content-center mb-3">
+      <div class="col-xl-5 col-lg-6 col-md-8 text-center last-paragraph-no-margin">
+        <h3 class="fw-500 ls-minus-1px text-dark-gray mb-10px">
+          You may also like
+        </h3>
+        <p>More pieces from our {{product.category}} collection.</p>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-12">
+        <ul class="shop-modern shop-wrapper grid grid-4col md-grid-2col sm-grid-2col xs-grid-1col gutter-extra-large text-center">
+          <li class="grid-sizer"></li>
+
+          {{#each relatedProducts}}
+            <li class="grid-item">
+              <div class="shop-box mb-10px">
+                <div class="shop-image mb-25px">
+                  <a href="/product/{{id}}">
+                    {{#if image1}}
+                      <img src="/uploads/{{image1}}" alt="{{name}}">
+                    {{else}}
+                      <img src="https://via.placeholder.com/600x765" alt="{{name}}">
+                    {{/if}}
+                  </a>
+                  <div class="shop-buttons-wrap">
+                    <a href="/product/{{id}}"
+                       class="alt-font btn btn-small btn-box-shadow btn-dark-gray btn-round-edge left-icon add-to-cart">
+                      <i class="feather icon-feather-shopping-bag"></i>
+                      <span class="quick-view-text button-text">View product</span>
+                    </a>
+                  </div>
+                </div>
+                <div class="shop-footer text-center">
+                  <a href="/product/{{id}}" class="text-dark-gray fs-19 fw-500">{{name}}</a>
+                  <div class="price">₹{{price}}</div>
+                </div>
+              </div>
+            </li>
+          {{/each}}
+
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+

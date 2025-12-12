@@ -1,0 +1,351 @@
+<h2 class="section-title">Users</h2>
+
+<!-- SEARCH BAR -->
+<div class="search-bar">
+    <input type="text" id="userSearchInput" placeholder="Search by email or ID...">
+</div>
+
+<!-- USERS TABLE -->
+<table class="admin-table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Email</th>
+            <th>Admin</th>
+            <th>Login Type</th>
+            <th>Created</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody id="usersTableBody">
+        <tr><td colspan="8">Loading...</td></tr>
+    </tbody>
+</table>
+
+<!-- PAGINATION -->
+<div id="usersPagination" class="pagination"></div>
+
+<!-- EDIT MODAL -->
+<div id="editUserModal" class="edit-modal">
+    <div class="edit-box">
+
+        <h3>Edit User</h3>
+
+        <input type="hidden" id="editUserId">
+
+        <label>First Name</label>
+        <input type="text" id="editFirstName">
+
+        <label>Last Name</label>
+        <input type="text" id="editLastName">
+
+        <label>Email</label>
+        <input type="email" id="editEmail">
+
+        <label>Admin Role</label>
+        <select id="editIsAdmin">
+            <option value="0">User</option>
+            <option value="1">Admin</option>
+        </select>
+
+        <div class="edit-actions">
+            <button onclick="saveUserChanges()" class="save-btn">Save</button>
+            <button onclick="closeUserModal()" class="close-btn">Cancel</button>
+        </div>
+
+    </div>
+</div>
+
+<style>
+.search-bar input {
+    width: 100%;
+    padding: 12px 15px;
+    font-size: 1rem;
+    border-radius: 10px;
+    background: #111;
+    border: 1px solid #333;
+    margin-bottom: 20px;
+    color: #fff;
+}
+
+/* Pagination */
+.pagination {
+    margin-top: 15px;
+}
+
+.page-btn {
+    padding: 6px 12px;
+    background: #222;
+    color: #fff;
+    border-radius: 6px;
+    margin-right: 4px;
+    cursor: pointer;
+    border: 1px solid #444;
+}
+
+.page-btn:hover {
+    background: #00c471;
+    color: #000;
+}
+
+.active-page {
+    background: #00c471 !important;
+    color: #000;
+}
+
+/* Delete button */
+.delete-btn {
+    background: #ff3b3b;
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-weight: bold;
+    border: none;
+    margin-left: 5px;
+}
+</style>
+
+<!-- STYLES (self-contained) -->
+<style>
+.section-title { margin: 25px 0 20px; font-size: 1.6rem; color:#fff; }
+
+#usersWrapper { width:100%; }
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #161616;
+  color: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 20px;
+  border: 1px solid rgba(255,255,255,0.04);
+}
+
+.admin-table thead th {
+  background: #1f1f1f;
+  padding: 12px 14px;
+  text-align: left;
+  font-size: .90rem;
+  font-weight: 600;
+}
+
+.admin-table td {
+  padding: 12px 14px;
+  border-top: 1px solid rgba(255,255,255,0.03);
+  vertical-align: middle;
+  font-family: "Courier New", monospace;
+}
+
+.admin-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+.action-btn {
+  padding:6px 10px;
+  border-radius:6px;
+  border:none;
+  cursor:pointer;
+  font-weight:600;
+  background:#00c471;
+  color:#000;
+}
+
+.action-btn:active { transform: translateY(1px); }
+
+/* Modal */
+.edit-modal {
+  position: fixed;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.75);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+}
+
+.edit-box {
+  background: #1b1b1b;
+  padding: 22px;
+  border-radius: 10px;
+  width: 380px;
+  border: 1px solid #333;
+  color: #fff;
+}
+
+.edit-box h3 { margin: 0 0 12px; font-size:1.15rem; }
+
+.edit-box label { display:block; margin-top:10px; opacity:0.85; font-size:.95rem; }
+
+.edit-box input, .edit-box select {
+  width:100%; padding:9px 10px; margin-top:6px;
+  border-radius:8px; border:1px solid #444; background:#111; color:#fff;
+}
+
+.edit-actions { margin-top:18px; display:flex; gap:10px; justify-content:flex-end; }
+
+.save-btn { background:#00c471; color:#000; padding:8px 14px; border-radius:8px; border:none; font-weight:700; }
+.close-btn { background:#444; color:#fff; padding:8px 14px; border-radius:8px; border:none; }
+
+/* small helpers */
+.small-muted { color: #bdbdbd; font-size: .9rem; }
+</style>
+
+<!-- JAVASCRIPT: self-contained fetch + render + edit/save -->
+<script>
+(async function(){
+  const token = localStorage.getItem("token");
+  if (!token) {
+    document.getElementById('usersError').textContent = "No auth token found. Please login.";
+    document.getElementById('usersError').style.display = "block";
+    return;
+  }
+
+  const usersBody = document.getElementById("usersTableBody");
+  const usersError = document.getElementById("usersError");
+
+  function emptyRow(msg = "No users found") {
+    usersBody.innerHTML = `<tr><td colspan="8" style="text-align:center;">${msg}</td></tr>`;
+  }
+
+  async function fetchUsers() {
+    usersError.style.display = "none";
+    usersBody.innerHTML = `<tr><td colspan="8" style="text-align:center;">Loading...</td></tr>`;
+    try {
+      const res = await fetch('/admin/users', { headers: { "Authorization": "Bearer " + token }});
+      if (!res.ok) {
+        const text = await res.text();
+        console.error("fetch /admin/users failed:", res.status, text);
+        usersError.textContent = "Failed to load users (" + res.status + ")";
+        usersError.style.display = "block";
+        emptyRow("Failed to load users");
+        return;
+      }
+      const data = await res.json();
+      if (!data || !Array.isArray(data.users)) {
+        console.error("unexpected /admin/users response:", data);
+        emptyRow("No users data");
+        return;
+      }
+      renderUsers(data.users);
+    } catch (err) {
+      console.error("Error fetching users:", err);
+      usersError.textContent = "Network error loading users";
+      usersError.style.display = "block";
+      emptyRow("Network error");
+    }
+  }
+
+  function safeStr(v) { return (v === null || v === undefined) ? "" : String(v); }
+
+  function renderUsers(list) {
+    if (!list.length) return emptyRow("No users available");
+
+    usersBody.innerHTML = list.map(u => {
+      // fields from your DB: id, first_name, last_name, email, is_admin, login_type, created_at
+      const id = safeStr(u.id);
+      const first = safeStr(u.first_name);
+      const last = safeStr(u.last_name);
+      const email = safeStr(u.email);
+      const isAdmin = (u.is_admin == "1" || u.is_admin === 1 || u.is_admin === true) ? "Admin" : "User";
+      const loginType = safeStr(u.login_type) || "email";
+      // created_at might be string - handle gracefully
+      let created = "";
+      try {
+        created = u.created_at ? new Date(u.created_at).toLocaleString() : "";
+      } catch(e) { created = safeStr(u.created_at); }
+
+      // ensure escaping single quotes for onclick arguments
+      const escFirst = first.replace(/'/g, "\\'");
+      const escLast  = last.replace(/'/g, "\\'");
+      const escEmail = email.replace(/'/g, "\\'");
+
+      return `
+        <tr>
+          <td>${id}</td>
+          <td>${first}</td>
+          <td>${last}</td>
+          <td>${email}</td>
+          <td>${isAdmin}</td>
+          <td>${loginType}</td>
+          <td>${created}</td>
+          <td>
+            <button class="action-btn" onclick="openUserEditInline(${id}, '${escFirst}', '${escLast}', '${escEmail}', ${u.is_admin == "1" ? 1 : 0})">Edit</button>
+          </td>
+        </tr>
+      `;
+    }).join("");
+  }
+
+  // expose edit functions to global scope used by onclick
+  window.openUserEditInline = function(id, first, last, email, isAdminVal) {
+    document.getElementById('editUserId').value = id;
+    document.getElementById('editFirstName').value = first || "";
+    document.getElementById('editLastName').value = last || "";
+    document.getElementById('editEmail').value = email || "";
+    document.getElementById('editIsAdmin').value = (isAdminVal == 1 ? 1 : 0);
+    document.getElementById('editUserModal').style.display = 'flex';
+    document.getElementById('editUserModal').setAttribute('aria-hidden','false');
+    document.getElementById('editUserMsg').style.display = 'none';
+  };
+
+  window.closeUserModal = function() {
+    document.getElementById('editUserModal').style.display = 'none';
+    document.getElementById('editUserModal').setAttribute('aria-hidden','true');
+  };
+
+  // save handler
+  document.getElementById('saveUserBtn').addEventListener('click', async function () {
+    const id = document.getElementById('editUserId').value;
+    const first = document.getElementById('editFirstName').value.trim();
+    const last = document.getElementById('editLastName').value.trim();
+    const email = document.getElementById('editEmail').value.trim();
+    const is_admin = Number(document.getElementById('editIsAdmin').value);
+
+    const msgEl = document.getElementById('editUserMsg');
+    msgEl.style.display = 'none';
+    msgEl.textContent = '';
+
+    if (!id) { msgEl.style.display='block'; msgEl.textContent='Missing user id'; return; }
+    if (!first || !last || !email) { msgEl.style.display='block'; msgEl.textContent='First name, last name and email are required'; return; }
+
+    try {
+      document.getElementById('saveUserBtn').disabled = true;
+      const res = await fetch(`/admin/users/${id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify({ first_name: first, last_name: last, email: email, is_admin: is_admin })
+      });
+
+      if (!res.ok) {
+        const text = await res.text();
+        console.error('Save user error:', res.status, text);
+        msgEl.style.display='block';
+        msgEl.style.color='#ff8080';
+        msgEl.textContent = 'Failed to save user: ' + res.status;
+        return;
+      }
+
+      // success — refresh list and close modal
+      await fetchUsers();
+      closeUserModal();
+
+    } catch (err) {
+      console.error('Network error saving user:', err);
+      msgEl.style.display='block';
+      msgEl.style.color='#ff8080';
+      msgEl.textContent = 'Network error saving user';
+    } finally {
+      document.getElementById('saveUserBtn').disabled = false;
+    }
+  });
+
+  // initial load
+  await fetchUsers();
+
+})();
+</script>

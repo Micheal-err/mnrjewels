@@ -1,25 +1,35 @@
-const mysql = require('mysql2');
-const fs = require('fs');
-const dotenv = require('dotenv');
-dotenv.config();
+// db.js
+const mysql = require("mysql2/promise");
+const fs = require("fs");
+require("dotenv").config();
 
-const db = mysql.createConnection({
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  ssl: {
-    ca: fs.readFileSync('./ca.pem')    // REQUIRED for Aiven
+let pool;
+
+(async () => {
+  try {
+    pool = mysql.createPool({
+      host: process.env.DB_HOST,
+      port: process.env.DB_PORT,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
+      waitForConnections: true,
+      connectionLimit: 10,
+      ssl: {
+        ca: fs.readFileSync("./ca.pem")
+      }
+    });
+
+    // Test connection
+    const conn = await pool.getConnection();
+    console.log("✅ Database Connected Successfully");
+    console.log("→ Host:", process.env.DB_HOST);
+    console.log("→ Database:", process.env.DB_NAME);
+    conn.release();
+
+  } catch (err) {
+    console.error("❌ DB Connection Failed:", err);
   }
-});
+})();
 
-db.connect((err) => {
-  if (err) {
-    console.error('MySQL connection error:', err);
-  } else {
-    console.log('Connected to Aiven MySQL');
-  }
-});
-
-module.exports = db;
+module.exports = pool;

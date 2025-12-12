@@ -1,0 +1,331 @@
+<h2 class="section-title">Contact Messages</h2>
+
+<!-- FILTER BAR -->
+<div class="msg-filter-row">
+    <div>
+        <label>Status</label>
+        <select id="filterStatus" class="msg-select">
+            <option value="">All</option>
+            <option value="1">Unread</option>
+            <option value="0">Read</option>
+        </select>
+    </div>
+
+    <div class="filter-spacer"></div>
+
+    <input id="messageSearchInput" class="msg-search" placeholder="Search name, email or message">
+
+    <button id="clearMsgFilters" class="msg-btn msg-reset">Reset</button>
+</div>
+
+
+<!-- MESSAGES TABLE -->
+<table class="admin-table msg-table">
+    <thead>
+        <tr>
+            <th style="width:60px">ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Message</th>
+            <th style="width:100px">Status</th>
+            <th style="width:150px;text-align:center;">Actions</th>
+        </tr>
+    </thead>
+
+    <tbody id="messagesTableBody">
+        <tr><td colspan="7">Loading...</td></tr>
+    </tbody>
+</table>
+
+<div id="messagesPagination" class="pagination"></div>
+
+
+
+<!-- VIEW FULL MESSAGE MODAL -->
+<div id="viewMessageModal" class="msg-modal">
+    <div class="msg-modal-box">
+        <h3>Message</h3>
+        <p id="fullMessageText"></p>
+
+        <div class="modal-actions">
+            <button class="msg-btn msg-close-btn" onclick="closeMessageView()">Close</button>
+        </div>
+    </div>
+</div>
+
+
+<!-- EDIT MESSAGE MODAL -->
+<div id="messageModal" class="msg-modal">
+    <div class="msg-modal-box">
+        <h3 id="messageModalTitle">Edit Message</h3>
+
+        <input type="hidden" id="editMessageId">
+
+        <label>Name</label>
+        <input type="text" id="editMessageName" class="msg-input">
+
+        <label>Email</label>
+        <input type="email" id="editMessageEmail" class="msg-input">
+
+        <label>Phone</label>
+        <input type="text" id="editMessagePhone" class="msg-input">
+
+        <label>Status</label>
+        <select id="editMessageStatus" class="msg-select">
+            <option value="1">Unread</option>
+            <option value="0">Read</option>
+        </select>
+
+        <label>Message</label>
+        <textarea id="editMessageBody" rows="5" class="msg-textarea"></textarea>
+
+        <div class="modal-actions">
+            <button id="saveMessageBtn" class="msg-btn msg-save">Save</button>
+            <button id="cancelMessageBtn" class="msg-btn msg-close-btn">Cancel</button>
+        </div>
+
+        <div id="messageModalMsg" style="display:none;color:#ff9b9b;margin-top:10px;">Error saving message</div>
+    </div>
+</div>
+
+
+<style>
+/* FILTER BAR */
+.msg-filter-row {
+    display: grid;
+    grid-template-columns: 180px 1fr 280px 100px;
+    gap: 14px;
+    align-items: end;
+    margin-bottom: 20px;
+}
+
+.msg-select,
+.msg-input,
+.msg-textarea,
+.msg-search {
+    width: 100%;
+    padding: 10px;
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 8px;
+    color: #fff;
+}
+
+.msg-btn {
+    padding: 10px 14px;
+    background: #222;
+    border: 1px solid #444;
+    border-radius: 8px;
+    color: #fff;
+    cursor: pointer;
+}
+
+.msg-reset { background: #333; }
+.msg-save { background: #00c471; color: #000; }
+.msg-close-btn { background: #444; }
+
+/* STATUS CHIPS */
+.status-chip {
+    padding: 6px 12px;
+    border-radius: 14px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-block;
+}
+.status-read { background: #d1ffd6; color:#0d3b23; }
+.status-unread { background: #ffe9a3; color:#7a4e00; }
+
+/* ACTION ICONS */
+.msg-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+.msg-actions i {
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 6px;
+    background: #1c1c1c;
+    border: 1px solid #333;
+    color: #ccc;
+    transition: .2s;
+}
+.msg-actions i:hover { background: #333; color:#fff; }
+
+/* MODAL */
+.msg-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+}
+
+.msg-modal-box {
+    width: 480px;
+    background: #1a1a1a;
+    padding: 20px;
+    border-radius: 12px;
+}
+
+.modal-actions {
+    margin-top: 15px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+</style>
+
+
+<script>
+(function(){
+
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    window.allMessages = [];
+    window.msgPage = 1;
+    window.msgRows = 10;
+
+    const $ = id => document.getElementById(id);
+    const esc = s => String(s||"").replace(/[&<>]/g,t=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[t]));
+
+    /* Load messages */
+    window.loadMessages = async function(){
+        const res = await fetch("/admin/messages", { headers:{ "Authorization":"Bearer "+token }});
+        const data = await res.json();
+        window.allMessages = data.messages || [];
+        render();
+    };
+
+    /* Render table */
+    function render(){
+        const body = $("messagesTableBody");
+        const q = ($("messageSearchInput")?.value||"").toLowerCase();
+        const s = $("filterStatus")?.value;
+
+        let list = window.allMessages.filter(m=>{
+            if(s !== "" && String(m.status) !== s) return false;
+            return (m.name||"").toLowerCase().includes(q) ||
+                   (m.email||"").toLowerCase().includes(q) ||
+                   (m.message||"").toLowerCase().includes(q);
+        });
+
+        const start = (window.msgPage-1)*window.msgRows;
+        const page = list.slice(start,start+window.msgRows);
+
+        if(!page.length){
+            body.innerHTML = `<tr><td colspan="7" style="text-align:center;">No messages found</td></tr>`;
+            return;
+        }
+
+        body.innerHTML = page.map(m=>`
+            <tr>
+                <td>${m.id}</td>
+                <td>${esc(m.name)}</td>
+                <td>${esc(m.email)}</td>
+                <td>${esc(m.phone)}</td>
+                <td onclick="viewFullMessage('${esc(m.message)}')" style="cursor:pointer;color:#77baff;">
+                    ${esc(m.message).slice(0,50)}${m.message.length>50?'...':''}
+                </td>
+                <td><span class="status-chip ${m.status==1?'status-unread':'status-read'}">
+                    ${m.status==1?"Unread":"Read"}
+                </span></td>
+                <td>
+                    <div class="msg-actions">
+                        <i data-feather="edit" onclick="openMessageEdit(${m.id})"></i>
+                        <i data-feather="check" onclick="toggleMessageStatus(${m.id},${m.status})"></i>
+                        <i data-feather="trash" onclick="deleteMessage(${m.id})"></i>
+                    </div>
+                </td>
+            </tr>
+        `).join("");
+
+        feather.replace();
+    }
+
+    /* View full message */
+    window.viewFullMessage = function(msg){
+        $("fullMessageText").innerText = msg;
+        $("viewMessageModal").style.display="flex";
+    };
+    window.closeMessageView = ()=> $("viewMessageModal").style.display="none";
+
+    /* Toggle read/unread */
+    window.toggleMessageStatus = async function(id,current){
+        const newStatus = current ? 0 : 1;
+        await fetch(`/admin/messages/${id}`,{
+            method:"POST",
+            headers:{ "Authorization":"Bearer "+token, "Content-Type":"application/json" },
+            body:JSON.stringify({status:newStatus})
+        });
+        window.allMessages.find(m=>m.id===id).status=newStatus;
+        render();
+        showToast("Status updated");
+    };
+
+    /* Edit modal */
+    window.openMessageEdit = function(id){
+        const m = window.allMessages.find(x=>x.id===id);
+        $("editMessageId").value = id;
+        $("editMessageName").value = m.name;
+        $("editMessageEmail").value = m.email;
+        $("editMessagePhone").value = m.phone;
+        $("editMessageBody").value = m.message;
+        $("editMessageStatus").value = m.status;
+        $("messageModal").style.display="flex";
+    };
+    $("cancelMessageBtn").onclick = ()=> $("messageModal").style.display="none";
+
+    $("saveMessageBtn").onclick = async function(){
+        const id = $("editMessageId").value;
+        const body = {
+            name: $("editMessageName").value,
+            email: $("editMessageEmail").value,
+            phone: $("editMessagePhone").value,
+            message: $("editMessageBody").value,
+            status: Number($("editMessageStatus").value)
+        };
+
+        await fetch(`/admin/messages/${id}`,{
+            method:"POST",
+            headers:{ "Authorization":"Bearer "+token, "Content-Type":"application/json" },
+            body:JSON.stringify(body)
+        });
+
+        showToast("Message updated");
+        $("messageModal").style.display="none";
+        loadMessages();
+    };
+
+    /* Delete */
+    window.deleteMessage = async function(id){
+        await fetch(`/admin/messages/${id}/delete`,{
+            method:"POST",
+            headers:{ "Authorization":"Bearer "+token }
+        });
+        window.allMessages = window.allMessages.filter(m=>m.id!==id);
+        render();
+        showToast("Message deleted");
+    };
+
+    /* Filters */
+    $("messageSearchInput").oninput = $("filterStatus").onchange = ()=>{
+        window.msgPage=1; render();
+    };
+
+    $("clearMsgFilters").onclick = ()=>{
+        $("messageSearchInput").value="";
+        $("filterStatus").value="";
+        window.msgPage=1;
+        render();
+    };
+
+    /* INIT */
+    setTimeout(loadMessages,100);
+
+})();
+</script>

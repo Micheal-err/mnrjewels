@@ -1,0 +1,475 @@
+<section class="account-section" style="margin-top: 7rem;">
+    <div class="container">
+
+        <!-- ================= AUTH (LOGIN + SIGNUP) ================= -->
+        <div id="authWrapper" class="row g-0 justify-content-between align-items-stretch">
+
+            <!-- ================= LOGIN CARD ================= -->
+            <div class="col-xl-4 col-lg-5 col-md-10 mb-4 mb-lg-0">
+                <div class="bg-white border-radius-10px box-shadow-extra-large p-4 h-100 d-flex flex-column justify-content-between">
+                    <div>
+                        <span class="fs-26 alt-font fw-500 text-dark-gray mb-10px d-block">Welcome back 👋</span>
+                        <p class="mb-20px fs-14 text-muted">Login to view your profile, orders and manage your account.</p>
+
+                        <form id="loginForm">
+                            <label class="fw-500 fs-14">Email *</label>
+                            <input class="mb-15px form-control" type="email" name="login_email" required placeholder="Enter email">
+
+                            <label class="fw-500 fs-14">Password *</label>
+                            <input class="mb-15px form-control" type="password" name="login_password" required placeholder="Enter password">
+
+                            <button class="btn btn-medium btn-dark-gray w-100 mb-10px" type="submit">
+                                Login
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- OR DIVIDER -->
+                    <div class="mt-3">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="flex-grow-1 border-top border-color-extra-medium-gray"></div>
+                            <span class="px-3 fs-13 text-uppercase alt-font text-dark-gray">or continue with</span>
+                            <div class="flex-grow-1 border-top border-color-extra-medium-gray"></div>
+                        </div>
+
+                        <!-- SOCIAL LOGIN BUTTONS -->
+                        <div class="d-grid gap-2">
+                            <a href="/auth/google" class="btn btn-small bg-white border border-color-extra-medium-gray d-flex align-items-center justify-content-center">
+                                <i class="fa-brands fa-google me-10px"></i>
+                                <span class="alt-font fs-14">Continue with Google</span>
+                            </a>
+                            <a href="/auth/facebook" class="btn btn-small bg-white border border-color-extra-medium-gray d-flex align-items-center justify-content-center">
+                                <i class="fa-brands fa-facebook-f me-10px"></i>
+                                <span class="alt-font fs-14">Continue with Facebook</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= SIGNUP CARD ================= -->
+            <div class="col-lg-6 col-md-10">
+                <div class="bg-light-medium-gray p-4 border-radius-10px box-shadow-extra-large h-100 d-flex flex-column justify-content-between">
+                    <div>
+                        <span class="fs-26 alt-font fw-500 mb-10px d-block text-white">Create an account ✨</span>
+                        <p class="mb-20px fs-14 text-white-75">Track your orders, save wishlist and manage your details easily.</p>
+
+                        <form id="registerForm">
+                            <div class="row">
+                                <div class="col-md-6 mb-2">
+                                    <label class="fs-14 text-white">First Name *</label>
+                                    <input class="form-control" name="first_name" type="text" required />
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <label class="fs-14 text-white">Last Name *</label>
+                                    <input class="form-control" name="last_name" type="text" required />
+                                </div>
+                            </div>
+
+                            <label class="fs-14 text-white mt-2">Email *</label>
+                            <input class="form-control mb-2" name="email" type="email" required />
+
+                            <label class="fs-14 text-white">Password *</label>
+                            <input class="form-control mb-3" name="password" type="password" required />
+
+                            <div class="mb-3">
+                                <label class="d-flex align-items-start" style="cursor:pointer;">
+                                    <input type="checkbox" id="agreeCheck" class="me-2 mt-1" />
+                                    <span class="text-white fs-13">
+                                        By creating an account, you agree to our
+                                        <a href="/privacy-policy" class="text-white text-decoration-underline">Privacy Policy</a>
+                                        &
+                                        <a href="/terms" class="text-white text-decoration-underline">Terms & Conditions</a>.
+                                    </span>
+                                </label>
+                            </div>
+
+                            <button class="btn text-white border-white w-100 p-1 mb-15px" type="submit">
+                                Create account
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="mt-3">
+                        <div class="d-flex align-items-center my-3">
+                            <div class="flex-grow-1 border-top border-color-extra-medium-gray"></div>
+                            <span class="px-3 fs-13 text-uppercase alt-font text-white">or sign up with</span>
+                            <div class="flex-grow-1 border-top border-color-extra-medium-gray"></div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <a href="/auth/google" class="btn btn-small bg-white border border-color-extra-medium-gray d-flex align-items-center justify-content-center">
+                                <i class="fa-brands fa-google me-10px"></i>
+                                <span class="alt-font fs-14">Google</span>
+                            </a>
+                            <a href="/auth/facebook" class="btn btn-small bg-white border border-color-extra-medium-gray d-flex align-items-center justify-content-center">
+                                <i class="fa-brands fa-facebook-f me-10px"></i>
+                                <span class="alt-font fs-14">Facebook</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== ACCOUNT DASHBOARD ===================== -->
+        <div id="accountWrapper" class="d-none">
+            <div class="bg-light border-radius-10px box-shadow-extra-large p-4">
+
+                <!-- HEADER -->
+                <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+                    <div>
+                        <h2 class="alt-font fw-500 mb-0">My Account</h2>
+                        <p class="fs-13 text-muted mb-0">Manage your profile, security and orders.</p>
+                    </div>
+                    <span id="loginMethodBadge"
+                          class="badge bg-dark-gray text-white fs-12 px-3 py-1 border-radius-30px">
+                    </span>
+                </div>
+
+                <!-- ADMIN DASHBOARD BUTTON -->
+                <div id="adminPanelBtnWrapper" class="mb-3 d-none">
+                    <a href="/admin/dashboard" class="btn btn-dark-gray w-100">
+                        Go to Admin Dashboard
+                    </a>
+                </div>
+
+                <!-- BASIC INFO -->
+                <div class="row">
+                    <div class="col-md-4 mb-2">
+                        <p class="mb-1 fs-14 text-muted">First Name</p>
+                        <p class="fw-500" id="acc_first_name"></p>
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <p class="mb-1 fs-14 text-muted">Last Name</p>
+                        <p class="fw-500" id="acc_last_name"></p>
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <p class="mb-1 fs-14 text-muted">Email</p>
+                        <p class="fw-500" id="acc_email"></p>
+                    </div>
+                </div>
+
+                <hr>
+
+                <!-- PROFILE UPDATE -->
+                <div class="bg-white p-4 border-radius-10px mt-3">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h3 class="alt-font mb-0 fs-18">Profile details</h3>
+                        <span class="fs-12 text-muted">Update your name</span>
+                    </div>
+
+                    <form id="editProfileForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-2">
+                                <label class="fs-14">First Name *</label>
+                                <input type="text" id="edit_first_name" class="form-control" required>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label class="fs-14">Last Name *</label>
+                                <input type="text" id="edit_last_name" class="form-control" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-2 mt-2">
+                            <label class="fs-14">Email (read-only)</label>
+                            <input type="email" id="edit_email" class="form-control" disabled>
+                        </div>
+
+                        <button type="submit" class="btn btn-dark-gray mt-3">
+                            Save changes
+                        </button>
+                    </form>
+                </div>
+
+                <!-- PASSWORD SECTION (HIDDEN FOR SOCIAL USERS + ADMINS) -->
+                <div id="passwordSection" class="bg-white p-4 mt-4 border-radius-10px">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h3 class="alt-font mb-0 fs-18">Security</h3>
+                        <span class="fs-12 text-muted">Email & password login only</span>
+                    </div>
+
+                    <form id="changePassForm">
+                        <label class="fs-14">Old Password *</label>
+                        <input class="form-control mb-2" type="password" name="old_password" required>
+
+                        <label class="fs-14">New Password *</label>
+                        <input class="form-control mb-2" type="password" name="new_password" required>
+
+                        <button class="btn btn-dark-gray mt-2" type="submit">
+                            Update password
+                        </button>
+                    </form>
+                </div>
+
+                <!-- ORDERS (HIDDEN FOR ADMIN USERS) -->
+                <div id="ordersSection" class="bg-white p-4 mt-4 border-radius-10px">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h3 class="alt-font mb-0 fs-18">My Orders</h3>
+                        <span class="fs-12 text-muted">Recent activity</span>
+                    </div>
+
+                    <div id="ordersList">Loading orders...</div>
+                </div>
+
+                <!-- LOGOUT -->
+                <div class="d-flex justify-content-end mt-4">
+                    <button id="logoutBtn" class="btn btn-outline-dark-gray">
+                        Logout
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="/js/jquery.js"></script>
+
+<!-- ======================= SOCIAL LOGIN HANDLER ======================= -->
+<script>
+(function handleSocialCallback() {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+    const userEncoded = params.get("user");
+
+    if (!token || !userEncoded) return;
+
+    try {
+        const userJson = atob(userEncoded);
+        const user = JSON.parse(userJson);
+
+        localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(user));
+
+        window.history.replaceState({}, document.title, "/account");
+    } catch (e) {
+        console.error("Social login parse error:", e);
+    }
+})();
+</script>
+
+<!-- ======================= MAIN ACCOUNT LOGIC ======================= -->
+<script>
+(function () {
+
+    function showToast(icon, title) {
+        Swal.fire({
+            icon,
+            title,
+            toast: true,
+            position: "top-right",
+            timer: 2200,
+            showConfirmButton: false
+        });
+    }
+
+    async function checkLoginStatus() {
+        const userData = localStorage.getItem("user");
+        if (!userData) return;
+
+        const user = JSON.parse(userData);
+
+        $("#authWrapper").addClass("d-none");
+        $("#accountWrapper").removeClass("d-none");
+
+        $("#acc_first_name").text(user.first_name || "");
+        $("#acc_last_name").text(user.last_name || "");
+        $("#acc_email").text(user.email || "");
+
+        $("#edit_first_name").val(user.first_name || "");
+        $("#edit_last_name").val(user.last_name || "");
+        $("#edit_email").val(user.email || "");
+
+        const provider = user.provider || "local";
+
+        /* ================= ADMIN CHECK ================= */
+        if (user.admin === true) {
+            $("#adminPanelBtnWrapper").removeClass("d-none");
+            $("#ordersSection").addClass("d-none");
+            $("#passwordSection").addClass("d-none");
+            $("#loginMethodBadge").text("ADMIN");
+            return;
+        }
+
+        /* ==== Social user → no password section ==== */
+        if (provider !== "local") {
+            $("#passwordSection").addClass("d-none");
+            $("#loginMethodBadge").text("Signed in with " + provider);
+        } else {
+            $("#loginMethodBadge").text("Signed in with Email");
+        }
+
+        loadOrders();
+    }
+
+    /* LOGIN */
+    $("#loginForm").submit(async function (e) {
+        e.preventDefault();
+
+        const data = {
+            email: $("input[name='login_email']").val().trim(),
+            password: $("input[name='login_password']").val().trim()
+        };
+
+        const res = await fetch("/api/users/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        });
+
+        const result = await res.json();
+
+        if (!result.success) {
+            return showToast("error", result.message);
+        }
+
+        localStorage.setItem("token", result.token);
+        localStorage.setItem("user", JSON.stringify(result.user));
+
+        showToast("success", "Login successful!");
+        checkLoginStatus();
+    });
+
+    /* REGISTER */
+    $("#registerForm").submit(async function (e) {
+        e.preventDefault();
+
+        if (!$("#agreeCheck").is(":checked")) {
+            return showToast("warning", "Please agree to Privacy Policy & T&C");
+        }
+
+        const data = Object.fromEntries(new FormData(this).entries());
+
+        const res = await fetch("/api/users/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        });
+
+        const result = await res.json();
+
+        if (!result.success) {
+            return showToast("error", result.message);
+        }
+
+        localStorage.setItem("user", JSON.stringify(result.user));
+        localStorage.setItem("token", result.token);
+
+        showToast("success", "Account created!");
+        checkLoginStatus();
+    });
+
+    /* EDIT PROFILE */
+    $("#editProfileForm").submit(async function (e) {
+        e.preventDefault();
+
+        const user = JSON.parse(localStorage.getItem("user") || "{}");
+
+        const updated = {
+            first_name: $("#edit_first_name").val().trim(),
+            last_name: $("#edit_last_name").val().trim(),
+            email: user.email
+        };
+
+        const res = await fetch(`/api/users/${user.id}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + localStorage.getItem("token")
+            },
+            body: JSON.stringify(updated)
+        });
+
+        const result = await res.json();
+
+        if (!result.success) {
+            return showToast("error", result.message);
+        }
+
+        const newUser = { ...user, ...updated };
+        localStorage.setItem("user", JSON.stringify(newUser));
+
+        $("#acc_first_name").text(newUser.first_name);
+        $("#acc_last_name").text(newUser.last_name);
+
+        showToast("success", "Profile updated");
+    });
+
+    /* CHANGE PASSWORD */
+    $("#changePassForm").submit(async function (e) {
+        e.preventDefault();
+
+        const data = {
+            old_password: $("input[name='old_password']").val(),
+            new_password: $("input[name='new_password']").val()
+        };
+
+        const res = await fetch("/api/users/change-password", {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + localStorage.getItem("token")
+            },
+            body: JSON.stringify(data)
+        });
+
+        const result = await res.json();
+
+        if (!result.success) {
+            return showToast("error", result.message);
+        }
+
+        showToast("success", "Password updated!");
+        $("#changePassForm")[0].reset();
+    });
+
+    /* LOAD ORDERS */
+    async function loadOrders() {
+        const user = JSON.parse(localStorage.getItem("user") || "{}");
+
+        try {
+            const res = await fetch(`/api/orders/my-orders/${user.id}`, {
+                headers: { "Authorization": localStorage.getItem("token") }
+            });
+
+            const data = await res.json();
+            const orders = Array.isArray(data) ? data : [];
+
+            if (!orders.length) {
+                $("#ordersList").html("<p class='mb-0 fs-14 text-muted'>No orders found.</p>");
+                return;
+            }
+
+            let html = "";
+            orders.forEach(o => {
+                html += `
+                <div class="border border-color-extra-medium-gray p-3 my-2 border-radius-6px">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="fw-500">Order #${o.id}</span>
+                        <span class="badge bg-dark-gray text-white fs-11 text-uppercase">${o.status}</span>
+                    </div>
+                    <p class="mb-0 fs-14">Total: ₹${o.total_amount}</p>
+                </div>`;
+            });
+
+            $("#ordersList").html(html);
+
+        } catch (e) {
+            console.error(e);
+            $("#ordersList").html("<p class='mb-0 fs-14 text-danger'>Unable to load orders.</p>");
+        }
+    }
+
+    /* LOGOUT */
+    $("#logoutBtn").click(function () {
+        localStorage.clear();
+        window.location.href = "/account";
+    });
+
+    checkLoginStatus();
+
+})();
+</script>

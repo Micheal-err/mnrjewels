@@ -1,0 +1,430 @@
+{{!-- ================================
+     CUSTOMER REVIEWS SECTION
+     Fully dynamic via reviews.js
+================================ --}}
+
+<section id="reviews" class="pt-60px pb-40px">
+  <div class="container">
+
+    <!-- HEADER -->
+    <div class="row align-items-center mb-30px">
+      <div class="col-md-8">
+        <h3 class="alt-font text-dark-gray fw-500 mb-5px text-uppercase fs-20">
+          Customer reviews
+        </h3>
+
+        <div class="d-flex align-items-center gap-2">
+          <div class="review-stars-lg" id="reviewAvgStars"><span>★★★★★</span></div>
+          <div class="fs-14" id="reviewStatsText">
+            <span class="text-muted">No reviews yet</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4 text-md-end mt-3 mt-md-0">
+        <button type="button"
+          id="openReviewBtn"
+          class="btn btn-dark-gray btn-small alt-font text-uppercase">
+          Write a review
+        </button>
+      </div>
+    </div>
+
+    <!-- FILTER / SORT -->
+    <div class="row mb-15px">
+      <div class="col-12 d-flex align-items-center justify-content-between border-top border-bottom border-color-extra-medium-gray py-2">
+
+        <div class="fs-13">
+          Reviews (<span id="reviewsTotal">0</span>)
+        </div>
+
+        <div class="d-flex gap-3 align-items-center">
+          <div class="d-flex  flex-column">
+            <label class="fs-12 me-2 text-uppercase alt-font text-muted">Sort by</label>
+            <select id="sortSelect" class="form-select form-select-sm " style="width:auto;">
+              <option value="rating_desc">Highest rating &nbsp;</option>
+              <option value="rating_asc">Lowest rating &nbsp;</option>
+              <option value="newest">Newest &nbsp;</option>
+              <option value="oldest">Oldest &nbsp;</option>
+            </select>
+          </div>
+
+          <div class="d-flex flex-column">
+            <label class="fs-12 me-2 text-uppercase alt-font text-muted">Per page</label>
+            <select id="perPageSelect" class="form-select form-select-sm" style="width:auto;">
+              <option value="5">5 &nbsp;</option>
+              <option value="10" selected>10 &nbsp;</option>
+              <option value="20">20 &nbsp;</option>
+            </select>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- REVIEWS LIST -->
+    <div class="row">
+      <div class="col-12">
+        <div id="reviewsContainer">
+          <p class="fs-14 text-muted">Loading reviews…</p>
+        </div>
+
+        <!-- PAGINATION -->
+        <nav class="mt-3">
+          <ul id="reviewsPagination" class="pagination justify-content-center"></ul>
+        </nav>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+{{!-- ================================
+     WRITE / EDIT REVIEW MODAL
+================================ --}}
+<div class="modal fade" id="writeReviewModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content review-modal">
+
+      <div class="modal-header border-0">
+        <h5 class="modal-title alt-font text-dark-gray text-uppercase fs-18">
+          Write a review
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body pt-0">
+        <form id="reviewForm">
+          <input type="hidden" id="reviewId" name="review_id" value="">
+          <input type="hidden" name="product_id" value="{{product.id}}">
+
+          <div class="mb-3">
+            <label class="fs-12 alt-font text-uppercase">Your name*</label>
+            <input type="text" name="name" class="form-control review-input" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="fs-12 alt-font text-uppercase">Your email*</label>
+            <input type="email" name="email" class="form-control review-input" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="fs-12 alt-font text-uppercase">Review title*</label>
+            <input type="text" name="title" class="form-control review-input" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="fs-12 alt-font text-uppercase">Rating*</label>
+            <select name="rating" class="form-select" required>
+              <option value="">Select</option>
+              <option value="5">5 – Excellent</option>
+              <option value="4">4 – Good</option>
+              <option value="3">3 – Average</option>
+              <option value="2">2 – Poor</option>
+              <option value="1">1 – Terrible</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="fs-12 alt-font text-uppercase">Your review*</label>
+            <textarea name="comment" rows="4" class="form-control" required></textarea>
+          </div>
+
+          <div class="text-end">
+            <button type="submit" id="reviewSubmitBtn"
+              class="btn btn-dark-gray btn-small alt-font text-uppercase px-4">
+              Submit Review
+            </button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+(function () {
+
+  const PRODUCT_ID = {{product.id}};
+  const API_URL = `/api/reviews/product/${PRODUCT_ID}/reviews`;
+
+  let reviews = [];
+  let currentPage = 1;
+
+  // Elements
+  const reviewListEl = document.getElementById("reviewsContainer");
+  const reviewsTotalEl = document.getElementById("reviewsTotal");
+  const avgStarsEl = document.getElementById("reviewAvgStars");
+  const statsTextEl = document.getElementById("reviewStatsText");
+  const sortSelect = document.getElementById("sortSelect");
+  const perPageSelect = document.getElementById("perPageSelect");
+  const paginationEl = document.getElementById("reviewsPagination");
+
+  const reviewModal = document.getElementById("writeReviewModal");
+  const reviewForm = document.getElementById("reviewForm");
+  const submitBtn = document.getElementById("reviewSubmitBtn");
+  const reviewIdField = document.getElementById("reviewId");
+  const openReviewBtn = document.getElementById("openReviewBtn");
+
+  // Helpers
+  const getUser = () => {
+    try { return JSON.parse(localStorage.getItem("user")); } catch { return null; }
+  };
+
+  const escapeHtml = str =>
+    String(str).replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+
+  const stars = n => "★".repeat(n) + "☆".repeat(5 - n);
+
+  function toast(icon, title) {
+    Swal.fire({
+      toast: true,
+      position: "top-end",
+      showConfirmButton: false,
+      timer: 1500,
+      icon,
+      title
+    });
+  }
+
+  // Fetch Reviews
+  async function fetchReviews() {
+    reviewListEl.innerHTML = `<p class="text-muted">Loading reviews…</p>`;
+    try {
+      const res = await fetch(API_URL);
+      const data = await res.json();
+      reviews = data.reviews || [];
+      renderAll();
+    } catch {
+      reviewListEl.innerHTML = `<p class="text-muted">Unable to load reviews</p>`;
+    }
+  }
+
+  // Stats
+  function renderStats() {
+    const t = reviews.length;
+    reviewsTotalEl.textContent = t;
+
+    if (!t) {
+      avgStarsEl.innerHTML = "<span>★★★★★</span>";
+      statsTextEl.textContent = "No reviews yet";
+      return;
+    }
+
+    const avg = reviews.reduce((s, r) => s + Number(r.rating), 0) / t;
+    avgStarsEl.innerHTML = `<span>${stars(Math.round(avg))}</span>`;
+    statsTextEl.innerHTML = `<strong>${avg.toFixed(1)}</strong> / 5 · ${t} review${t>1?"s":""}`;
+  }
+
+  // Sorting
+  function sortedReviews() {
+    const arr = [...reviews];
+    const s = sortSelect.value;
+
+    return arr.sort((a, b) => {
+      if (s === "rating_desc") return b.rating - a.rating;
+      if (s === "rating_asc") return a.rating - b.rating;
+      if (s === "newest") return new Date(b.created_at_formatted) - new Date(a.created_at_formatted);
+      if (s === "oldest") return new Date(a.created_at_formatted) - new Date(b.created_at_formatted);
+    });
+  }
+
+  // Pagination
+  function renderPage(page = 1) {
+    const list = sortedReviews();
+    const perPage = Number(perPageSelect.value);
+    const total = list.length;
+    const pages = Math.ceil(total / perPage);
+
+    currentPage = Math.min(Math.max(page, 1), pages);
+
+    const start = (currentPage - 1) * perPage;
+    const chunk = list.slice(start, start + perPage);
+
+    if (!chunk.length) {
+      reviewListEl.innerHTML = `<p class="text-muted">Be the first to review this product.</p>`;
+      paginationEl.innerHTML = "";
+      return;
+    }
+
+    const user = getUser();
+    let html = '<ul class="review-list">';
+
+    chunk.forEach(r => {
+      let actions = "";
+      if (user && user.email === r.email) {
+        actions = `
+          <button class="btn  btn-sm edit-review-btn" data-id="${r.id}"><i class="fa-solid fa-pen-to-square"></i></button>
+          <button class="btn  text-danger btn-sm delete-review-btn" data-id="${r.id}"><i class="fa-solid fa-trash-can"></i></button>`;
+      }
+
+      html += `
+        <li class="review-item">
+          <div class="row">
+            <div class="col-md-3">
+              <div class="review-author alt-font fw-500">${escapeHtml(r.name)}</div>
+              <div class="fs-12 text-muted"><i class="feather icon-feather-check-circle"></i> Verified buyer</div>
+            </div>
+
+            <div class="col-md-7">
+              <div class="review-stars">${stars(r.rating)}</div>
+              <div class="fw-500">${escapeHtml(r.title)}</div>
+              <div>${escapeHtml(r.comment)}</div>
+              ${actions}
+            </div>
+
+            <div class="col-md-2 text-end fs-12 text-muted">
+              ${escapeHtml(r.created_at_formatted)}
+            </div>
+          </div>
+        </li>`;
+    });
+
+    html += "</ul>";
+
+    reviewListEl.innerHTML = html;
+    renderPagination(total, perPage, currentPage);
+    attachActions();
+  }
+
+  function renderPagination(total, perPage, page) {
+    const pages = Math.ceil(total / perPage);
+    if (pages <= 1) { paginationEl.innerHTML = ""; return; }
+
+    let html = "";
+
+    const add = (p, label = p, active = false) =>
+      html += `<li class="page-item ${active?"active":""}">
+        <a href="#" class="page-link" data-page="${p}">${label}</a></li>`;
+
+    add(Math.max(1, page - 1), "«");
+
+    for (let i = 1; i <= pages; i++) add(i, i, i === page);
+
+    add(Math.min(pages, page + 1), "»");
+
+    paginationEl.innerHTML = html;
+
+    paginationEl.querySelectorAll("a").forEach(a =>
+      a.onclick = e => {
+        e.preventDefault();
+        renderPage(Number(a.dataset.page));
+      });
+  }
+
+  function renderAll() {
+    renderStats();
+    renderPage(currentPage);
+  }
+
+  // Edit/Delete handlers
+  function attachActions() {
+
+    // EDIT
+    document.querySelectorAll(".edit-review-btn").forEach(btn =>
+      btn.onclick = () => {
+        const id = btn.dataset.id;
+        const r = reviews.find(v => String(v.id) === String(id));
+
+        reviewIdField.value = r.id;
+        reviewForm.name.value = r.name;
+        reviewForm.email.value = r.email;
+        reviewForm.title.value = r.title;
+        reviewForm.rating.value = r.rating;
+        reviewForm.comment.value = r.comment;
+
+        submitBtn.textContent = "Update Review";
+
+        new bootstrap.Modal(reviewModal).show();
+      }
+    );
+
+    // DELETE
+    document.querySelectorAll(".delete-review-btn").forEach(btn =>
+      btn.onclick = async () => {
+        const id = btn.dataset.id;
+        const user = getUser();
+
+        const res = await fetch(`/api/reviews/product/${PRODUCT_ID}/reviews/${id}/delete`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: user.email })
+        });
+
+        toast("success", "Review deleted");
+        fetchReviews();
+      }
+    );
+  }
+
+  // Create / Edit submit
+  reviewForm.onsubmit = async e => {
+    e.preventDefault();
+
+    const fd = new FormData(reviewForm);
+    const user = getUser();
+
+    const payload = {
+      user_id: user.id,
+      name: fd.get("name"),
+      email: fd.get("email"),
+      title: fd.get("title"),
+      rating: fd.get("rating"),
+      comment: fd.get("comment")
+    };
+
+    const id = reviewIdField.value;
+
+    const endpoint = id
+      ? `/api/reviews/product/${PRODUCT_ID}/reviews/${id}`
+      : `/api/reviews/product/${PRODUCT_ID}/reviews`;
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = id ? "Updating..." : "Submitting...";
+
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    toast("success", id ? "Review updated!" : "Review submitted!");
+
+    reviewForm.reset();
+    reviewIdField.value = "";
+    submitBtn.textContent = "Submit Review";
+    submitBtn.disabled = false;
+
+    bootstrap.Modal.getInstance(reviewModal)?.hide();
+
+    fetchReviews();
+  };
+
+  // Open modal for NEW review
+  openReviewBtn.onclick = () => {
+    const user = getUser();
+    if (!user) return toast("error", "Please login first");
+
+    reviewForm.reset();
+    reviewIdField.value = "";
+    submitBtn.textContent = "Submit Review";
+
+    reviewForm.name.value = (user.first_name || "") + " " + (user.last_name || "");
+    reviewForm.email.value = user.email;
+
+    new bootstrap.Modal(reviewModal).show();
+  };
+
+  sortSelect.onchange = renderAll;
+  perPageSelect.onchange = renderAll;
+
+  fetchReviews();
+
+})();
+</script>
