@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../config/db");
+const authUser = require("../middleware/authMiddleware");
 
 // Build stars
 function buildStars(rating) {
@@ -8,41 +9,60 @@ function buildStars(rating) {
 }
 
 /* ============================================================
-   1. CHECK IF USER PURCHASED PRODUCT
-   URL → /api/reviews/validate/:user_id/:product_id
+   1. CHECK IF USER CAN REVIEW PRODUCT
+   GET /api/reviews/can-review/:productId
 ============================================================ */
-router.get("/validate/:user_id/:product_id", async (req, res) => {
-  try {
-    const { user_id, product_id } = req.params;
+router.get("/can-review/:productId", authUser, async (req, res) => {
+  const userId = req.user.id;
+  const { productId } = req.params;
 
-    const [rows] = await db.query(
-      `SELECT oi.id FROM order_items oi
-       JOIN orders o ON oi.order_id = o.id
-       WHERE o.user_id = ? AND oi.product_id = ?`,
-      [user_id, product_id]
-    );
+  const [rows] = await db.query(
+    `
+    SELECT oi.id
+    FROM orders o
+    JOIN order_items oi ON oi.order_id = o.id
+    WHERE o.user_id = ?
+      AND oi.product_id = ?
+      AND o.status = 'completed'
+    LIMIT 1
+  `,
+    [userId, productId]
+  );
 
-    return res.json({ purchased: rows.length > 0 });
-  } catch (err) {
-    console.log("Validate error:", err);
-    return res.status(500).json({ purchased: false });
+  if (!rows.length) {
+    return res.json({ canReview: false, reason: "purchase" });
   }
+
+  res.json({ canReview: true });
 });
 
 /* ============================================================
-   2. API: RETURN REVIEWS AS JSON
-   URL → /api/reviews/product/:id/reviews
+   2. GET REVIEWS (JSON API)
+   GET /api/reviews/product/:id/reviews
 ============================================================ */
 router.get("/product/:id/reviews", async (req, res) => {
   try {
     const productId = req.params.id;
 
     const [rows] = await db.query(
-      `SELECT id, name, email, title, rating, comment,
-              DATE_FORMAT(created_at, '%d/%m/%Y') AS created_at_formatted
-       FROM reviews
-       WHERE product_id = ?
-       ORDER BY created_at DESC`,
+      `
+     SELECT
+  r.id,
+  r.user_id,
+  r.title,
+  r.comment,
+  r.rating,
+  r.created_at,
+  DATE_FORMAT(r.created_at, '%d %b %Y') AS created_at_formatted,
+  u.first_name,
+  u.last_name,
+  u.email
+FROM reviews r
+JOIN users u ON u.id = r.user_id
+WHERE r.product_id = ?
+ORDER BY r.id DESC
+
+    `,
       [productId]
     );
 
@@ -51,151 +71,89 @@ router.get("/product/:id/reviews", async (req, res) => {
       stars: buildStars(r.rating)
     }));
 
-    return res.json({ success: true, reviews });
+    res.json({ success: true, reviews });
 
   } catch (err) {
-    console.log("API GET reviews error:", err);
-    return res.status(500).json({ success: false });
+    console.error("GET reviews error:", err);
+    res.status(500).json({ success: false });
   }
 });
 
 /* ============================================================
-   3. SERVER PRODUCT PAGE
-   URL → /product/:id    ← THIS IS WHAT YOU WANT
+   3. SUBMIT REVIEW
+   POST /api/reviews/product/:id/reviews
 ============================================================ */
-router.get("/product/:id", async (req, res) => {
-  try {
-    const productId = req.params.id;
+router.post("/product/:id/reviews", authUser, async (req, res) => {
+  const userId = req.user.id;
+  const email = req.user.email;
+  const productId = req.params.id;
+  const { name, title, rating, comment } = req.body;
 
-    // Product
-    const [productRows] = await db.query(
-      "SELECT * FROM products WHERE id = ?",
-      [productId]
-    );
-    if (!productRows.length) return res.render("404");
-    const product = productRows[0];
+  // Purchase check
+  const [rows] = await db.query(
+    `
+    SELECT oi.id
+    FROM orders o
+    JOIN order_items oi ON oi.order_id = o.id
+    WHERE o.user_id = ?
+      AND oi.product_id = ?
+      AND o.status = 'completed'
+    LIMIT 1
+  `,
+    [userId, productId]
+  );
 
-    // Images
-    const [imgRows] = await db.query(
-      "SELECT image1, image2, image3, image4 FROM products WHERE id = ?",
-      [productId]
-    );
-    const images = Object.values(imgRows[0]).filter(x => x);
-
-    // Related
-    const [relatedProducts] = await db.query(
-      `SELECT id, name, price, image1 
-       FROM products
-       WHERE category = (SELECT category FROM products WHERE id = ?)
-       AND id != ?
-       LIMIT 4`,
-      [productId, productId]
-    );
-
-    // Reviews
-    const [reviews] = await db.query(
-      `SELECT id, name, email, title, rating, comment,
-              DATE_FORMAT(created_at, '%d/%m/%Y') AS created_at_formatted
-       FROM reviews
-       WHERE product_id = ?
-       ORDER BY created_at DESC`,
-      [productId]
-    );
-
-    reviews.forEach(r => r.stars = buildStars(r.rating));
-
-    // Stats
-    const [statsRows] = await db.query(
-      `SELECT AVG(rating) AS avgRating, COUNT(*) AS total
-       FROM reviews WHERE product_id = ?`,
-      [productId]
-    );
-
-    const s = statsRows[0] || {};
-    const avg = s.avgRating ? Number(s.avgRating) : null;
-
-    const reviewStats = {
-      avgRating: avg ? avg.toFixed(1) : null,
-      avgStars: avg ? buildStars(Math.round(avg)) : "★★★★★",
-      total: s.total || 0,
-      moreThanOne: (s.total || 0) > 1
-    };
-
-    // Render correct file: views/pages/product.hbs
-    res.render("pages/product", {
-      product,
-      images,
-      relatedProducts,
-      reviews,
-      reviewStats
+  if (!rows.length) {
+    return res.status(403).json({
+      success: false,
+      message: "Purchase required to review"
     });
-console.log("🟢 Product page route hit");
-console.log("Reviews fetched:", reviews);
-
-  } catch (err) {
-    console.log("Product page error:", err);
-    res.render("500");
   }
+
+  // Prevent duplicate review
+  const [exists] = await db.query(
+    "SELECT id FROM reviews WHERE product_id=? AND user_id=?",
+    [productId, userId]
+  );
+
+  if (exists.length) {
+    return res.status(409).json({
+      success: false,
+      message: "You already reviewed this product"
+    });
+  }
+
+  await db.query(
+    `
+    INSERT INTO reviews
+      (product_id, user_id, name, email, title, rating, comment)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  `,
+    [productId, userId, name, email, title, Number(rating), comment]
+  );
+
+  res.json({ success: true });
 });
 
 /* ============================================================
-   4. SUBMIT REVIEW
-   URL → POST /api/reviews/product/:id/reviews
+   4. UPDATE REVIEW
+   POST /api/reviews/product/:productId/reviews/:reviewId
 ============================================================ */
-router.post("/product/:id/reviews", async (req, res) => {
-  try {
-    const productId = req.params.id;
-    const { user_id, name, email, title, rating, comment } = req.body;
+router.post(
+  "/product/:productId/reviews/:reviewId",
+  authUser,
+  async (req, res) => {
 
-    if (!user_id)
-      return res.status(401).json({ success: false, message: "Login required" });
+    const userId = req.user.id;
+    const { reviewId } = req.params;
+    const { title, comment, rating } = req.body;
 
-    // Check purchase
-    const [rows] = await db.query(
-      `SELECT oi.id FROM order_items oi
-       JOIN orders o ON oi.order_id = o.id
-       WHERE o.user_id = ? AND oi.product_id = ?`,
-      [user_id, productId]
+    const [own] = await db.query(
+      "SELECT id FROM reviews WHERE id=? AND user_id=?",
+      [reviewId, userId]
     );
 
-    if (!rows.length)
-      return res.status(403).json({
-        success: false,
-        message: "You must purchase before reviewing."
-      });
-
-    await db.query(
-      `INSERT INTO reviews (product_id, name, email, title, rating, comment)
-       VALUES (?, ?, ?, ?, ?, ?)`,
-      [productId, name, email, title, Number(rating), comment]
-    );
-
-    return res.json({ success: true });
-
-  } catch (err) {
-    console.log("Review insert error:", err);
-    return res.status(500).json({ success: false });
-  }
-});
-
-
-
-/* ============================================================
-   UPDATE REVIEW
-   URL → POST /api/reviews/product/:productId/reviews/:reviewId
-============================================================ */
-router.post("/product/:productId/reviews/:reviewId", async (req, res) => {
-  try {
-    const { productId, reviewId } = req.params;
-    const { email, title, comment, rating } = req.body;
-
-    // Only allow updating if this review belongs to this email
-    const [check] = await db.query(
-      `SELECT id FROM reviews WHERE id = ? AND email = ? AND product_id = ?`,
-      [reviewId, email, productId]
-    );
-
-    if (!check.length) {
+    if (!own.length) {
       return res.status(403).json({
         success: false,
         message: "Not allowed"
@@ -203,53 +161,45 @@ router.post("/product/:productId/reviews/:reviewId", async (req, res) => {
     }
 
     await db.query(
-      `UPDATE reviews 
-       SET title = ?, comment = ?, rating = ? 
-       WHERE id = ?`,
+      `
+      UPDATE reviews
+      SET title=?, comment=?, rating=?
+      WHERE id=?
+    `,
       [title, comment, Number(rating), reviewId]
     );
 
-    return res.json({ success: true });
-  } catch (err) {
-    console.log("Review update error:", err);
-    return res.status(500).json({ success: false });
+    res.json({ success: true });
   }
-});
-
-
+);
 
 /* ============================================================
-   DELETE REVIEW
-   URL → POST /api/reviews/product/:productId/reviews/:reviewId/delete
+   5. DELETE REVIEW
+   POST /api/reviews/product/:productId/reviews/:reviewId/delete
 ============================================================ */
-router.post("/product/:productId/reviews/:reviewId/delete", async (req, res) => {
-  try {
-    const { productId, reviewId } = req.params;
-    const { email } = req.body;
+router.post(
+  "/product/:productId/reviews/:reviewId/delete",
+  authUser,
+  async (req, res) => {
 
-    // Only allow deleting if belongs to email
-    const [check] = await db.query(
-      `SELECT id FROM reviews WHERE id = ? AND email = ? AND product_id = ?`,
-      [reviewId, email, productId]
+    const userId = req.user.id;
+    const { reviewId } = req.params;
+
+    const [own] = await db.query(
+      "SELECT id FROM reviews WHERE id=? AND user_id=?",
+      [reviewId, userId]
     );
 
-    if (!check.length) {
+    if (!own.length) {
       return res.status(403).json({
         success: false,
         message: "Not allowed"
       });
     }
 
-    await db.query(
-      `DELETE FROM reviews WHERE id = ?`,
-      [reviewId]
-    );
-
-    return res.json({ success: true });
-  } catch (err) {
-    console.log("Review delete error:", err);
-    return res.status(500).json({ success: false });
+    await db.query("DELETE FROM reviews WHERE id=?", [reviewId]);
+    res.json({ success: true });
   }
-});
+);
 
 module.exports = router;

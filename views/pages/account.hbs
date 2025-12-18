@@ -286,7 +286,7 @@
         const provider = user.provider || "local";
 
         /* ================= ADMIN CHECK ================= */
-        if (user.admin === true) {
+        if (Number(user.is_admin) === 1) {
             $("#adminPanelBtnWrapper").removeClass("d-none");
             $("#ordersSection").addClass("d-none");
             $("#passwordSection").addClass("d-none");
@@ -467,6 +467,10 @@
     $("#logoutBtn").click(function () {
         localStorage.clear();
         window.location.href = "/account";
+       localStorage.removeItem("token");
+        localStorage.removeItem("user");
+
+
     });
 
     checkLoginStatus();

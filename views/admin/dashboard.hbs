@@ -16,10 +16,10 @@
             <i data-feather="shopping-cart"></i>
         </a>
 
-        <!-- Products -->
-        {{!-- <a href="#" data-page="allProducts" title="Products">
+       {{!-- prodcuts --}}
+  <a href="#" data-page="allProducts" title="Products">
             <i data-feather="box"></i>
-        </a> --}}
+        </a> 
 
         <!-- Users -->
         <a href="#" data-page="users" title="Users">
@@ -36,10 +36,7 @@
             <i data-feather="message-square"></i>
         </a>
 
-        <!-- Settings -->
-        <a href="#" data-page="settings" title="Settings">
-            <i data-feather="settings"></i>
-        </a>
+
 
     </div>
 
@@ -187,17 +184,12 @@
 .toast.show { transform:translateY(0); opacity:1; pointer-events:auto; }
 </style>
 
-<!-- feather icons -->
-<script src="https://unpkg.com/feather-icons"></script>
 
+
+
+
+<script src="https://unpkg.com/feather-icons"></script>
 <script>
-/*
-  Full dashboard script:
-   - safe executeScripts (injects script elements using textContent)
-   - loadSection that fetches partials
-   - USERS functions exposed (renderUsersPaged, deleteUser, openUserEdit, saveUserChanges)
-   - dashboard loads by default (dashboard HTML kept in this file)
-*/
 
 (function(){
   // helpers
@@ -483,30 +475,14 @@
           })();
           break;
 
-        case "reviews":
-          (async ()=>{
-            const d = await loadData("/admin/reviews", token);
-            const tbody = el("reviewsTableBody");
-            if (!tbody) return;
-            tbody.innerHTML = (d.reviews || []).map(r=>`
-              <tr>
-                <td>${safeHTML(String(r.id))}</td>
-                <td>${safeHTML(r.product_name||'')}</td>
-                <td>${safeHTML(r.name||'')}</td>
-                <td>${safeHTML(String(r.rating||0))} ★</td>
-                <td>${safeHTML(r.comment||'')}</td>
-              </tr>
-            `).join('') || `<tr><td colspan="5">No reviews</td></tr>`;
-          })();
-          break;
-
+    
         case "messages":
-          // messages partial should expose window.loadMessages or we fallback to load /admin/messages
+          
           setTimeout(()=>{
             if (window.loadMessages && typeof window.loadMessages === "function"){
               try{ window.loadMessages(); } catch(e){ console.error("window.loadMessages threw", e); }
             } else {
-              // fallback render into '#messagesTableBody' if present
+              
               (async ()=>{
                 const d = await loadData("/admin/messages", token);
                 const tbody = el("messagesTableBody");
@@ -533,7 +509,6 @@
           break;
       }
 
-      // run feather replace to update icons in loaded partial
       try{ feather.replace(); } catch(e){ /* ignore */ }
     }
 
@@ -546,10 +521,9 @@
       });
     });
 
-    // ---------- initial load ----------
-    // Load dashboard stats and recent lists on initial page load
+    // Initial load of dashboard data
     await reloadDashboardData();
 
-  }); // DOMContentLoaded
-})(); // IIFE
+  }); 
+})(); 
 </script>

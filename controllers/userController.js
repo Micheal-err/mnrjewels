@@ -84,6 +84,18 @@ exports.loginUser = async (req, res) => {
 
       }
     });
+res.cookie("token", token, {
+  httpOnly: true,
+  sameSite: "lax",
+  maxAge: 7 * 24 * 60 * 60 * 1000
+});
+
+res.json({
+  success: true,
+  token, // frontend saves to localStorage
+  user
+});
+
 
   } catch (err) {
     console.error("LOGIN ERROR:", err);

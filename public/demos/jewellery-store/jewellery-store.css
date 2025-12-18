@@ -23,6 +23,7 @@
 body {
     font-size: 18px;
     line-height: 30px; 
+    overflow-x: hidden !important;
 }
 section {
     padding-top: 100px;

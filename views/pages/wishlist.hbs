@@ -1,0 +1,209 @@
+<section class="ps-6 pe-6 lg-ps-3 lg-pe-3 sm-ps-0 sm-pe-0 pt-5 mt-5">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-12">
+
+        <!-- WISHLIST GRID -->
+        <ul id="wishlistGrid" class="wishlist-grid"></ul>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+/* ===============================
+   WISHLIST GRID (ISOLATED)
+================================ */
+.wishlist-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 30px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+@media (max-width: 1200px) {
+  .wishlist-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 991px) {
+  .wishlist-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 575px) {
+  .wishlist-grid { grid-template-columns: 1fr; }
+}
+
+/* Prevent vertical text issues */
+.wishlist-grid * {
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+}
+
+/* Image consistency */
+.shop-image img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+}
+.wishlist-heart {
+  stroke: #e63946;
+  fill: #e63946;
+}
+
+</style>
+
+<script src="https://unpkg.com/feather-icons"></script>
+
+<script>
+/* ===============================
+   AUTH CHECK
+================================ */
+const token = localStorage.getItem("token");
+if (!token) location.href = "/login";
+
+/* ===============================
+   LOAD WISHLIST
+================================ */
+async function loadWishlist() {
+  try {
+    const res = await fetch("/api/wishlist", {
+      headers: { Authorization: "Bearer " + token }
+    });
+
+    const data = await res.json();
+    if (!data.success) throw new Error("Wishlist API failed");
+
+    renderWishlist(data.products || []);
+  } catch (err) {
+    console.error("Wishlist fetch failed:", err);
+  }
+}
+
+loadWishlist();
+
+/* ===============================
+   RENDER WISHLIST
+================================ */
+function renderWishlist(products) {
+  const grid = document.getElementById("wishlistGrid");
+
+if (!products.length) {
+  grid.innerHTML = `
+    <li style="grid-column:1/-1; text-align:center; padding:60px 0;">
+      <h4 class="mb-10px">Your wishlist is empty 🤍</h4>
+      <p class="mb-20px">Please explore the products and add to wishlist</p>
+      <a href="/shop" class="btn btn-dark-gray">Explore products</a>
+    </li>
+  `;
+  return;
+}
+
+
+  grid.innerHTML = "";
+
+  products.slice(0, 4).forEach(p => {
+    grid.insertAdjacentHTML("beforeend", `
+      <li>
+        <div class="shop-box mb-10px">
+
+          <div class="shop-image">
+            <a href="/product/${p.id}">
+              <img src="${p.image1 ? "/uploads/" + p.image1 : "/images/placeholder.jpg"}">
+            </a>
+          </div>
+
+          <div class="shop-footer d-flex justify-content-between mt-2">
+            <div class="text-start">
+              <a href="/product/${p.id}" class="fs-15 fw-500 text-dark-gray">${p.name}</a>
+              <p class="fs-15 mb-0">₹${p.price}</p>
+            </div>
+          </div>
+
+          <div class="d-flex gap-10px mt-2">
+            <button class="btn btn-dark-gray w-100"
+              onclick="addToCart(${p.id})">
+              <i data-feather="shopping-bag"></i> Add to cart
+            </button>
+
+            <button class="btn border"
+              onclick="removeFromWishlist(${p.id})">
+             <i data-feather="heart" class="wishlist-heart active"></i>
+
+            </button>
+          </div>
+
+        </div>
+      </li>
+    `);
+  });
+
+  feather.replace();
+}
+
+/* ===============================
+   ADD TO CART
+================================ */
+async function addToCart(productId) {
+  try {
+    const res = await fetch("/cart/add", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + token
+      },
+      body: JSON.stringify({ product_id: productId, qty: 1 })
+    });
+
+    const json = await res.json();
+    if (!json.success) return showToast("Add to cart failed", "error");
+
+    showToast("Added to cart");
+    updateCartCount?.();
+  } catch {
+    showToast("Server error", "error");
+  }
+}
+
+/* ===============================
+   REMOVE FROM WISHLIST
+================================ */
+async function removeFromWishlist(productId) {
+  try {
+    const res = await fetch("/api/wishlist/toggle", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + token
+      },
+      body: JSON.stringify({ product_id: productId })
+    });
+
+    const json = await res.json();
+    if (!json.success) return showToast("Wishlist failed", "error");
+
+    showToast("Removed from wishlist");
+    loadWishlist();
+  } catch {
+    showToast("Server error", "error");
+  }
+}
+
+/* ===============================
+   TOAST
+================================ */
+function showToast(msg, type = "success") {
+  const t = document.createElement("div");
+  t.textContent = msg;
+  t.style.cssText = `
+    position:fixed; top:20px; right:20px;
+    background:${type === "error" ? "#ff4d4d" : "#00c471"};
+    color:#fff; padding:10px 14px;
+    border-radius:6px; z-index:99999;
+  `;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2200);
+}
+</script>

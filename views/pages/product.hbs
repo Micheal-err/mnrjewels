@@ -1,488 +1,976 @@
 {{!-- PRODUCT PAGE --}}
 
-<!-- breadcrumb -->
-<section class="top-space-margin border-top border-color-extra-medium-gray pt-20px pb-20px ps-35px pe-35px lg-ps-25px lg-pe-25px md-ps-15px md-pe-15px sm-ps-0 sm-pe-0">
-  <div class="container-fluid">
-    <div class="row align-items-center">
-      <div class="col-12 breadcrumb breadcrumb-style-01 fs-15 alt-font">
-        <ul>
-          <li><a href="/">Home</a></li>
-          <li><a href="/category">Shop</a></li>
-          <li>{{product.name}}</li>
-        </ul>
+<section class="product-wrapper pb-0">
+  <div class="container product-grid">
+
+    <!-- LEFT : IMAGES -->
+    <div class="image-section">
+      <div class="thumbs">
+        {{#each images}}
+          <img src="/uploads/{{this}}" class="thumb" data-src="/uploads/{{this}}">
+        {{/each}}
+      </div>
+
+      <div class="main-image">
+        <img id="mainImage"
+             src="{{#if images.[0]}}/uploads/{{images.[0]}}{{else}}https://via.placeholder.com/600{{/if}}">
       </div>
     </div>
+
+    <!-- RIGHT : INFO -->
+    <div class="info-section">
+
+      <p class="collection mb-0">{{product.collection_name}}</p>
+      <p class="collection mb-0">{{product.category}}</p>
+      <h1 class="title mt-0">{{product.name}}</h1>
+
+      <div class="price" id="priceText">Price - Select the variant first</div>
+      <div id="stockText" class="stock"></div>
+
+      <!-- VARIANTS -->
+     <div id="variantContainer"></div>
+
+      <!-- ACTIONS -->
+      <div class="action-row">
+        <button id="addToCartBtn" class="btn-primary" disabled >
+          ADD TO CART
+        </button>
+
+      <button id="wishlistBtn" class="btn-outline wishlist-btn">
+      <i class="fa-regular fa-heart"></i>
+      </button>
+
+      </div>
+<div>
+
+      <p class="desc">{{product.description}}</p>
+<p id="dimensionLine" class="dimension-line"></p>
+
+</div>
+
+<div class="view-more-wrapper">
+  <button id="viewMoreBtn" class="view-more-btn">
+    View more details
+  </button>
+</div>
+      <ul class="features">
+  <li class="feature-item">
+    <i data-feather="shield"></i>
+    Hypoallergenic
+  </li>
+
+  <li class="feature-item">
+    <i data-feather="check-circle"></i>
+    Non-toxic
+  </li>
+
+  <li class="feature-item">
+    <i data-feather="award"></i>
+    Durable
+  </li>
+</ul>
+
+    </div>
+
   </div>
 </section>
 
-<!-- MAIN PRODUCT SECTION -->
-<section class="single-product-page pt-60px md-pt-30px pb-0">
+<!-- DETAILS ACCORDION -->
+<section id="productDetails" class="container product-details hidden pt-0 pb-0">
+
+  <div class="details-item">
+    <button class="details-header">
+      <span>Materials</span>
+      <span class="icon">+</span>
+    </button>
+    <div class="details-content">
+      <h6>925 sterling silver</h6>
+      <p class="pb-0 mb-0">M&R Jewels ensures that all of our pieces are made from 925 sterling silver to enhance the durability of our designs, so what you purchase today can become an heirloom piece tomorrow.</p>
+      <p class="pb-0 mb-0">We are redefining luxury for you by providing the perfect blend of modern and elegant designs in a metal that lasts, and has been historically famous for its versatility!</p>
+<p>All our pieces are rhodium-plated to ensure they maintain their classic silver colour, while a few selected pieces are also available plated in gold and rose gold.
+</p>
+<h6>American Diamonds</h6>
+<p>We have curated our collections in a way that ensures that there is a special piece for everyone, and everyone loves a good diamond. M&R Jewels presents our pieces adorned with choice American Diamonds to add a shine to your everyday ensembles!
+</p>
+    </div>
+  </div>
+
+  <div class="details-item">
+    <button class="details-header">
+      <span>Shipping Policy</span>
+      <span class="icon">+</span>
+    </button>
+    <div class="details-content">
+     <p>M&R Jewels offers pan-India shipping with a dispatch time of 2 to 3 business days, and the shipping time of 7 to 10 days after your order has been dispatched.
+For more details, you can read our <a href=""> shipping policy</a>, & <a href="" >return and refund policy</a> here. </p>
+    </div>
+  </div>
+
+  
+
+
+</section>
+{{!-- REVIEWS --}}
+{{> reviews product=product}}
+
+{{!-- RELATED PRODUCTS --}}
+<section class="related">
   <div class="container">
-    <div class="row align-items-start">
+    <h3>You may also like</h3>
 
-      {{!-- LEFT: IMAGE GALLERY --}}
-      <div class="col-lg-6 mb-40px md-mb-30px">
-        <div class="product-gallery d-flex">
+    <div class="related-grid simple-related-grid">
+      {{#each relatedProducts}}
+      <div class="simple-product-card">
 
-          {{!-- Vertical thumbnails --}}
-          <div class="product-gallery-thumbs me-20px">
-            {{#each images}}
-              <button
-                type="button"
-                class="product-thumb-btn"
-                data-src="/uploads/{{this}}"
-              >
-                <img
-                  src="/uploads/{{this}}"
-                  alt="{{../product.name}}"
-                  class="product-thumb-img"
-                />
-              </button>
-            {{/each}}
+        <!-- IMAGE -->
+        <a href="/product/{{id}}" class="product-img">
+          <img src="/uploads/{{image1}}" alt="{{name}}">
+        </a>
 
-            {{!-- If no images, show 1 placeholder thumb --}}
-            {{#unless images.[0]}}
-              <button type="button" class="product-thumb-btn" data-src="https://via.placeholder.com/600x765">
-                <img
-                  src="https://via.placeholder.com/600x765"
-                  alt="{{product.name}}"
-                  class="product-thumb-img"
-                />
-              </button>
-            {{/unless}}
-          </div>
+        <!-- NAME -->
+        <a href="/product/{{id}}" class="product-name">
+          {{name}}
+        </a>
 
-          {{!-- Main image --}}
-          <div class="product-gallery-main">
-            {{#if images.[0]}}
-              <img
-                id="productMainImage"
-                src="/uploads/{{images.[0]}}"
-                alt="{{product.name}}"
-                class="product-main-img"
-              />
-            {{else}}
-              <img
-                id="productMainImage"
-                src="https://via.placeholder.com/600x765"
-                alt="{{product.name}}"
-                class="product-main-img"
-              />
-            {{/if}}
-          </div>
-        </div>
-      </div>
-
-      {{!-- RIGHT: PRODUCT INFO --}}
-      <div class="col-lg-6 product-info">
-
-        {{!-- Brand / collection --}}
-        <div class="mb-5px fs-14 text-uppercase text-dark-gray">
-          {{#if product.collection_name}}
-            <span class="alt-font fw-500">{{product.collection_name}}</span>
-          {{else}}
-            <span class="alt-font fw-500">{{product.category}}</span>
-          {{/if}}
+        <!-- PRICE -->
+        <div class="product-price">
+          ₹{{price}}
         </div>
 
-        {{!-- Name + price --}}
-        <h1 class="alt-font text-dark-gray fw-600 fs-28 mb-10px">
-          {{product.name}}
-        </h1>
+        <!-- ACTIONS -->
+        <div class="product-actions">
+          <button
+            class="btn-add-cart"
+            onclick="addRelatedToCart({{id}})">
+            Add to cart
+          </button>
 
-        <div class="mb-15px">
-          <span class="text-dark-gray fs-24 fw-600">
-            ₹{{product.price}}
-          </span>
-        </div>
-
-        {{!-- Metal / finish line --}}
-        <div class="mb-10px fs-14 text-uppercase text-dark-gray">
-          {{#if product.metal}}
-            <span class="alt-font fw-500">Metal:&nbsp;</span>
-            <span class="fw-400 text-capitalize">{{product.metal}}</span>
-          {{/if}}
-
-          {{#if product.finish}}
-            <span class="mx-5px">•</span>
-            <span class="alt-font fw-500">Finish:&nbsp;</span>
-            <span class="fw-400 text-capitalize">{{product.finish}}</span>
-          {{/if}}
-        </div>
-
-        {{!-- Colour + size + size guide --}}
-        <div class="d-flex flex-wrap align-items-center mb-20px gap-2">
-          {{#if product.finish}}
-            <div class="d-flex align-items-center me-25px">
-              <span class="fs-13 text-uppercase text-dark-gray me-10px alt-font fw-500">
-                Colour
-              </span>
-              <span class="d-inline-flex align-items-center">
-                <span
-                  class="d-inline-block rounded-circle me-8px"
-                  style="width:16px;height:16px;border:1px solid #ccc;background:#f5f5f5;"
-                ></span>
-                <span class="fs-14 text-capitalize fw-400">{{product.finish}}</span>
-              </span>
-            </div>
-          {{/if}}
-
-          {{#if product.length_size}}
-            <div class="d-flex align-items-center ms-auto">
-              <span class="fs-13 text-uppercase text-dark-gray me-10px alt-font fw-500">
-                Size
-              </span>
-              <span class="fs-14 fw-400">{{product.length_size}}</span>
-              <a href="#tab"
-                 class="fs-12 text-decoration-underline ms-10px alt-font text-dark-gray">
-                Size guide
-              </a>
-            </div>
-          {{/if}}
-        </div>
-
-        {{!-- Quantity + Add to cart + Wishlist --}}
-        <div class="d-flex align-items-center flex-column flex-sm-row mb-20px position-relative">
-
-          <div class="quantity me-15px xs-mb-15px order-1 d-flex align-items-center">
-            <button type="button"
-                    class="qty-minus"
-                    data-target="#productQty">
-              -
-            </button>
-            <input
-              class="qty-text"
-              type="text"
-              id="productQty"
-              value="1"
-              inputmode="numeric"
-            />
-            <button type="button"
-                    class="qty-plus"
-                    data-target="#productQty">
-              +
-            </button>
-          </div>
-
-          <a href="javascript:void(0);"
-             class="btn btn-cart btn-extra-large btn-switch-text btn-box-shadow btn-none-transform btn-dark-gray left-icon border-radius-5px me-15px xs-me-0 order-3 order-sm-2 flex-grow-1">
-            <span>
-              <span><i class="feather icon-feather-shopping-bag"></i></span>
-              <span class="btn-double-text ls-0px flex-shrink-0" data-text="Add to cart">
-                Add to cart
-              </span>
-            </span>
-          </a>
-
-          <button type="button"
-                  class="wishlist d-flex align-items-center justify-content-center border border-radius-5px border-color-extra-medium-gray bg-white px-3 py-2 order-2 order-sm-3">
-            <i class="feather icon-feather-heart icon-small text-dark-gray"></i>
+          <button
+            class="btn-wishlist"
+            onclick="toggleRelatedWishlist({{id}}, this)">
+            <i class="fa-regular fa-heart"></i>
           </button>
         </div>
 
-        {{!-- Short description --}}
-        <div class="mb-20px fs-14 lh-22 text-dark-gray">
-          {{product.description}}
-        </div>
-
-        {{!-- Details bullets --}}
-        <div class="mb-15px">
-          <div class="d-flex align-items-center mb-8px">
-            <span class="me-10px">
-              <i class="feather icon-feather-check-circle text-dark-gray"></i>
-            </span>
-            <span class="fs-13 text-uppercase alt-font fw-500">
-              Hypoallergenic
-            </span>
-          </div>
-          <div class="d-flex align-items-center mb-8px">
-            <span class="me-10px">
-              <i class="feather icon-feather-check-circle text-dark-gray"></i>
-            </span>
-            <span class="fs-13 text-uppercase alt-font fw-500">
-              Non-toxic &amp; corrosion-resistant
-            </span>
-          </div>
-          <div class="d-flex align-items-center mb-8px">
-            <span class="me-10px">
-              <i class="feather icon-feather-check-circle text-dark-gray"></i>
-            </span>
-            <span class="fs-13 text-uppercase alt-font fw-500">
-              Highly durable for everyday wear
-            </span>
-          </div>
-        </div>
-
-        {{!-- View more details --}}
-        <div class="mt-15px mb-20px">
-          <a href="#tab"
-             class="fs-13 text-uppercase alt-font text-dark-gray text-decoration-underline">
-            View more details
-          </a>
-        </div>
-
-        {{!-- Delivery / shipping --}}
-        <div class="row mb-15px">
-          <div class="col-12 icon-with-text-style-08">
-            <div class="feature-box feature-box-left-icon d-inline-flex align-middle">
-              <div class="feature-box-icon me-10px">
-                <i class="feather icon-feather-truck top-8px position-relative align-middle text-dark-gray"></i>
-              </div>
-              <div class="feature-box-content">
-                <span>
-                  <span class="alt-font text-dark-gray fw-500">Estimated delivery:</span>
-                  <span class="fw-400">3–7 business days</span>
-                </span>
-              </div>
-            </div>
-          </div>
-          <div class="col-12 icon-with-text-style-08 mb-10px">
-            <div class="feature-box feature-box-left-icon d-inline-flex align-middle">
-              <div class="feature-box-icon me-10px">
-                <i class="feather icon-feather-archive top-8px position-relative align-middle text-dark-gray"></i>
-              </div>
-              <div class="feature-box-content">
-                <span>
-                  <span class="alt-font text-dark-gray fw-500">Free shipping &amp; returns:</span>
-                  <span class="fw-400">On all orders over ₹999</span>
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {{!-- Category / SKU --}}
-        <div class="mt-10px fs-13">
-          <span class="text-dark-gray alt-font fw-500">Category:</span>
-          <span class="text-capitalize fw-400">{{product.category}}</span>
-          {{#if product.sub_category}},
-            <span class="text-capitalize fw-400">{{product.sub_category}}</span>
-          {{/if}}
-          {{#if product.collection_name}},
-            <span class="text-capitalize fw-400">{{product.collection_name}}</span>
-          {{/if}}
-        </div>
-        <div class="fs-13 mt-5px">
-          <span class="text-dark-gray alt-font fw-500">SKU:</span>
-          <span class="fw-400">{{product.sku}}</span>
-        </div>
-
       </div>
+      {{/each}}
     </div>
   </div>
 </section>
 
-<!-- TABS SECTION (DETAILS) -->
-<section id="tab" class="pb-0 pt-40px sm-pt-30px">
-  <div class="container">
-    <div class="row">
-      <div class="col-12 tab-style-04">
-        <ul class="nav nav-tabs border-0 justify-content-center alt-font fs-18">
-          <li class="nav-item">
-            <a data-bs-toggle="tab" href="#tab_description" class="nav-link active">
-              Description<span class="tab-border bg-dark-gray"></span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="tab" href="#tab_additional">
-              Additional information<span class="tab-border bg-dark-gray"></span>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="tab" href="#tab_shipping">
-              Shipping &amp; return<span class="tab-border bg-dark-gray"></span>
-            </a>
-          </li>
-        </ul>
+<style>
+  .product-grid {
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:60px;
+  padding:60px 0;
+}
 
-        <div class="mb-4 h-1px w-100 bg-extra-medium-gray sm-mt-10px xs-mb-8"></div>
+.image-section {
+  display:flex;
+  gap:16px;
+}
 
-        <div class="tab-content">
-          {{!-- DESCRIPTION TAB --}}
-          <div class="tab-pane fade in active show" id="tab_description">
-            <div class="row align-items-center justify-content-center mb-5 sm-mb-10">
-              <div class="col-lg-6 md-mb-30px">
-                <h4 class="alt-font text-dark-gray fw-500 mb-15px">
-                  {{product.name}} – crafted in {{product.metal}} with {{product.finish}} finish.
-                </h4>
-                <p class="w-90 lg-w-100">
-                  {{product.description}}
-                </p>
-              </div>
-              <div class="col-lg-5 col-md-8">
-                {{#if images.[0]}}
-                  <img src="/uploads/{{images.[0]}}" alt="{{product.name}}" class="w-100" />
-                {{else}}
-                  <img src="https://via.placeholder.com/580x555" alt="{{product.name}}" class="w-100" />
-                {{/if}}
-              </div>
-            </div>
-          </div>
+.thumbs {
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
 
-          {{!-- ADDITIONAL INFO TAB --}}
-          <div class="tab-pane fade" id="tab_additional">
-            <div class="row m-0">
-              <div class="col-12">
-                <div class="row">
-                  <div class="col-lg-3 col-md-4 col-sm-4 pt-10px pb-10px text-dark-gray alt-font fw-500">
-                    SKU
-                  </div>
-                  <div class="col-lg-9 col-md-8 col-sm-8 pt-10px pb-10px fw-400">
-                    {{product.sku}}
-                  </div>
-                </div>
-                <div class="row bg-very-light-gray">
-                  <div class="col-lg-3 col-md-4 col-sm-4 pt-10px pb-10px text-dark-gray alt-font fw-500">
-                    Category
-                  </div>
-                  <div class="col-lg-9 col-md-8 col-sm-8 pt-10px pb-10px text-capitalize fw-400">
-                    {{product.category}}
-                    {{#if product.sub_category}}, {{product.sub_category}}{{/if}}
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-lg-3 col-md-4 col-sm-4 pt-10px pb-10px text-dark-gray alt-font fw-500">
-                    Collection
-                  </div>
-                  <div class="col-lg-9 col-md-8 col-sm-8 pt-10px pb-10px text-capitalize fw-400">
-                    {{product.collection_name}}
-                  </div>
-                </div>
-                <div class="row bg-very-light-gray">
-                  <div class="col-lg-3 col-md-4 col-sm-4 pt-10px pb-10px text-dark-gray alt-font fw-500">
-                    Length / size
-                  </div>
-                  <div class="col-lg-9 col-md-8 col-sm-8 pt-10px pb-10px fw-400">
-                    {{product.length_size}}
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-lg-3 col-md-4 col-sm-4 pt-10px pb-10px text-dark-gray alt-font fw-500">
-                    Dimensions
-                  </div>
-                  <div class="col-lg-9 col-md-8 col-sm-8 pt-10px pb-10px fw-400">
-                    {{product.dimensions}}
-                  </div>
-                </div>
-                <div class="row bg-very-light-gray">
-                  <div class="col-lg-3 col-md-4 col-sm-4 pt-10px pb-10px text-dark-gray alt-font fw-500">
-                    Diamonds
-                  </div>
-                  <div class="col-lg-9 col-md-8 col-sm-8 pt-10px pb-10px fw-400">
-                    {{product.diamonds}}
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-lg-3 col-md-4 col-sm-4 pt-10px pb-10px text-dark-gray alt-font fw-500">
-                    Gemstones color
-                  </div>
-                  <div class="col-lg-9 col-md-8 col-sm-8 pt-10px pb-10px text-capitalize fw-400">
-                    {{product.gemstones_color}}
-                  </div>
-                </div>
-                <div class="row bg-very-light-gray">
-                  <div class="col-lg-3 col-md-4 col-sm-4 pt-10px pb-10px text-dark-gray alt-font fw-500">
-                    Metal / finish
-                  </div>
-                  <div class="col-lg-9 col-md-8 col-sm-8 pt-10px pb-10px text-capitalize fw-400">
-                    {{product.metal}} / {{product.finish}}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+.thumb {
+  width:70px;
+  height:70px;
+  object-fit:cover;
+  border-radius:6px;
+  cursor:pointer;
+  border:1px solid #ddd;
+}
 
-          {{!-- SHIPPING TAB --}}
-          <div class="tab-pane fade" id="tab_shipping">
-            <div class="row">
-              <div class="col-md-6 last-paragraph-no-margin sm-mb-30px">
-                <div class="fs-20 alt-font text-dark-gray mb-20px fw-500">
-                  Shipping information
-                </div>
-                <p class="mb-0">
-                  <span class="fw-500 text-dark-gray">Standard:</span>
-                  <span class="fw-400">Arrives in 5–8 business days</span>
-                </p>
-                <p>
-                  <span class="fw-500 text-dark-gray">Express:</span>
-                  <span class="fw-400">Arrives in 2–3 business days</span>
-                </p>
-                <p class="w-80 md-w-100">
-                  Free shipping for orders above ₹999. All shipments are insured and securely packed.
-                </p>
-              </div>
-              <div class="col-md-6 last-paragraph-no-margin">
-                <div class="fs-20 alt-font text-dark-gray mb-20px fw-500">
-                  Return information
-                </div>
-                <p class="w-80 md-w-100">
-                  Easy 7-day return or exchange in unused condition with original packaging.
-                </p>
-                <p class="w-80 md-w-100">
-                  Refunds are processed back to your original payment method after quality check.
-                </p>
-              </div>
-            </div>
-          </div>
+.main-image img {
+  max-height:520px;
+  width:auto;
+  max-width:100%;
+  border-radius:8px;
+}
 
-        </div> <!-- /.tab-content -->
-      </div>
-    </div>
-  </div>
-</section>
-{{!-- REVIEWS SECTION (PARTIAL) --}}
-{{> reviews product=product}}
+.title { font-size:26px; margin:8px 0; }
+.collection { font-size:12px; letter-spacing:1px; color:#777; }
 
-<!-- YOU MAY ALSO LIKE -->
-<section class="pt-40px pb-60px">
-  <div class="container">
-    <div class="row justify-content-center mb-3">
-      <div class="col-xl-5 col-lg-6 col-md-8 text-center last-paragraph-no-margin">
-        <h3 class="fw-500 ls-minus-1px text-dark-gray mb-10px">
-          You may also like
-        </h3>
-        <p>More pieces from our {{product.category}} collection.</p>
-      </div>
-    </div>
+.price { font-size:24px; margin:12px 0; }
 
-    <div class="row">
-      <div class="col-12">
-        <ul class="shop-modern shop-wrapper grid grid-4col md-grid-2col sm-grid-2col xs-grid-1col gutter-extra-large text-center">
-          <li class="grid-sizer"></li>
+.variant-group { margin:16px 0; }
+.variant-row { display:flex; gap:10px; flex-wrap:wrap; }
 
-          {{#each relatedProducts}}
-            <li class="grid-item">
-              <div class="shop-box mb-10px">
-                <div class="shop-image mb-25px">
-                  <a href="/product/{{id}}">
-                    {{#if image1}}
-                      <img src="/uploads/{{image1}}" alt="{{name}}">
-                    {{else}}
-                      <img src="https://via.placeholder.com/600x765" alt="{{name}}">
-                    {{/if}}
-                  </a>
-                  <div class="shop-buttons-wrap">
-                    <a href="/product/{{id}}"
-                       class="alt-font btn btn-small btn-box-shadow btn-dark-gray btn-round-edge left-icon add-to-cart">
-                      <i class="feather icon-feather-shopping-bag"></i>
-                      <span class="quick-view-text button-text">View product</span>
-                    </a>
-                  </div>
-                </div>
-                <div class="shop-footer text-center">
-                  <a href="/product/{{id}}" class="text-dark-gray fs-19 fw-500">{{name}}</a>
-                  <div class="price">₹{{price}}</div>
-                </div>
-              </div>
-            </li>
-          {{/each}}
+.variant {
+  padding:6px 14px;
+  border:1px solid #aaa;
+  border-radius:20px;
+  cursor:pointer;
+  font-size:13px;
+}
 
-        </ul>
-      </div>
-    </div>
-  </div>
-</section>
+.variant.active {
+  background:#000;
+  color:#fff;
+  border-color:#000;
+}
 
+.action-row {
+  display:flex;
+  gap:12px;
+  margin:24px 0;
+}
+
+.btn-primary {
+  padding:12px 22px;
+  background:#000;
+  color:#fff;
+  border:none;
+  border-radius:6px;
+  font-size:14px;
+}
+
+.btn-outline {
+  width:46px;
+  height:46px;
+  border:1px solid #000;
+  border-radius:6px;
+  background:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.related-grid {
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:20px;
+}
+/* COLOR VARIANTS */
+.color-variant {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid #bbb;
+  cursor: pointer;
+  position: relative;
+}
+
+.color-variant.active {
+  outline: 2px solid #000;
+  outline-offset: 2px;
+}
+
+/* SIZE / TEXT VARIANTS */
+.variant {
+  min-width: 40px;
+  padding: 8px 14px;
+  border-radius: 20px;
+  border: 1px solid #aaa;
+  font-size: 13px;
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.variant.active {
+  background: #000;
+  color: #fff;
+  border-color: #000;
+}
+
+/* LABEL */
+.variant-group label {
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #666;
+  margin-bottom: 6px;
+  display: block;
+}
+.color-variant {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid #bbb;
+  cursor: pointer;
+  position: relative;
+}
+
+.color-variant.active {
+  outline: 2px solid #000;
+  outline-offset: 3px;
+}
+.wishlist-btn i {
+  font-size: 18px;
+  transition: all 0.2s ease;
+  color: #111; /* outline color */
+}
+
+/* NOT in wishlist */
+.wishlist-btn:not(.active) i {
+  font-family: "Font Awesome 6 Free";
+  font-weight: 400; /* regular */
+  color: #111;
+}
+
+/* IN wishlist */
+.wishlist-btn.active i {
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900; /* solid */
+  color: #e63946; /* 🔥 base / brand color */
+}
+
+/* View more */
+.view-more-wrapper {
+  text-align: start;
+}
+
+.view-more-btn {
+  background: none;
+  border: none;
+  font-size: 13px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  position: relative;
+  margin-top: -1rem;
+  margin-bottom: 1rem;
+}
+
+.view-more-btn::after {
+  content: "";
+  display: block;
+  height: 1px;
+  background: #000;
+  width: auto;
+}
+
+/* Accordion container */
+.product-details {
+  margin: 0 auto 80px;
+  border-top: 1px solid #ddd;
+}
+
+.product-details.hidden {
+  display: none;
+}
+
+/* Each item */
+.details-item {
+  border-bottom: 1px solid #ddd;
+}
+
+/* Header */
+.details-header {
+  width: 100%;
+  padding: 18px 0;
+  background: none;
+  border: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+/* Icon */
+.details-header .icon {
+  font-size: 18px;
+  transition: transform 0.25s ease;
+}
+
+/* Content */
+.details-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease;
+  font-size: 14px;
+  color: #444;
+}
+
+.details-content p,
+.details-content ul {
+  padding-bottom: 20px;
+}
+
+.details-content ul {
+  padding-left: 16px;
+}
+
+/* Active */
+.details-item.active .details-content {
+  max-height: 400px;
+}
+
+.details-item.active .icon {
+  transform: rotate(45deg); /* + becomes × */
+}
+
+.features{
+  padding-left: 0rem;
+}
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.feature-item i {
+  width: 18px;
+  height: 18px;
+  stroke-width: 1.5;
+}
+
+.dimension-line {
+  font-size: 14px;
+  color: #444;
+  margin-top: 8px;
+}
+
+.simple-related-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+.simple-product-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.product-img img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.product-name {
+  margin-top: 10px;
+  font-size: 14px;
+  color: #111;
+  text-decoration: none;
+}
+
+.product-price {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 6px 0 10px;
+}
+
+.product-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-add-cart {
+  flex: 1;
+  padding: 8px 10px;
+  background: #000;
+  color: #fff;
+  border: none;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.btn-wishlist {
+  width: 38px;
+  height: 38px;
+  border: 1px solid #000;
+  background: #fff;
+  cursor: pointer;
+}
+
+.btn-wishlist.active i {
+  font-weight: 900;
+  color: #e63946;
+}
+
+</style>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://unpkg.com/feather-icons"></script>
 
+<script>
+/* ===============================
+   GLOBALS
+================================ */
+const VARIANTS = {{{json variants}}};
+const PRODUCT_ID = {{product.id}};
+
+let selectedOptions = {};
+let selectedVariant = null;
+
+const priceEl = document.getElementById("priceText");
+const stockEl = document.getElementById("stockText");
+const cartBtn = document.getElementById("addToCartBtn");
+const wishlistBtn = document.getElementById("wishlistBtn");
+const variantContainer = document.getElementById("variantContainer");
+
+/* ===============================
+   FINISH STYLES
+================================ */
+const FINISH_STYLES = {
+  silver: { background: "#d9d9d9", border: "#aaa" },
+  gold: { background: "linear-gradient(135deg,#d4af37,#f6e27a)" },
+  "rose gold": { background: "linear-gradient(135deg,#b76e79,#f2b5c4)" },
+  black: { background: "#111" },
+  white: { background: "#fff", border: "#ccc" }
+};
+
+/* ===============================
+   RENDER VARIANTS
+================================ */
+function renderVariants() {
+  if (!VARIANTS.length) return;
+
+  variantContainer.innerHTML = "";
+
+  const sample = VARIANTS[0];
+
+  const finishKey = Object.keys(sample).find(k =>
+    k.toLowerCase().includes("finish")
+  );
+
+  const gemstoneKey = Object.keys(sample).find(k =>
+    ["gemstone_colour", "gemstone_color"].includes(k.toLowerCase())
+  );
+
+  const keys = [finishKey, gemstoneKey].filter(Boolean);
+
+  keys.forEach(key => {
+    const values = [...new Set(VARIANTS.map(v => v[key]).filter(Boolean))];
+    if (!values.length) return;
+
+    const group = document.createElement("div");
+    group.className = "variant-group";
+
+    const label = document.createElement("label");
+    label.textContent =
+      key.includes("finish") ? "Finish" : "Gemstone colour";
+    group.appendChild(label);
+
+    const row = document.createElement("div");
+    row.className = "variant-row";
+
+    values.forEach(value => {
+      const btn = document.createElement("div");
+      btn.className = "variant";
+      btn.dataset.value = value;
+
+      // 🎨 Finish / Gemstone colour
+      if (key.includes("finish") || key.includes("colour") || key.includes("color")) {
+        btn.classList.add("color-variant");
+        const style = FINISH_STYLES[value.toLowerCase()] || { background: value };
+        Object.assign(btn.style, style);
+        btn.title = value;
+      } else {
+        btn.textContent = value;
+      }
+
+      btn.onclick = () => selectOption(key, value, row);
+      row.appendChild(btn);
+    });
+
+    group.appendChild(row);
+    variantContainer.appendChild(group);
+  });
+}
+
+
+//auto select the lowest price variant 
+function autoSelectLowestPriceVariant() {
+  if (!VARIANTS.length) return;
+
+  const lowest = [...VARIANTS].sort(
+    (a, b) => Number(a.price) - Number(b.price)
+  )[0];
+
+  selectedVariant = lowest;
+  selectedOptions = {};
+
+  document.querySelectorAll(".variant-group").forEach(group => {
+    const label = group.querySelector("label")?.textContent.toLowerCase();
+
+    Object.entries(lowest).forEach(([k, v]) => {
+      if (!v) return;
+
+      if (
+        (label.includes("finish") && k.includes("finish")) ||
+        (label.includes("gemstone") && k.includes("gemstone"))
+      ) {
+        group.querySelectorAll(".variant").forEach(btn => {
+          if (btn.dataset.value === v) btn.classList.add("active");
+        });
+        selectedOptions[k] = v;
+      }
+    });
+  });
+
+  applyVariant(lowest);
+}
+
+renderVariants();
+autoSelectLowestPriceVariant();
+
+function renderVariants() {
+  if (!VARIANTS.length) return;
+
+  variantContainer.innerHTML = "";
+
+  const sample = VARIANTS[0];
+
+  const finishKey = Object.keys(sample).find(k =>
+    k.toLowerCase().includes("finish")
+  );
+
+  const gemstoneKey = Object.keys(sample).find(k =>
+    ["gemstone_colour", "gemstone_color"].includes(k.toLowerCase())
+  );
+
+  const keys = [finishKey, gemstoneKey].filter(Boolean);
+
+  keys.forEach(key => {
+    const values = [...new Set(VARIANTS.map(v => v[key]).filter(Boolean))];
+    if (!values.length) return;
+
+    const group = document.createElement("div");
+    group.className = "variant-group";
+
+    const label = document.createElement("label");
+    label.textContent =
+      key.includes("finish") ? "Finish" : "Gemstone colour";
+    group.appendChild(label);
+
+    const row = document.createElement("div");
+    row.className = "variant-row";
+
+    values.forEach(value => {
+      const btn = document.createElement("div");
+      btn.className = "variant";
+      btn.dataset.value = value;
+
+      // 🎨 Finish / Gemstone colour
+      if (key.includes("finish") || key.includes("colour") || key.includes("color")) {
+        btn.classList.add("color-variant");
+        const style = FINISH_STYLES[value.toLowerCase()] || { background: value };
+        Object.assign(btn.style, style);
+        btn.title = value;
+      } else {
+        btn.textContent = value;
+      }
+
+      btn.onclick = () => selectOption(key, value, row);
+      row.appendChild(btn);
+    });
+
+    group.appendChild(row);
+    variantContainer.appendChild(group);
+  });
+}
+
+//render dimenssion 
+function renderDimensions() {
+  const el = document.getElementById("dimensionLine");
+  if (!el || !selectedVariant) return;
+
+  const parts = [];
+
+  if (selectedVariant.length_size !== null && selectedVariant.length_size !== undefined)
+    parts.push(`Length: ${selectedVariant.length_size} cm`);
+
+  if (selectedVariant.width !== null && selectedVariant.width !== undefined)
+    parts.push(`Width: ${selectedVariant.width} cm`);
+
+  if (selectedVariant.thickness !== null && selectedVariant.thickness !== undefined)
+    parts.push(`Thickness: ${selectedVariant.thickness} cm`);
+
+  el.textContent = parts.join(" | ");
+}
+
+
+function applyVariant(variant) {
+  selectedVariant = variant;
+
+  priceEl.textContent = "₹" + variant.price;
+  stockEl.textContent = variant.stock > 0 ? "In stock" : "Out of stock";
+  cartBtn.disabled = variant.stock <= 0;
+
+  renderDimensions(); // 🔴 THIS IS WHY IT WAS NOT SHOWING
+}
+
+/* ===============================
+   SELECT OPTION (AUTO RESOLVE)
+================================ */
+function selectOption(key, value, row) {
+  selectedOptions[key] = value;
+
+  // active state for this group only
+  row.querySelectorAll(".variant").forEach(v => v.classList.remove("active"));
+  [...row.children].find(v => v.dataset.value === value)?.classList.add("active");
+
+  // progressive match
+  const matches = VARIANTS.filter(v =>
+    Object.entries(selectedOptions).every(
+      ([k,val]) => v[k] === val
+    )
+  );
+
+  if (matches.length === 1) {
+    selectedVariant = matches[0];
+    applyVariant(selectedVariant);
+  } else {
+    selectedVariant = null;
+    priceEl.textContent = "Select remaining options";
+    stockEl.textContent = "";
+    cartBtn.disabled = true;
+  }
+}
+
+
+
+/* ===============================
+   ADD TO CART
+================================ */
+cartBtn.onclick = async () => {
+  if (!selectedVariant) {
+    Swal.fire({
+      icon: "warning",
+      title: "Select a variant",
+      text: "Please choose color / size before adding to cart"
+    });
+    return;
+  }
+
+  try {
+    const res = await fetch("/cart/add", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("token")
+      },
+      body: JSON.stringify({
+        product_id: PRODUCT_ID,
+        variant_id: selectedVariant.id,
+        qty: 1
+      })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      Swal.fire({
+        icon: "success",
+        title: "Added to cart",
+        timer: 1500,
+        showConfirmButton: false
+      });
+    } else {
+      throw new Error(data.message);
+    }
+  } catch (err) {
+    Swal.fire({
+      icon: "error",
+      title: "Action failed",
+      text: err.message || "Login required"
+    });
+  }
+};
+
+/* ===============================
+   WISHLIST
+================================ */
+wishlistBtn.onclick = async () => {
+  try {
+    const res = await fetch("/wishlist/toggle", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("token")
+      },
+      body: JSON.stringify({ product_id: PRODUCT_ID })
+    });
+
+    const data = await res.json();
+
+    if (data.added) {
+      wishlistBtn.classList.add("active");
+      Swal.fire({
+        icon: "success",
+        title: "Added to wishlist",
+        timer: 1200,
+        showConfirmButton: false
+      });
+    } else if (data.removed) {
+      wishlistBtn.classList.remove("active");
+      Swal.fire({
+        icon: "info",
+        title: "Removed from wishlist",
+        timer: 1200,
+        showConfirmButton: false
+      });
+    } else {
+      throw new Error("Login required");
+    }
+  } catch (err) {
+    Swal.fire({
+      icon: "error",
+      title: "Action failed",
+      text: err.message
+    });
+  }
+};
+
+/* ===============================
+   INIT
+================================ */
+
+wishlistBtn.onclick = async () => {
+  try {
+    const res = await fetch("/api/wishlist/toggle", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("token")
+      },
+      body: JSON.stringify({ product_id: PRODUCT_ID })
+    });
+
+    const text = await res.text();
+    let data;
+
+    try {
+      data = JSON.parse(text);
+    } catch {
+      throw new Error("Wishlist API error");
+    }
+
+    if (!res.ok || !data.success) {
+      throw new Error(data.message || "Login required");
+    }
+
+    // ✅ BACKEND-CORRECT LOGIC
+    if (data.added === true) {
+      wishlistBtn.classList.add("active");
+      Swal.fire({
+        icon: "success",
+        title: "Added to wishlist",
+        timer: 1200,
+        showConfirmButton: false
+      });
+    } else {
+      wishlistBtn.classList.remove("active");
+      Swal.fire({
+        icon: "info",
+        title: "Removed from wishlist",
+        timer: 1200,
+        showConfirmButton: false
+      });
+    }
+
+  } catch (err) {
+    Swal.fire({
+      icon: "error",
+      title: "Action failed",
+      text: err.message
+    });
+  }
+};
+
+(async () => {
+  try {
+    const res = await fetch(`/api/wishlist/check/${PRODUCT_ID}`, {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("token")
+      }
+    });
+    const data = await res.json();
+    if (data.inWishlist) wishlistBtn.classList.add("active");
+  } catch {}
+})();
+
+const viewMoreBtn = document.getElementById("viewMoreBtn");
+const detailsSection = document.getElementById("productDetails");
+
+viewMoreBtn.onclick = () => {
+  detailsSection.classList.toggle("hidden");
+  detailsSection.scrollIntoView({ behavior: "smooth" });
+};
+
+/* Accordion logic */
+document.querySelectorAll(".details-header").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const item = btn.parentElement;
+
+    // close others (optional – luxury UX)
+    document.querySelectorAll(".details-item").forEach(i => {
+      if (i !== item) i.classList.remove("active");
+    });
+
+    item.classList.toggle("active");
+  });
+});
+  feather.replace();
+
+  async function addRelatedToCart(productId) {
+  try {
+    const res = await fetch("/cart/add", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("token")
+      },
+      body: JSON.stringify({
+        product_id: productId,
+        qty: 1
+      })
+    });
+
+    const data = await res.json();
+
+    if (!data.success) throw new Error(data.message);
+
+    Swal.fire({
+      icon: "success",
+      title: "Added to cart",
+      timer: 1200,
+      showConfirmButton: false
+    });
+
+  } catch (err) {
+    Swal.fire({
+      icon: "error",
+      title: "Login required",
+      text: err.message
+    });
+  }
+}
+
+async function toggleRelatedWishlist(productId, btn) {
+  try {
+    const res = await fetch("/api/wishlist/toggle", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("token")
+      },
+      body: JSON.stringify({ product_id: productId })
+    });
+
+    const data = await res.json();
+    if (!data.success) throw new Error(data.message);
+
+    btn.classList.toggle("active");
+  } catch (err) {
+    Swal.fire({
+      icon: "error",
+      title: "Login required"
+    });
+  }
+}
+
+</script>

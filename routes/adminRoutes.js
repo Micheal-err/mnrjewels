@@ -64,54 +64,50 @@ router.post("/users/:id/delete", adminAuth, async (req, res) => {
 });
 
 
-
-// ===============================
-// ✅ PRODUCTS MODULE
-// ===============================
-
-
-// 📌 GET ALL PRODUCTS
-// ===============================
-// ✅ PRODUCTS MODULE (FIXED)
-// ===============================
-
-
-
-// ----- Multer Storage -----
+/* ===============================
+   📦 MULTER CONFIG
+================================ */
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
+  destination: (req, file, cb) => {
     cb(null, "public/uploads/");
   },
-  filename: function (req, file, cb) {
+  filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);
-    const fname = Date.now() + "-" + Math.round(Math.random() * 1e9) + ext;
-    cb(null, fname);
+    cb(null, Date.now() + "-" + Math.round(Math.random() * 1e9) + ext);
   }
 });
 const upload = multer({ storage });
 
-// 📌 GET ALL PRODUCTS
-router.get("/allproducts", adminAuth, async (req, res) => {
+/* ===============================
+   🧩 PRODUCTS (DESIGN ONLY)
+================================ */
+
+/**
+ * GET ALL PRODUCTS
+ */
+router.get("/products", adminAuth, async (req, res) => {
   try {
     const [rows] = await db.query(`
-      SELECT id, name, description, price, category, sub_category,
-      collection_name, sku, variants, length_size, dimensions,
-      diamonds, gemstones_color, metal, finish,
-      image1, image2, image3, image4, created_at
-      FROM products ORDER BY id DESC
+      SELECT 
+        p.*,
+        COUNT(v.id) AS variant_count
+      FROM products p
+      LEFT JOIN product_variants v ON v.product_id = p.id
+      GROUP BY p.id
+      ORDER BY p.id DESC
     `);
 
     res.json({ success: true, products: rows });
   } catch (err) {
-    console.log("Get products error:", err);
+    console.error(err);
     res.status(500).json({ success: false });
   }
 });
 
 
-// ===============================
-// 📌 CREATE PRODUCT (WITH MULTER)
-// ===============================
+/**
+ * CREATE PRODUCT (DESIGN + IMAGES)
+ */
 router.post(
   "/products",
   adminAuth,
@@ -124,50 +120,59 @@ router.post(
   async (req, res) => {
     try {
       const {
-        name, description, price, category, sub_category,
-        collection_name, sku, variants, length_size, dimensions,
-        diamonds, gemstones_color, metal, finish
-      } = req.body;
+  name,
+  description,
+  category,
+  sub_category,
+  collection_name,
+  category_description,
+  metal,
+  diamonds
+} = req.body;
 
-      if (!name) return res.status(400).json({ success: false, message: "Name is required" });
 
-      const img = {
+      if (!name) {
+        return res.status(400).json({ success: false, message: "Name is required" });
+      }
+
+      const images = {
         image1: req.files.image1?.[0]?.filename || null,
         image2: req.files.image2?.[0]?.filename || null,
         image3: req.files.image3?.[0]?.filename || null,
         image4: req.files.image4?.[0]?.filename || null
       };
 
-      await db.query(`
+      const [result] = await db.query(`
         INSERT INTO products (
-          name, description, price, category, sub_category,
-          collection_name, sku, variants, length_size, dimensions,
-          diamonds, gemstones_color, metal, finish,
-          image1, image2, image3, image4
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `,
-        [
-          name, description, price, category, sub_category,
-          collection_name, sku, variants, length_size, dimensions,
-          diamonds, gemstones_color, metal, finish,
-          img.image1, img.image2, img.image3, img.image4
-        ]
-      );
+  name, description, category, sub_category,
+  collection_name, category_description,
+  metal, diamonds,
+  image1, image2, image3, image4
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 
-      res.json({ success: true });
+      `, [
+  name, description, category, sub_category,
+  collection_name, category_description,
+  metal, diamonds,
+  images.image1, images.image2, images.image3, images.image4
+]);
+
+      res.json({
+        success: true,
+        product_id: result.insertId
+      });
 
     } catch (err) {
-      console.log("Create product error:", err);
-      res.status(500).json({ success: false, message: err.sqlMessage });
+      console.error(err);
+      res.status(500).json({ success: false });
     }
   }
 );
 
-
-// ===============================
-// 📌 UPDATE PRODUCT (WITH MULTER)
-// ===============================
-router.post(
+/**
+ * UPDATE PRODUCT
+ */
+router.put(
   "/products/:id",
   adminAuth,
   upload.fields([
@@ -178,65 +183,187 @@ router.post(
   ]),
   async (req, res) => {
     try {
-      const {
-        name, description, price, category, sub_category,
-        collection_name, sku, variants, length_size, dimensions,
-        diamonds, gemstones_color, metal, finish
-      } = req.body;
+    const {
+  name,
+  description,
+  category,
+  sub_category,
+  collection_name,
+  category_description,
+  metal,
+  diamonds
+} = req.body;
 
-      if (!name) return res.status(400).json({ success: false, message: "Name is required" });
 
-      const img = {
+      const images = {
         image1: req.files.image1?.[0]?.filename || null,
         image2: req.files.image2?.[0]?.filename || null,
         image3: req.files.image3?.[0]?.filename || null,
         image4: req.files.image4?.[0]?.filename || null
       };
 
-      // update query
       await db.query(`
         UPDATE products SET
-          name=?, description=?, price=?, category=?, sub_category=?,
-          collection_name=?, sku=?, variants=?, length_size=?, dimensions=?,
-          diamonds=?, gemstones_color=?, metal=?, finish=?,
-          image1=IFNULL(?, image1), 
-          image2=IFNULL(?, image2), 
-          image3=IFNULL(?, image3), 
-          image4=IFNULL(?, image4)
-        WHERE id=?
-      `,
-        [
-          name, description, price, category, sub_category,
-          collection_name, sku, variants, length_size, dimensions,
-          diamonds, gemstones_color, metal, finish,
-          img.image1, img.image2, img.image3, img.image4,
-          req.params.id
-        ]
-      );
+  name=?, description=?, category=?, sub_category=?,
+  collection_name=?, category_description=?,
+  metal=?, diamonds=?,
+  image1=IFNULL(?, image1),
+  image2=IFNULL(?, image2),
+  image3=IFNULL(?, image3),
+  image4=IFNULL(?, image4)
+WHERE id=?
+
+      `, [
+        name, description, category, sub_category,
+        collection_name, category_description,
+        metal, diamonds,
+        images.image1, images.image2, images.image3, images.image4,
+        req.params.id
+      ]);
 
       res.json({ success: true });
 
     } catch (err) {
-      console.log("Edit product error:", err);
-      res.status(500).json({ success: false, message: err.sqlMessage });
+      console.error(err);
+      res.status(500).json({ success: false });
     }
   }
 );
 
-
-// ===============================
-// 📌 DELETE PRODUCT
-// ===============================
+/**
+ * DELETE PRODUCT (VARIANTS AUTO-DELETED)
+ */
 router.post("/products/:id/delete", adminAuth, async (req, res) => {
   try {
     await db.query(`DELETE FROM products WHERE id=?`, [req.params.id]);
     res.json({ success: true });
   } catch (err) {
-    console.log("Delete product error:", err);
+    console.error(err);
     res.status(500).json({ success: false });
   }
 });
 
+/* ===============================
+   🧩 VARIANTS (SELLABLE UNITS)
+================================ */
+
+/**
+ * GET VARIANTS FOR A PRODUCT
+ */
+router.get("/products/:productId/variants", adminAuth, async (req, res) => {
+  try {
+    const [rows] = await db.query(
+      `SELECT * FROM product_variants WHERE product_id=?`,
+      [req.params.productId]
+    );
+    res.json({ success: true, variants: rows });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false });
+  }
+});
+
+/**
+ * ADD VARIANT
+ */
+// ================= VARIANT CREATE / UPDATE =================
+router.post("/variants", adminAuth, async (req, res) => {
+  try {
+    const {
+      id,                // only on edit
+      product_id,
+      sku,
+      price,
+      length_size,
+      width,
+      thickness,
+      finish,
+      gemstones_colour,  // ✅ NEW
+      stock
+    } = req.body;
+
+    if (!product_id || !price) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing required fields"
+      });
+    }
+
+    // ================= UPDATE =================
+    if (id) {
+      await db.query(`
+        UPDATE product_variants SET
+          price = ?,
+          length_size = ?,
+          width = ?,
+          thickness = ?,
+          finish = ?,
+          gemstones_colour = ?,
+          stock = ?
+        WHERE id = ?
+      `, [
+        price,
+        length_size,
+        width,
+        thickness,
+        finish,
+        gemstones_colour,
+        stock,
+        id
+      ]);
+
+      return res.json({ success: true, mode: "updated" });
+    }
+
+    // ================= CREATE =================
+    await db.query(`
+      INSERT INTO product_variants
+      (product_id, sku, price, length_size, width, thickness, finish, gemstones_colour, stock)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `, [
+      product_id,
+      sku,
+      price,
+      length_size,
+      width,
+      thickness,
+      finish,
+      gemstones_colour,
+      stock
+    ]);
+
+    res.json({ success: true, mode: "created" });
+
+  } catch (err) {
+    console.error("VARIANT SAVE ERROR:", err);
+
+    if (err.code === "ER_DUP_ENTRY") {
+      return res.status(409).json({
+        success: false,
+        message: "SKU already exists"
+      });
+    }
+
+    res.status(500).json({ success: false });
+  }
+});
+
+
+
+
+
+/**
+ * DELETE VARIANT
+ */
+router.post("/variants/:id/delete", adminAuth, async (req, res) => {
+  try {
+    await db.query(`DELETE FROM product_variants WHERE id=?`, [req.params.id]);
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false });
+  }
+});
 
 // ===============================
 // ✅ REVIEWS MODULE
@@ -246,17 +373,22 @@ router.post("/products/:id/delete", adminAuth, async (req, res) => {
 router.get("/reviews", adminAuth, async (req, res) => {
   try {
     const [rows] = await db.query(
-      `SELECT r.*, p.name AS product_name 
-       FROM reviews r 
+      `SELECT 
+         r.*,
+         p.id   AS product_id,
+         p.name AS product_name
+       FROM reviews r
        LEFT JOIN products p ON p.id = r.product_id
        ORDER BY r.id DESC`
     );
+
     res.json({ success: true, reviews: rows });
   } catch (err) {
     console.log("Get reviews error:", err);
     res.status(500).json({ success: false });
   }
 });
+
 
 
 //edit a review

@@ -32,7 +32,7 @@
 
     <!-- FILTER / SORT -->
     <div class="row mb-15px">
-      <div class="col-12 d-flex align-items-center justify-content-between border-top border-bottom border-color-extra-medium-gray py-2">
+      <div class="col-12 d-flex align-items-center justify-content-between border-top border-bottom border-color-extra-medium-gray py-2"> 
 
         <div class="fs-13">
           Reviews (<span id="reviewsTotal">0</span>)
@@ -98,15 +98,11 @@
           <input type="hidden" id="reviewId" name="review_id" value="">
           <input type="hidden" name="product_id" value="{{product.id}}">
 
-          <div class="mb-3">
-            <label class="fs-12 alt-font text-uppercase">Your name*</label>
-            <input type="text" name="name" class="form-control review-input" required>
-          </div>
+          <div class="mb-3 p-3 rounded bg-light border">
+  <div class="fw-500" id="reviewUserName">—</div>
+  <div class="fs-13 text-muted" id="reviewUserEmail">—</div>
+</div>
 
-          <div class="mb-3">
-            <label class="fs-12 alt-font text-uppercase">Your email*</label>
-            <input type="email" name="email" class="form-control review-input" required>
-          </div>
 
           <div class="mb-3">
             <label class="fs-12 alt-font text-uppercase">Review title*</label>
@@ -142,287 +138,344 @@
     </div>
   </div>
 </div>
+<style>
+  /* ================================
+   REVIEWS GRID
+================================ */
+.review-grid-header,
+.review-grid-row {
+  display: grid;
+  grid-template-columns: 1.2fr 1.5fr 1fr 3fr 1.2fr 1.2fr;
+  gap: 12px;
+  align-items: center;
+}
 
+.review-grid-header {
+  font-weight: 600;
+  font-size: 13px;
+  padding: 10px 0;
+  border-bottom: 1px solid #e5e5e5;
+  text-transform: uppercase;
+}
 
+.review-grid-row {
+  padding: 14px 0;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 14px;
+}
 
+.review-user {
+  font-weight: 500;
+}
+
+.review-title {
+  font-weight: 500;
+}
+
+.review-rating {
+  color: #f5a623;
+  font-size: 14px;
+}
+
+.review-comment {
+  color: #555;
+  line-height: 1.4;
+}
+
+.review-date {
+  font-size: 12px;
+  color: #777;
+}
+
+.review-actions button {
+  margin-right: 6px;
+}
+
+</style>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 (function () {
 
+  /* ================= CONFIG ================= */
   const PRODUCT_ID = {{product.id}};
-  const API_URL = `/api/reviews/product/${PRODUCT_ID}/reviews`;
+  const API_BASE = `/api/reviews/product/${PRODUCT_ID}`;
+  const TOKEN = localStorage.getItem("token");
 
   let reviews = [];
   let currentPage = 1;
 
-  // Elements
-  const reviewListEl = document.getElementById("reviewsContainer");
-  const reviewsTotalEl = document.getElementById("reviewsTotal");
-  const avgStarsEl = document.getElementById("reviewAvgStars");
-  const statsTextEl = document.getElementById("reviewStatsText");
-  const sortSelect = document.getElementById("sortSelect");
-  const perPageSelect = document.getElementById("perPageSelect");
-  const paginationEl = document.getElementById("reviewsPagination");
+  /* ================= AUTH ================= */
+  function getUser() {
+    try {
+      return JSON.parse(localStorage.getItem("user"));
+    } catch {
+      return null;
+    }
+  }
 
-  const reviewModal = document.getElementById("writeReviewModal");
-  const reviewForm = document.getElementById("reviewForm");
-  const submitBtn = document.getElementById("reviewSubmitBtn");
-  const reviewIdField = document.getElementById("reviewId");
-  const openReviewBtn = document.getElementById("openReviewBtn");
+  const authHeaders = () => ({
+    "Content-Type": "application/json",
+    ...(TOKEN ? { Authorization: "Bearer " + TOKEN } : {})
+  });
 
-  // Helpers
-  const getUser = () => {
-    try { return JSON.parse(localStorage.getItem("user")); } catch { return null; }
-  };
-
-  const escapeHtml = str =>
-    String(str).replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;");
-
-  const stars = n => "★".repeat(n) + "☆".repeat(5 - n);
-
-  function toast(icon, title) {
+  /* ================= SWEETALERT ================= */
+  const toast = (icon, title) =>
     Swal.fire({
       toast: true,
       position: "top-end",
+      timer: 2000,
       showConfirmButton: false,
-      timer: 1500,
       icon,
       title
     });
-  }
 
-  // Fetch Reviews
-  async function fetchReviews() {
-    reviewListEl.innerHTML = `<p class="text-muted">Loading reviews…</p>`;
-    try {
-      const res = await fetch(API_URL);
-      const data = await res.json();
-      reviews = data.reviews || [];
-      renderAll();
-    } catch {
-      reviewListEl.innerHTML = `<p class="text-muted">Unable to load reviews</p>`;
-    }
-  }
+  const alertBox = (icon, title, text = "") =>
+    Swal.fire({ icon, title, text });
 
-  // Stats
-  function renderStats() {
-    const t = reviews.length;
-    reviewsTotalEl.textContent = t;
-
-    if (!t) {
-      avgStarsEl.innerHTML = "<span>★★★★★</span>";
-      statsTextEl.textContent = "No reviews yet";
-      return;
-    }
-
-    const avg = reviews.reduce((s, r) => s + Number(r.rating), 0) / t;
-    avgStarsEl.innerHTML = `<span>${stars(Math.round(avg))}</span>`;
-    statsTextEl.innerHTML = `<strong>${avg.toFixed(1)}</strong> / 5 · ${t} review${t>1?"s":""}`;
-  }
-
-  // Sorting
-  function sortedReviews() {
-    const arr = [...reviews];
-    const s = sortSelect.value;
-
-    return arr.sort((a, b) => {
-      if (s === "rating_desc") return b.rating - a.rating;
-      if (s === "rating_asc") return a.rating - b.rating;
-      if (s === "newest") return new Date(b.created_at_formatted) - new Date(a.created_at_formatted);
-      if (s === "oldest") return new Date(a.created_at_formatted) - new Date(b.created_at_formatted);
-    });
-  }
-
-  // Pagination
-  function renderPage(page = 1) {
-    const list = sortedReviews();
-    const perPage = Number(perPageSelect.value);
-    const total = list.length;
-    const pages = Math.ceil(total / perPage);
-
-    currentPage = Math.min(Math.max(page, 1), pages);
-
-    const start = (currentPage - 1) * perPage;
-    const chunk = list.slice(start, start + perPage);
-
-    if (!chunk.length) {
-      reviewListEl.innerHTML = `<p class="text-muted">Be the first to review this product.</p>`;
-      paginationEl.innerHTML = "";
-      return;
-    }
-
+  /* ================= REVIEW CHECK ================= */
+  function userAlreadyReviewed() {
     const user = getUser();
-    let html = '<ul class="review-list">';
+    if (!user || !Array.isArray(reviews)) return false;
 
-    chunk.forEach(r => {
-      let actions = "";
-      if (user && user.email === r.email) {
-        actions = `
-          <button class="btn  btn-sm edit-review-btn" data-id="${r.id}"><i class="fa-solid fa-pen-to-square"></i></button>
-          <button class="btn  text-danger btn-sm delete-review-btn" data-id="${r.id}"><i class="fa-solid fa-trash-can"></i></button>`;
+    return reviews.some(r =>
+      Number(r.user_id) === Number(user.id)
+    );
+  }
+
+  /* ================= CAN REVIEW ================= */
+  async function canReview() {
+    if (!TOKEN) return { ok: false, reason: "login" };
+
+    const res = await fetch(`/api/reviews/can-review/${PRODUCT_ID}`, {
+      headers: authHeaders()
+    });
+
+    const data = await res.json();
+    return data.canReview
+      ? { ok: true }
+      : { ok: false, reason: data.reason };
+  }
+
+  /* ================= FETCH REVIEWS ================= */
+  async function fetchReviews() {
+    reviewsContainer.innerHTML = `<p class="text-muted">Loading reviews…</p>`;
+
+    try {
+      const res = await fetch(`${API_BASE}/reviews`);
+      const json = await res.json();
+
+      reviews = Array.isArray(json.reviews) ? json.reviews : [];
+
+      renderStats();
+      renderPage(1);
+
+      // Disable write button if already reviewed
+      if (userAlreadyReviewed()) {
+        openReviewBtn.disabled = true;
+        openReviewBtn.textContent = "Review submitted";
+      } else {
+        openReviewBtn.disabled = false;
+        openReviewBtn.textContent = "Write a review";
       }
 
+    } catch (err) {
+      console.error("Fetch reviews failed:", err);
+      reviewsContainer.innerHTML =
+        `<p class="text-muted">Failed to load reviews</p>`;
+    }
+  }
+
+  /* ================= STATS ================= */
+  const stars = n => "★".repeat(n) + "☆".repeat(5 - n);
+
+  function renderStats() {
+    const total = reviews.length;
+    reviewsTotal.textContent = total;
+
+    if (!total) {
+      reviewAvgStars.innerHTML = "★★★★★";
+      reviewStatsText.textContent = "No reviews yet";
+      return;
+    }
+
+    const avg =
+      reviews.reduce((sum, r) => sum + Number(r.rating), 0) / total;
+
+    reviewAvgStars.innerHTML = stars(Math.round(avg));
+    reviewStatsText.innerHTML =
+      `<strong>${avg.toFixed(1)}</strong> / 5 · ${total} review${total > 1 ? "s" : ""}`;
+  }
+
+  /* ================= SORT ================= */
+  function sortReviews() {
+    const v = sortSelect.value;
+
+    if (v === "rating_desc") reviews.sort((a,b)=>b.rating-a.rating);
+    if (v === "rating_asc")  reviews.sort((a,b)=>a.rating-b.rating);
+    if (v === "newest")      reviews.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+    if (v === "oldest")      reviews.sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
+  }
+
+  /* ================= RENDER GRID ================= */
+  function renderPage(page = 1) {
+    sortReviews();
+
+    const user = getUser();
+    const perPage = Number(perPageSelect.value);
+    const slice = reviews.slice((page-1)*perPage, page*perPage);
+
+    if (!slice.length) {
+      reviewsContainer.innerHTML = `<p class="text-muted">No reviews yet.</p>`;
+      return;
+    }
+
+    let html = `
+      <div class="review-grid-header">
+        <div>User</div>
+        <div>Title</div>
+        <div>Rating</div>
+        <div>Review</div>
+        <div>Date</div>
+        <div>Actions</div>
+      </div>
+    `;
+
+    slice.forEach(r => {
+      const isOwner = user && Number(user.id) === Number(r.user_id);
+const fullName = r.first_name +" "+ r.last_name;
+      // ✅ FIX NULL USER NAME
+      const userName =
+        fullName?.trim() ||
+        r.email?.split("@")[0] ||
+        "Anonymous";
+
       html += `
-        <li class="review-item">
-          <div class="row">
-            <div class="col-md-3">
-              <div class="review-author alt-font fw-500">${escapeHtml(r.name)}</div>
-              <div class="fs-12 text-muted"><i class="feather icon-feather-check-circle"></i> Verified buyer</div>
-            </div>
-
-            <div class="col-md-7">
-              <div class="review-stars">${stars(r.rating)}</div>
-              <div class="fw-500">${escapeHtml(r.title)}</div>
-              <div>${escapeHtml(r.comment)}</div>
-              ${actions}
-            </div>
-
-            <div class="col-md-2 text-end fs-12 text-muted">
-              ${escapeHtml(r.created_at_formatted)}
-            </div>
+        <div class="review-grid-row">
+          <div>${userName}</div>
+          <div>${r.title}</div>
+          <div>${stars(r.rating)}</div>
+          <div>${r.comment}</div>
+          <div>${r.created_at_formatted}</div>
+          <div>
+            ${
+              isOwner
+                ? `
+                  <button class="btn btn-sm btn-outline-dark edit-review" data-id="${r.id}">Edit</button>
+                  <button class="btn btn-sm btn-outline-danger delete-review" data-id="${r.id}">Delete</button>
+                `
+                : `<span class="text-muted">—</span>`
+            }
           </div>
-        </li>`;
+        </div>
+      `;
     });
 
-    html += "</ul>";
-
-    reviewListEl.innerHTML = html;
-    renderPagination(total, perPage, currentPage);
-    attachActions();
+    reviewsContainer.innerHTML = html;
+    bindActions();
   }
 
-  function renderPagination(total, perPage, page) {
-    const pages = Math.ceil(total / perPage);
-    if (pages <= 1) { paginationEl.innerHTML = ""; return; }
+  /* ================= ACTIONS ================= */
+  function bindActions() {
 
-    let html = "";
-
-    const add = (p, label = p, active = false) =>
-      html += `<li class="page-item ${active?"active":""}">
-        <a href="#" class="page-link" data-page="${p}">${label}</a></li>`;
-
-    add(Math.max(1, page - 1), "«");
-
-    for (let i = 1; i <= pages; i++) add(i, i, i === page);
-
-    add(Math.min(pages, page + 1), "»");
-
-    paginationEl.innerHTML = html;
-
-    paginationEl.querySelectorAll("a").forEach(a =>
-      a.onclick = e => {
-        e.preventDefault();
-        renderPage(Number(a.dataset.page));
-      });
-  }
-
-  function renderAll() {
-    renderStats();
-    renderPage(currentPage);
-  }
-
-  // Edit/Delete handlers
-  function attachActions() {
-
-    // EDIT
-    document.querySelectorAll(".edit-review-btn").forEach(btn =>
+    document.querySelectorAll(".edit-review").forEach(btn => {
       btn.onclick = () => {
-        const id = btn.dataset.id;
-        const r = reviews.find(v => String(v.id) === String(id));
+        const r = reviews.find(x => x.id == btn.dataset.id);
 
-        reviewIdField.value = r.id;
-        reviewForm.name.value = r.name;
-        reviewForm.email.value = r.email;
+        reviewId.value = r.id;
+        reviewUserName.textContent = r.name || "You";
+        reviewUserEmail.textContent = r.email || "";
+
         reviewForm.title.value = r.title;
         reviewForm.rating.value = r.rating;
         reviewForm.comment.value = r.comment;
 
-        submitBtn.textContent = "Update Review";
+        reviewSubmitBtn.textContent = "Update Review";
+        new bootstrap.Modal(writeReviewModal).show();
+      };
+    });
 
-        new bootstrap.Modal(reviewModal).show();
-      }
-    );
-
-    // DELETE
-    document.querySelectorAll(".delete-review-btn").forEach(btn =>
+    document.querySelectorAll(".delete-review").forEach(btn => {
       btn.onclick = async () => {
-        const id = btn.dataset.id;
-        const user = getUser();
-
-        const res = await fetch(`/api/reviews/product/${PRODUCT_ID}/reviews/${id}/delete`, {
+        await fetch(`${API_BASE}/reviews/${btn.dataset.id}/delete`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: user.email })
+          headers: authHeaders()
         });
 
         toast("success", "Review deleted");
         fetchReviews();
-      }
-    );
+      };
+    });
   }
 
-  // Create / Edit submit
+  /* ================= SUBMIT ================= */
   reviewForm.onsubmit = async e => {
     e.preventDefault();
 
-    const fd = new FormData(reviewForm);
-    const user = getUser();
+    const status = await canReview();
+    if (!status.ok) {
+      return alertBox(
+        "error",
+        status.reason === "login"
+          ? "Login required"
+          : "You already reviewed this product"
+      );
+    }
 
     const payload = {
-      user_id: user.id,
-      name: fd.get("name"),
-      email: fd.get("email"),
-      title: fd.get("title"),
-      rating: fd.get("rating"),
-      comment: fd.get("comment")
+      title: reviewForm.title.value,
+      rating: reviewForm.rating.value,
+      comment: reviewForm.comment.value
     };
 
-    const id = reviewIdField.value;
-
+    const id = reviewId.value;
     const endpoint = id
-      ? `/api/reviews/product/${PRODUCT_ID}/reviews/${id}`
-      : `/api/reviews/product/${PRODUCT_ID}/reviews`;
-
-    submitBtn.disabled = true;
-    submitBtn.textContent = id ? "Updating..." : "Submitting...";
+      ? `${API_BASE}/reviews/${id}`
+      : `${API_BASE}/reviews`;
 
     const res = await fetch(endpoint, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: authHeaders(),
       body: JSON.stringify(payload)
     });
 
-    toast("success", id ? "Review updated!" : "Review submitted!");
+    if (res.status === 409) {
+      return alertBox(
+        "error",
+        "You have already submitted a review for this product"
+      );
+    }
 
+    if (!res.ok) {
+      return alertBox("error", "Failed to submit review");
+    }
+
+    toast("success", id ? "Review updated" : "Review submitted");
+
+    bootstrap.Modal.getInstance(writeReviewModal).hide();
     reviewForm.reset();
-    reviewIdField.value = "";
-    submitBtn.textContent = "Submit Review";
-    submitBtn.disabled = false;
-
-    bootstrap.Modal.getInstance(reviewModal)?.hide();
+    reviewId.value = "";
 
     fetchReviews();
   };
 
-  // Open modal for NEW review
-  openReviewBtn.onclick = () => {
+  /* ================= OPEN MODAL ================= */
+  openReviewBtn.onclick = async () => {
+    const status = await canReview();
+    if (!status.ok) return alertBox("error", "need to login and purchase first the product");
+
     const user = getUser();
-    if (!user) return toast("error", "Please login first");
+    reviewUserName.textContent = `${user.first_name} ${user.last_name}`;
+    reviewUserEmail.textContent = user.email;
 
     reviewForm.reset();
-    reviewIdField.value = "";
-    submitBtn.textContent = "Submit Review";
+    reviewId.value = "";
+    reviewSubmitBtn.textContent = "Submit Review";
 
-    reviewForm.name.value = (user.first_name || "") + " " + (user.last_name || "");
-    reviewForm.email.value = user.email;
-
-    new bootstrap.Modal(reviewModal).show();
+    new bootstrap.Modal(writeReviewModal).show();
   };
 
-  sortSelect.onchange = renderAll;
-  perPageSelect.onchange = renderAll;
+  sortSelect.onchange = () => renderPage(1);
+  perPageSelect.onchange = () => renderPage(1);
 
   fetchReviews();
 

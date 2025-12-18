@@ -1,0 +1,394 @@
+{{!-- ===============================
+     ALL REVIEWS – ADMIN PANEL
+     FINAL / PRODUCTION VERSION
+================================ --}}
+
+<section class="admin-section">
+
+  <h2 class="section-title">All Reviews</h2>
+
+  <!-- FILTER BAR -->
+  <div class="review-filters">
+    <input id="reviewSearch" type="text" placeholder="Search user / product / review">
+
+    <select id="ratingFilter">
+      <option value="">All Ratings</option>
+      <option value="5">★★★★★</option>
+      <option value="4">★★★★</option>
+      <option value="3">★★★</option>
+      <option value="2">★★</option>
+      <option value="1">★</option>
+    </select>
+
+    <select id="sortBy">
+      <option value="latest">Latest</option>
+      <option value="oldest">Oldest</option>
+      <option value="high">Highest Rating</option>
+      <option value="low">Lowest Rating</option>
+    </select>
+  </div>
+
+  <!-- RESPONSIVE TABLE -->
+  <div class="table-wrapper">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>User</th>
+          <th>Product</th>
+          <th>Rating</th>
+          <th>Review</th>
+          <th>Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="reviewsTableBody"></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- EDIT REVIEW MODAL -->
+<div id="editReviewModal" class="modal hidden">
+  <div class="modal-box">
+    <h3>Edit Review</h3>
+
+    <input id="editTitle" placeholder="Review title">
+    <textarea id="editComment" placeholder="Review comment"></textarea>
+
+    <select id="editRating">
+      <option value="5">★★★★★</option>
+      <option value="4">★★★★</option>
+      <option value="3">★★★</option>
+      <option value="2">★★</option>
+      <option value="1">★</option>
+    </select>
+
+    <div class="modal-actions">
+      <button class="btn-primary" id="saveEditBtn">Save</button>
+      <button class="btn-secondary" id="cancelEditBtn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<style>
+/* ===============================
+   STYLING (ADMIN SAFE)
+================================ */
+
+.admin-section {
+  padding: 30px;
+  color: #eaeaea;
+}
+
+.section-title {
+  margin-bottom: 20px;
+}
+
+/* FILTERS */
+.review-filters {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+
+.review-filters input,
+.review-filters select {
+  padding: 8px 10px;
+  background: #111;
+  border: 1px solid #333;
+  color: #fff;
+}
+
+/* TABLE */
+.table-wrapper {
+  overflow-x: auto;
+  border: 1px solid #333;
+  border-radius: 6px;
+}
+
+.admin-table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 12px;
+  border-bottom: 1px solid #333;
+  text-align: left;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.admin-table th {
+  background: #111;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.admin-table a {
+  color: #4da3ff;
+  text-decoration: none;
+}
+
+/* ACTIONS */
+.admin-table td.actions {
+  min-width: 140px;
+}
+
+.btn-edit {
+  background: #4da3ff;
+  border: none;
+  padding: 5px 8px;
+  margin-right: 6px;
+  cursor: pointer;
+}
+
+.btn-delete {
+  background: #c0392b;
+  border: none;
+  padding: 5px 8px;
+  color: #fff;
+  cursor: pointer;
+}
+
+/* MODAL */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal.hidden {
+  display: none;
+}
+
+.modal-box {
+  background: #111;
+  padding: 20px;
+  width: 360px;
+  border: 1px solid #333;
+}
+
+.modal-box input,
+.modal-box textarea,
+.modal-box select {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 8px;
+  background: #000;
+  border: 1px solid #333;
+  color: #fff;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.btn-primary {
+  background: #4da3ff;
+  border: none;
+  color: #000;
+  padding: 6px 12px;
+}
+
+.btn-secondary {
+  background: #333;
+  border: none;
+  color: #fff;
+  padding: 6px 12px;
+}
+</style>
+
+<script>
+/* ==================================================
+   ALL REVIEWS — FINAL DASHBOARD-SAFE SCRIPT
+   + TOAST + REALTIME UPDATE
+================================================== */
+
+(() => {
+  if (window.__REVIEWS_ADMIN_LOADED__) return;
+  window.__REVIEWS_ADMIN_LOADED__ = true;
+
+  let allReviews = [];
+  let filteredReviews = [];
+  let editingReviewId = null;
+
+  /* ---------- helpers ---------- */
+  const byId = id => document.getElementById(id);
+  const toast = (msg, type="success") => {
+    if (window.showToast) window.showToast(msg, type);
+    else alert(msg);
+  };
+
+  /* ---------- DOM ---------- */
+  const reviewSearch = byId("reviewSearch");
+  const ratingFilter = byId("ratingFilter");
+  const sortBy = byId("sortBy");
+  const tbody = byId("reviewsTableBody");
+
+  const editModal = byId("editReviewModal");
+  const editTitle = byId("editTitle");
+  const editComment = byId("editComment");
+  const editRating = byId("editRating");
+  const saveEditBtn = byId("saveEditBtn");
+  const cancelEditBtn = byId("cancelEditBtn");
+
+  /* ---------- auth ---------- */
+  const token = localStorage.getItem("token");
+  if (!token) return location.href = "/admin/login";
+
+  /* ---------- fetch reviews ---------- */
+  fetch("/admin/reviews", {
+    headers: { Authorization: "Bearer " + token }
+  })
+    .then(r => r.json())
+    .then(d => {
+      allReviews = Array.isArray(d.reviews) ? d.reviews : [];
+      filteredReviews = [...allReviews];
+      applyFilters();
+    })
+    .catch(() => toast("Failed to load reviews", "error"));
+
+  /* ---------- events ---------- */
+  if (reviewSearch) reviewSearch.addEventListener("input", applyFilters);
+  if (ratingFilter) ratingFilter.addEventListener("change", applyFilters);
+  if (sortBy) sortBy.addEventListener("change", applyFilters);
+
+  if (saveEditBtn) saveEditBtn.onclick = saveReviewEdit;
+  if (cancelEditBtn) cancelEditBtn.onclick = () => editModal.classList.add("hidden");
+
+  /* ---------- filter + sort ---------- */
+  function applyFilters() {
+    const q = reviewSearch.value.toLowerCase();
+    const r = ratingFilter.value;
+    const s = sortBy.value;
+
+    filteredReviews = allReviews.filter(x => {
+      const text = `${x.user_name||""}${x.product_name||""}${x.comment||""}`.toLowerCase();
+      return (!q || text.includes(q)) && (!r || String(x.rating) === r);
+    });
+
+    if (s === "oldest") filteredReviews.sort((a,b)=>a.id-b.id);
+    else if (s === "high") filteredReviews.sort((a,b)=>b.rating-a.rating);
+    else if (s === "low") filteredReviews.sort((a,b)=>a.rating-b.rating);
+    else filteredReviews.sort((a,b)=>b.id-a.id);
+
+    renderReviews(filteredReviews);
+  }
+
+  /* ---------- render ---------- */
+  function renderReviews(list) {
+    tbody.innerHTML = "";
+
+    if (!list.length) {
+      tbody.innerHTML = `<tr><td colspan="6">No reviews found</td></tr>`;
+      return;
+    }
+
+    list.forEach(r => {
+      tbody.insertAdjacentHTML("beforeend", `
+        <tr>
+          <td>${r.user_id || "-"}</td>
+          <td>${r.product_id ? `<a href="/product/${r.product_id}" target="_blank">${r.product_name}</a>` : "Deleted"}</td>
+          <td>${"★".repeat(r.rating)}</td>
+          <td>${r.comment || "-"}</td>
+          <td>${new Date(r.created_at).toLocaleDateString()}</td>
+          <td class="actions">
+            <button class="btn-edit" data-id="${r.id}">Edit</button>
+            <button class="btn-delete" data-id="${r.id}">Delete</button>
+          </td>
+        </tr>
+      `);
+    });
+
+    tbody.querySelectorAll(".btn-edit").forEach(b =>
+      b.onclick = () => openEdit(+b.dataset.id)
+    );
+
+    tbody.querySelectorAll(".btn-delete").forEach(b =>
+      b.onclick = () => deleteReview(+b.dataset.id)
+    );
+  }
+
+  /* ---------- edit ---------- */
+  function openEdit(id) {
+    const r = allReviews.find(x => x.id === id);
+    if (!r) return;
+
+    editingReviewId = id;
+    editTitle.value = r.title || "";
+    editComment.value = r.comment || "";
+    editRating.value = r.rating || 5;
+
+    editModal.classList.remove("hidden");
+  }
+
+  function saveReviewEdit() {
+    if (!editingReviewId) return;
+
+    fetch(`/admin/reviews/${editingReviewId}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token
+      },
+      body: JSON.stringify({
+        title: editTitle.value.trim(),
+        comment: editComment.value.trim(),
+        rating: editRating.value
+      })
+    })
+    .then(r => r.json())
+    .then(res => {
+      if (!res.success) {
+        toast("Update failed", "error");
+        return;
+      }
+
+      /* 🔥 REALTIME UPDATE (NO RELOAD) */
+      const r = allReviews.find(x => x.id === editingReviewId);
+      if (r) {
+        r.title = editTitle.value;
+        r.comment = editComment.value;
+        r.rating = Number(editRating.value);
+      }
+
+      editModal.classList.add("hidden");
+      applyFilters();
+      toast("Review updated successfully");
+    })
+    .catch(() => toast("Update failed", "error"));
+  }
+
+  /* ---------- delete ---------- */
+  function deleteReview(id) {
+    if (!confirm("Delete this review permanently?")) return;
+
+    fetch(`/admin/reviews/${id}/delete`, {
+      method: "POST",
+      headers: { Authorization: "Bearer " + token }
+    })
+    .then(r => r.json())
+    .then(res => {
+      if (!res.success) {
+        toast("Delete failed", "error");
+        return;
+      }
+
+      allReviews = allReviews.filter(r => r.id !== id);
+      applyFilters();
+      toast("Review deleted");
+    })
+    .catch(() => toast("Delete failed", "error"));
+  }
+})();
+</script>
