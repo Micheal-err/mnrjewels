@@ -1,260 +1,421 @@
-<div class="container">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<style>
+/* ================= SIDEBAR ================= */
+.filter-sidebar {
+  background: #fff;
+  border-radius: 14px;
+  padding: 22px;
+  box-shadow: 0 20px 50px rgba(0,0,0,.08);
+}
+
+.filter-block { margin-bottom: 22px; }
+
+.filter-block h6 {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.filter-block p {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 6px 0;
+}
+
+.filter-block input {
+  width: 16px;
+  height: 16px;
+}
+
+.apply-btn, .clear-btn {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.apply-btn {
+  background: #000;
+  color: #fff;
+}
+
+.clear-btn {
+  background: transparent;
+  border: 1px solid #ddd;
+  margin-top: 10px;
+}
+
+/* ================= GRID ================= */
+.shop-modern {
+  display: flex;
+  flex-wrap: wrap;
+  margin-left: -12px;
+  margin-right: -12px;
+}
+
+.grid-item {
+  width: 25%;
+  padding: 12px;
+}
+
+@media (max-width: 991px) {
+  .grid-item { width: 33.333%; }
+}
+
+@media (max-width: 767px) {
+  .grid-item { width: 50%; }
+}
+
+.shop-box {
+  background: #fff;
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.shop-image img {
+  width: 100%;
+  border-radius: 10px;
+}
+
+.shop-footer {
+  margin-top: 10px;
+}
+
+.wishlist-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  border: none;
+  background: #fff;
+  color: #aaa;
+}
+
+.wishlist-btn.active {
+  color: var(--base-color);
+}
+.grid-sizer {
+  width: 0 !important;
+  height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  position: absolute !important;
+  visibility: hidden !important;
+}
+
+.btn:hover{
+  background-color: #9FA878 !important;
+  color: white !important;
+}
+
+</style>
+
+<div class="container mt-6">
   <div class="row">
 
-    <!-- FILTER SIDEBAR -->
-    <aside id="filterSidebar" class="col-lg-3 filter-sidebar">
-
-      <!-- Mobile Header -->
-      <div class="filter-header d-lg-none">
-        <h4>Filters</h4>
-        <button id="closeFilterBtn">✕</button>
-      </div>
-
+    <!-- SIDEBAR -->
+    <aside class="col-lg-2 filter-sidebar">
       <form id="filterForm">
 
-        <!-- SORT -->
         <div class="filter-block">
           <h6>Sort by</h6>
-          <label><input type="radio" name="sort" value="new" checked> New arrivals</label>
-          <label><input type="radio" name="sort" value="high"> Price: High to Low</label>
-          <label><input type="radio" name="sort" value="low"> Price: Low to High</label>
+          <p><input type="radio" name="sort" value="new" checked> New arrivals</p>
+          <p><input type="radio" name="sort" value="high"> Price: High to Low</p>
+          <p><input type="radio" name="sort" value="low"> Price: Low to High</p>
         </div>
 
-        <!-- PRICE -->
         <div class="filter-block">
           <h6>Price range</h6>
-          <label><input type="checkbox" name="price" value="0-1000"> 0 – 1000</label>
-          <label><input type="checkbox" name="price" value="1000-2000"> 1000 – 2000</label>
-          <label><input type="checkbox" name="price" value="2000-4000"> 2000 – 4000</label>
-          <label><input type="checkbox" name="price" value="4000+"> 4000+</label>
+          <p><input type="checkbox" name="price" value="0-1000"> 0 – 1000</p>
+          <p><input type="checkbox" name="price" value="1000-2000"> 1000 – 2000</p>
+          <p><input type="checkbox" name="price" value="2000-4000"> 2000 – 4000</p>
+          <p><input type="checkbox" name="price" value="4000+"> 4000+</p>
         </div>
 
-        <!-- FINISH -->
         <div class="filter-block">
           <h6>Finish</h6>
-          <label><input type="checkbox" name="finish" value="silver"> Silver</label>
-          <label><input type="checkbox" name="finish" value="gold"> Gold</label>
-          <label><input type="checkbox" name="finish" value="rose"> Rose Gold</label>
+          <p><input type="checkbox" name="finish" value="silver"> Silver</p>
+          <p><input type="checkbox" name="finish" value="gold"> Gold</p>
+          <p><input type="checkbox" name="finish" value="rose"> Rose Gold</p>
         </div>
 
-        <button type="submit" class="apply-btn">
-          Apply filters
-        </button>
-
-        <button type="button" id="clearFilters" class="clear-btn">
-          Clear filters
-        </button>
+        <button class="apply-btn">Apply</button>
+        <button class="clear-btn" type="button" id="clearFilters">Reset</button>
 
       </form>
     </aside>
 
     <!-- PRODUCTS -->
-    <main class="col-lg-9">
+    <main class="col-lg-9 ">
 
-      <!-- MOBILE FILTER BAR -->
-      <div class="filter-mobile-bar d-lg-none">
-        <button id="openFilterBtn" class="filter-btn">☰ Filters</button>
+      <div class="mb-3">
         <span id="productCount">{{totalProducts}} products</span>
       </div>
 
-      <!-- 🔴 THIS WRAPPER WAS MISSING -->
       <div id="productsContainer">
 
-        {{#each collections}}
-        <section class="mb-60px">
-          <h3 class="mb-30px">{{@key}}</h3>
+        <!-- ✅ SSR GRID (USING collections) -->
+        <ul class="shop-modern">
 
-          <ul class="shop-modern shop-wrapper grid grid-4col gutter-extra-large text-center">
-            <li class="grid-sizer"></li>
-
+          {{#each collections}}
             {{#each this}}
-            <li class="grid-item">
-              <div class="shop-box">
-                <div class="shop-image">
-                  <a href="/product/{{id}}">
-                    <img src="/uploads/{{image1}}" alt="{{name}}">
-                  </a>
-                </div>
+              <li class="grid-item">
+                <div class="shop-box">
 
-                <div class="shop-footer">
-                  <a href="/product/{{id}}" class="fw-500">{{name}}</a>
-                  <p class="price mb-0">₹{{price}}</p>
-                </div>
+                  <div class="shop-image">
+                    <a href="/product/{{id}}">
+                      <img src="/uploads/{{image1}}" alt="{{name}}">
+                    </a>
+                  </div>
 
-                <button class="btn bg-base-color w-100 text-white">
-                  Add to cart
-                </button>
-              </div>
-            </li>
+                  <div class="shop-footer">
+                    <a href="/product/{{id}}">{{name}}</a>
+                    <p>₹{{price}}</p>
+                  </div>
+
+                  <div class="d-flex gap">
+                    <button class="btn bg-base-color text-white w-100 add-cart-btn"
+                            data-id="{{id}}">
+                      ADD TO CART
+                    </button>
+
+                    <button class="wishlist-btn" data-id="{{id}}">
+                      <i class="fa-solid fa-heart"></i>
+                    </button>
+                  </div>
+
+                </div>
+              </li>
             {{/each}}
+          {{/each}}
 
-          </ul>
-        </section>
-        {{/each}}
+        </ul>
 
       </div>
     </main>
   </div>
 </div>
-
-
-<style>
-  .filter-mobile-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.filter-btn {
-  border: 1px solid #000;
-  padding: 8px 14px;
-  background: #fff;
-}
-
-.filter-sidebar {
-  background: #fff;
-  padding: 20px;
-}
-
-@media (min-width: 992px) {
-  .filter-sidebar {
-    position: sticky;
-    top: 100px;
-  }
-}
-
-@media (max-width: 991px) {
-  .filter-sidebar {
-    position: fixed;
-    top: 0;
-    left: -100%;
-    width: 320px;
-    height: 100%;
-    z-index: 9999;
-    transition: 0.3s ease;
-  }
-
-  .filter-sidebar.active {
-    left: 0;
-  }
-}
-
-#productsContainer {
-  min-height: 500px;
-  transition: opacity 0.25s ease;
-}
-
-.shop-image img {
-  aspect-ratio: 1 / 1;
-  object-fit: cover;
-}
-
-</style>
-
-
 <script>
-const sidebar = document.getElementById("filterSidebar");
-const form = document.getElementById("filterForm");
-const productsContainer = document.getElementById("productsContainer");
-const productCount = document.getElementById("productCount");
+(function () {
 
-/* SAFETY CHECK */
-if (!form || !productsContainer) {
-  console.warn("Filter JS skipped – required elements missing");
-}
+  /* ===============================
+     BASIC SETUP
+  =============================== */
+  const form = document.getElementById("filterForm");
+  const productsContainer = document.getElementById("productsContainer");
+  const productCount = document.getElementById("productCount");
+  const token = localStorage.getItem("token");
 
-/* MOBILE TOGGLE */
-document.getElementById("openFilterBtn")?.addEventListener("click", () => {
-  sidebar?.classList.add("active");
-});
+  if (!form || !productsContainer) return;
 
-document.getElementById("closeFilterBtn")?.addEventListener("click", () => {
-  sidebar?.classList.remove("active");
-});
-
-/* RESTORE FILTER STATE */
-(function restoreFilters() {
-  const params = new URLSearchParams(location.search);
-  params.forEach((value, key) => {
-    document.querySelectorAll(`[name="${key}"]`).forEach(input => {
-      if (input.type === "checkbox") {
-        if (value.split(",").includes(input.value)) input.checked = true;
-      } else {
-        input.checked = input.value === value;
-      }
+  /* ===============================
+     TOAST HELPER
+  =============================== */
+  const toast = (title, icon = "success") =>
+    Swal.fire({
+      toast: true,
+      position: "top-end",
+      timer: 1800,
+      showConfirmButton: false,
+      icon,
+      title
     });
+
+  /* ===============================
+     APPLY FILTERS (AJAX)
+  =============================== */
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const fd = new FormData(form);
+    const params = new URLSearchParams();
+
+    for (const [k, v] of fd.entries()) {
+      params.has(k)
+        ? params.set(k, params.get(k) + "," + v)
+        : params.set(k, v);
+    }
+
+    try {
+      const res = await fetch(`${location.pathname}?${params.toString()}`, {
+        headers: {
+          "X-Requested-With": "XMLHttpRequest"
+        }
+      });
+
+      if (!res.ok) throw new Error("Bad response");
+
+      const data = await res.json();
+
+      renderProducts(data.products || []);
+      productCount.textContent = `${data.totalProducts || 0} products`;
+      history.replaceState({}, "", "?" + params.toString());
+
+      toast("Filters applied");
+
+    } catch (err) {
+      console.error("FILTER ERROR:", err);
+      toast("Filter failed", "error");
+    }
   });
+
+  /* ===============================
+     RESET FILTERS
+  =============================== */
+  document.getElementById("clearFilters")?.addEventListener("click", () => {
+    form.reset();
+    history.replaceState({}, "", location.pathname);
+    form.dispatchEvent(new Event("submit"));
+    toast("Filters reset", "info");
+  });
+
+  /* ===============================
+     RENDER PRODUCTS
+  =============================== */
+  function renderProducts(products) {
+    if (!products.length) {
+      productsContainer.innerHTML =
+        `<p class="text-center mt-40px">No products found</p>`;
+      return;
+    }
+
+    productsContainer.innerHTML = `
+      <section class="mb-0 pb-0 pt-0">
+        <ul class="shop-modern shop-wrapper grid grid-4col lg-grid-3col gutter-extra-large text-center">
+          ${products.map(p => `
+            <li class="grid-item">
+              <div class="shop-box">
+
+                <div class="shop-image">
+                  <a href="/product/${p.id}">
+                    <img src="/uploads/${p.image1}" alt="${p.name}">
+                  </a>
+                </div>
+
+                <div class="shop-footer">
+                  <a href="/product/${p.id}" class="fw-500">${p.name}</a>
+                  <p class="price mb-0">₹${p.price}</p>
+                </div>
+
+                <div class="d-flex justify-content-center align-items-center gap-2">
+                  <button
+                    class="btn bg-base-color w-100 text-white add-cart-btn"
+                    data-id="${p.id}">
+                    ADD TO CART
+                  </button>
+
+                  <button class="wishlist-btn" data-id="${p.id}">
+                    <i class="fa-solid fa-heart"></i>
+                  </button>
+                </div>
+
+              </div>
+            </li>
+          `).join("")}
+        </ul>
+      </section>
+    `;
+
+    syncWishlistState();
+  }
+
+  /* ===============================
+     WISHLIST SYNC
+  =============================== */
+  async function syncWishlistState() {
+    if (!token) return;
+
+    for (const btn of document.querySelectorAll(".wishlist-btn")) {
+      try {
+        const res = await fetch(`/api/wishlist/check/${btn.dataset.id}`, {
+          headers: { Authorization: "Bearer " + token }
+        });
+        const data = await res.json();
+        btn.classList.toggle("active", data.inWishlist);
+      } catch {}
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", syncWishlistState);
+
+  /* ===============================
+     WISHLIST TOGGLE
+  =============================== */
+  document.addEventListener("click", async (e) => {
+    const btn = e.target.closest(".wishlist-btn");
+    if (!btn) return;
+
+    if (!token) {
+      toast("Login required", "warning");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/wishlist/toggle", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token
+        },
+        body: JSON.stringify({ product_id: btn.dataset.id })
+      });
+
+      const data = await res.json();
+      btn.classList.toggle("active", data.added);
+
+      toast(
+        data.added ? "Added to wishlist" : "Removed from wishlist",
+        "info"
+      );
+    } catch {
+      toast("Wishlist failed", "error");
+    }
+  });
+
+  /* ===============================
+     ADD TO CART (VARIANT SAFE)
+  =============================== */
+  document.addEventListener("click", async (e) => {
+    const btn = e.target.closest(".add-cart-btn");
+    if (!btn) return;
+
+    if (!token) {
+      toast("Login required", "warning");
+      return;
+    }
+
+    try {
+      const r = await fetch(`/cart/product/${btn.dataset.id}/variants`);
+      const { variants } = await r.json();
+
+      if (!variants || variants.length > 1) {
+        location.href = `/cart/product/${btn.dataset.id}`;
+        return;
+      }
+
+      const add = await fetch("/cart/add", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token
+        },
+        body: JSON.stringify({
+          variant_id: variants[0].id,
+          quantity: 1
+        })
+      });
+
+      const data = await add.json();
+      if (!data.success) throw new Error();
+
+      toast("Added to cart");
+
+    } catch (err) {
+      console.error("ADD TO CART ERROR:", err);
+      toast("Add to cart failed", "error");
+    }
+  });
+
 })();
-
-/* AJAX APPLY */
-form?.addEventListener("submit", async e => {
-  e.preventDefault();
-
-  const fd = new FormData(form);
-  const params = new URLSearchParams(fd);
-
-  productsContainer.style.opacity = "0.5";
-
-  const res = await fetch(`${location.pathname}?${params}`, {
-    headers: { "X-Requested-With": "XMLHttpRequest" }
-  });
-
-  const data = await res.json();
-
-  renderProducts(data.products);
-
-  if (productCount) {
-    productCount.textContent = `${data.totalProducts} products`;
-  }
-
-  history.replaceState({}, "", "?" + params);
-
-  productsContainer.style.opacity = "1";
-
-  if (window.innerWidth < 992) {
-    sidebar?.classList.remove("active");
-  }
-});
-
-/* CLEAR FILTERS */
-document.getElementById("clearFilters")?.addEventListener("click", () => {
-  history.replaceState({}, "", location.pathname);
-  form.reset();
-  form.dispatchEvent(new Event("submit"));
-});
-
-/* RENDER PRODUCTS */
-function renderProducts(products) {
-  if (!productsContainer) return;
-
-  if (!products || !products.length) {
-    productsContainer.innerHTML =
-      `<p class="text-center mt-40px">No products found</p>`;
-    return;
-  }
-
-  productsContainer.innerHTML = `
-    <ul class="shop-modern grid grid-4col gutter-extra-large text-center">
-      ${products.map(p => `
-        <li class="grid-item">
-          <div class="shop-box">
-            <div class="shop-image">
-              <a href="/product/${p.id}">
-                <img src="/uploads/${p.image1}" alt="${p.name}">
-              </a>
-            </div>
-            <div class="shop-footer">
-              <a href="/product/${p.id}" class="fw-500">${p.name}</a>
-              <p class="price mb-0">₹${p.price}</p>
-            </div>
-            <button class="btn bg-base-color w-100 text-white">
-              Add to cart
-            </button>
-          </div>
-        </li>
-      `).join("")}
-    </ul>
-  `;
-}
 </script>

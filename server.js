@@ -31,8 +31,8 @@ app.set("views", path.join(__dirname, "views"));
    MIDDLEWARE
 ================================ */
 app.use(cookieParser());
-app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.use(
   session({
@@ -50,11 +50,16 @@ app.use(passport.session());
 ================================ */
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
-
 /* ===============================
-   ROUTES
+   ROUTES (CORRECT ORDER)
 ================================ */
+
+// 🔐 ADMIN FIRST
+app.use("/admin", require("./routes/adminRoutes"));
+
+// 🌐 PUBLIC PAGES AFTER
 app.use("/", require("./routes/pageRoutes"));
+
 app.use("/api/products", require("./routes/productRoutes"));
 app.use("/api/product-variants", require("./routes/productVariantRoutes"));
 app.use("/api/orders", require("./routes/orderRoutes"));
@@ -65,8 +70,6 @@ app.use("/contact", require("./routes/contactRoutes"));
 app.use("/api/reviews", require("./routes/reviewRoutes"));
 app.use("/cart", require("./routes/cartRoutes"));
 app.use("/api/wishlist", require("./routes/wishlistRoutes"));
-app.use("/admin", require("./routes/adminPages"));
-app.use("/admin", require("./routes/adminRoutes"));
 
 /* ===============================
    404

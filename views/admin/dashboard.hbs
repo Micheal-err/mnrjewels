@@ -121,7 +121,7 @@
 </section>
 
 <!-- EDIT USER MODAL -->
-<div id="editUserModal" class="edit-modal" aria-hidden="true">
+<div id="editUserModal" class="edit-modal" style="display: 'none';">
     <div class="edit-box">
         <h3>Edit User</h3>
         <input type="hidden" id="editUserId">
@@ -137,8 +137,8 @@
             <option value="1">Admin</option>
         </select>
         <div class="edit-actions">
-            <button onclick="saveUserChanges()" class="save-btn">Save</button>
-            <button onclick="closeUserModal()" class="close-btn">Cancel</button>
+            <button id="saveUserBtn" class="save-btn">Save</button>
+            <button id="closeUserBtn"  class="close-btn">Cancel</button>
         </div>
     </div>
 </div>
@@ -187,343 +187,941 @@
 
 
 
-
 <script src="https://unpkg.com/feather-icons"></script>
+
 <script>
+/* ======================================================
+   ADMIN DASHBOARD – FINAL CORE SCRIPT
+   SIMPLE • SAFE • NO REDECLARATION • NO SCRIPT INJECTION
+====================================================== */
 
-(function(){
-  // helpers
-  function el(id){ return document.getElementById(id); }
-  function safeHTML(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+(function () {
 
-  // execute inline scripts inside loaded HTML partials safely
-  function executeScripts(container){
-    const scripts = Array.from(container.querySelectorAll("script"));
-    scripts.forEach(s=>{
-      try{
-        const ns = document.createElement("script");
-        if (s.src){
-          ns.src = s.src;
-          ns.async = false;
-        } else {
-          // use textContent to avoid parse issues with innerHTML
-          ns.textContent = s.textContent;
-        }
-        document.body.appendChild(ns);
-      }catch(e){
-        console.error("executeScripts error:", e);
-      }
-    });
-  }
+  /* ================= GLOBAL STATE ================= */
+  const Admin = {
+    token: localStorage.getItem("token"),
+    currentSection: "dashboard"
+  };
 
-  // fetch helpers
-  async function loadData(api, token){
-    try{
-      const opts = token ? { headers: { "Authorization": "Bearer " + token } } : {};
-      const r = await fetch(api, opts);
-      if (!r.ok) return [];
-      return await r.json();
-    } catch(e){
-      console.error("loadData:", api, e);
-      return [];
-    }
-  }
-  async function loadViewRaw(section, token){
-    try{
-      const headers = token ? { "Authorization": "Bearer " + token } : {};
-      const r = await fetch(`/admin/view/${section}`, { headers });
-      if (!r.ok) return null;
-      return await r.text();
-    } catch(e){
-      console.error("loadViewRaw", e);
+  /* ================= HELPERS ================= */
+  const el = id => document.getElementById(id);
+
+  const safeHTML = s =>
+    String(s ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+
+  /* ================= TOAST ================= */
+  window.showToast = function (msg, type) {
+    const t = el("toast");
+    if (!t) return;
+    t.textContent = msg;
+    t.style.background = type === "error" ? "#ff4747" : "#00c471";
+    t.style.color = type === "error" ? "#fff" : "#000";
+    t.classList.add("show");
+    setTimeout(() => t.classList.remove("show"), 2200);
+  };
+
+  /* ================= FETCH ================= */
+  async function apiGet(url) {
+    try {
+      const res = await fetch(url, {
+        headers: { Authorization: "Bearer " + Admin.token }
+      });
+      if (!res.ok) throw new Error();
+      return await res.json();
+    } catch {
       return null;
     }
   }
 
-  // toast
-  window.showToast = function(msg, type){
-    const t = el("toast");
-    if (!t) return console.log("toast:", msg);
-    t.textContent = msg;
-    if (type === "error") { t.style.background="#ff4747"; t.style.color="#fff"; } else { t.style.background="#00c471"; t.style.color="#000"; }
-    t.classList.add("show");
-    setTimeout(()=> t.classList.remove("show"), 2400);
+  async function loadView(section) {
+    try {
+      const res = await fetch(`/admin/view/${section}`, {
+        headers: { Authorization: "Bearer " + Admin.token }
+      });
+      if (!res.ok) throw new Error();
+      return await res.text();
+    } catch {
+      return null;
+    }
+  }
+
+  /* ================= DASHBOARD ================= */
+  async function loadDashboard() {
+    Admin.currentSection = "dashboard";
+
+    const stats = await apiGet("/admin/dashboard/stats") || {};
+    el("statOrders").textContent = stats.totalOrders ?? "--";
+    el("statRevenue").textContent = stats.totalRevenue ? "₹" + stats.totalRevenue : "--";
+    el("statUsers").textContent = stats.totalUsers ?? "--";
+    el("statPending").textContent = stats.pendingOrders ?? "--";
+
+    const lowStock = await apiGet("/admin/dashboard/low-stock") || [];
+    el("lowStockList").innerHTML = lowStock.length
+      ? lowStock.map(p => `<li>${safeHTML(p.name)} — ${p.stock} left</li>`).join("")
+      : `<li style="color:#7fff7f">All products well stocked</li>`;
+
+    const recentOrders = await apiGet("/admin/dashboard/recent-orders") || [];
+    el("recentOrdersBody").innerHTML = recentOrders.length
+      ? recentOrders.map(o => `
+        <tr>
+          <td>${o.id}</td>
+          <td>${safeHTML(o.first_name)} ${safeHTML(o.last_name)}</td>
+          <td>₹${o.total}</td>
+          <td>${safeHTML(o.status)}</td>
+        </tr>`).join("")
+      : `<tr><td colspan="4">No recent orders</td></tr>`;
+
+    const recentUsers = await apiGet("/admin/dashboard/recent-users") || [];
+    el("recentUsersBody").innerHTML = recentUsers.length
+      ? recentUsers.map(u => `
+        <tr>
+          <td>${u.id}</td>
+          <td>${safeHTML(u.first_name)} ${safeHTML(u.last_name)}</td>
+          <td>${safeHTML(u.email)}</td>
+        </tr>`).join("")
+      : `<tr><td colspan="3">No recent users</td></tr>`;
+
+    feather.replace();
+  }
+
+  /* ================= SECTION LOADER ================= */
+  async function loadSection(section) {
+    if (Admin.currentSection === section) return;
+    Admin.currentSection = section;
+
+    document.querySelectorAll(".admin-sidebar a")
+      .forEach(a => a.classList.remove("active"));
+
+    document.querySelector(`.admin-sidebar a[data-page="${section}"]`)
+      ?.classList.add("active");
+
+    if (section === "dashboard") {
+      location.reload(); // dashboard is server-rendered
+      return;
+    }
+
+    const html = await loadView(section);
+    if (!html) {
+      showToast("Failed to load section", "error");
+      return;
+    }
+
+    el("adminContent").innerHTML = html;
+
+    // call section initializer (we’ll add these one by one later)
+    if (section === "users") initUsers?.();
+    if (section === "allProducts") initProducts?.();
+    if (section === "reviews") initReviews?.();
+    if (section === "orders") initOrders?.();
+    if (section === "messages") initMessages?.();
+
+    feather.replace();
+  }
+
+  /* ================= SIDEBAR ================= */
+  document.querySelectorAll(".admin-sidebar a").forEach(link => {
+    link.addEventListener("click", e => {
+      e.preventDefault();
+      loadSection(link.dataset.page);
+    });
+  });
+
+
+/* ======================================================
+   PRODUCTS – FINAL WORKING LOGIC
+====================================================== */
+
+function initProducts() {
+
+  const token = localStorage.getItem("token");
+  const $ = id => document.getElementById(id);
+
+  let allProducts = [];
+  let currentVariants = [];
+
+  /* ================= SWEETALERT ================= */
+  const Toast = Swal.mixin({
+    toast: true,
+    position: "top-end",
+    showConfirmButton: false,
+    timer: 3000
+  });
+
+  /* ================= LOAD PRODUCTS ================= */
+  async function loadProducts() {
+    const r = await fetch("/admin/products", {
+      headers: { Authorization: "Bearer " + token }
+    });
+    const j = await r.json();
+    allProducts = j.products || [];
+    renderProducts();
+  }
+
+  function renderProducts() {
+    const q = $("searchInput")?.value.toLowerCase() || "";
+
+    $("productsBody").innerHTML = allProducts
+      .filter(p => (`${p.name} ${p.id}`).toLowerCase().includes(q))
+      .map(p => `
+        <tr>
+          <td><img src="/uploads/${p.image1 || "placeholder.png"}"></td>
+          <td>${p.name}</td>
+          <td>${p.category || "-"}</td>
+          <td>${p.collection_name || "-"}</td>
+          <td>${p.variant_count || 0}</td>
+          <td>
+            <button class="edit-product" data-id="${p.id}">
+              <i class="fa fa-pen"></i>
+            </button>
+            <button class="variants-product" data-id="${p.id}">
+              <i class="fa fa-layer-group"></i>
+            </button>
+            <button class="delete-product delete-btn" data-id="${p.id}">
+              <i class="fa fa-trash"></i>
+            </button>
+          </td>
+        </tr>
+      `).join("") || `<tr><td colspan="6">No products</td></tr>`;
+  }
+
+  $("searchInput").oninput = renderProducts;
+
+  /* ================= PRODUCT MODAL ================= */
+  $("createProductBtn").onclick = () => {
+    $("productModalTitle").innerText = "Create Product";
+    $("productId").value = "";
+    [
+      "pName","pDesc","pCategory","pCategoryDesc",
+      "pSubCategory","pCollection","pMetal","pDiamonds"
+    ].forEach(i => $(i).value = "");
+    $("productModal").style.display = "flex";
   };
 
-  // init
-  document.addEventListener("DOMContentLoaded", async function(){
-    feather.replace();
+  window.closeProductModal = () => {
+    $("productModal").style.display = "none";
+  };
 
-    const token = localStorage.getItem("token");
-    const user  = JSON.parse(localStorage.getItem("user") || "{}");
+  window.saveProduct = async function () {
+    const id = $("productId").value;
+    const fd = new FormData();
 
-    if (!token || !user.admin) return location.href="/account";
+    fd.append("name", $("pName").value);
+    fd.append("description", $("pDesc").value);
+    fd.append("category", $("pCategory").value);
+    fd.append("category_description", $("pCategoryDesc").value);
+    fd.append("sub_category", $("pSubCategory").value);
+    fd.append("collection_name", $("pCollection").value);
+    fd.append("metal", $("pMetal").value);
+    fd.append("diamonds", $("pDiamonds").value);
 
-    const content = el("adminContent");
-    const links = Array.from(document.querySelectorAll(".admin-sidebar a"));
-
-    // Store the original dashboard HTML
-    const originalDashboardHTML = document.getElementById("dashboardView").outerHTML;
-
-    // ---------- Dashboard loaders ----------
-    async function loadDashboardStats(){
-      const d = await loadData("/admin/dashboard/stats", token) || {};
-      const ordersEl = el("statOrders");
-      const revenueEl = el("statRevenue");
-      const usersEl = el("statUsers");
-      const pendingEl = el("statPending");
-      
-      if (ordersEl) ordersEl.textContent = d.totalOrders ?? '--';
-      if (revenueEl) revenueEl.textContent = d.totalRevenue != null ? ("₹"+d.totalRevenue) : '--';
-      if (usersEl) usersEl.textContent = d.totalUsers ?? '--';
-      if (pendingEl) pendingEl.textContent = d.pendingOrders ?? '--';
-    }
-
-    async function loadLowStock(){
-      const d = await loadData("/admin/dashboard/low-stock", token) || [];
-      const listEl = el("lowStockList");
-      if (!listEl) return;
-      listEl.innerHTML = d.length ? d.map(x => `<li>${safeHTML(x.name)} — Only ${safeHTML(String(x.stock))} left</li>`).join("") : `<li style="color:#7fff7f;">All products well stocked</li>`;
-    }
-
-    async function loadRecentOrders(){
-      const d = await loadData("/admin/dashboard/recent-orders", token) || [];
-      const tb = el("recentOrdersBody");
-      if (!tb) return;
-      tb.innerHTML = d.length ? d.map(r=>{
-        return `<tr>
-          <td>${safeHTML(String(r.id))}</td>
-          <td>${safeHTML(r.first_name||'')} ${safeHTML(r.last_name||'')}</td>
-          <td>₹${safeHTML(String(r.total||0))}</td>
-          <td>${safeHTML(r.status||'')}</td>
-        </tr>`;
-      }).join("") : `<tr><td colspan="4">No recent orders</td></tr>`;
-    }
-
-    async function loadRecentUsers(){
-      const d = await loadData("/admin/dashboard/recent-users", token) || [];
-      const tb = el("recentUsersBody");
-      if (!tb) return;
-      tb.innerHTML = d.length ? d.map(u=>{
-        return `<tr>
-          <td>${safeHTML(String(u.id))}</td>
-          <td>${safeHTML(u.first_name||'')} ${safeHTML(u.last_name||'')}</td>
-          <td>${safeHTML(u.email||'')}</td>
-        </tr>`;
-      }).join("") : `<tr><td colspan="3">No recent users</td></tr>`;
-    }
-
-    // Function to reload dashboard data
-    async function reloadDashboardData() {
-      await loadDashboardStats();
-      await loadLowStock();
-      await loadRecentOrders();
-      await loadRecentUsers();
-      feather.replace();
-    }
-
-    // ---------- USERS functions (exposed) ----------
-    window.allUsers = [];
-    window.currentPage = 1;
-    window.rowsPerPage = 10;
-
-    window.renderUsersPaged = function(){
-      const tbody = el("usersTableBody");
-      if (!tbody) return;
-      const q = (el("userSearchInput")?.value || "").toLowerCase();
-      const filtered = (window.allUsers || []).filter(u=>{
-        const hay = `${u.first_name||''} ${u.last_name||''} ${u.email||''} ${u.id||''}`.toLowerCase();
-        return hay.includes(q);
+    [["img1","image1"],["img2","image2"],["img3","image3"],["img4","image4"]]
+      .forEach(([i,f]) => {
+        const file = $(i).files[0];
+        if (file) fd.append(f, file);
       });
-      const start = (window.currentPage - 1) * window.rowsPerPage;
-      const rows = filtered.slice(start, start + window.rowsPerPage);
-      tbody.innerHTML = rows.map(u=>{
-        // safe JSON stringify for onclick arguments that can contain quotes
-        const fn = JSON.stringify(u.first_name || '');
-        const ln = JSON.stringify(u.last_name || '');
-        const em = JSON.stringify(u.email || '');
-        return `<tr>
-          <td>${safeHTML(String(u.id))}</td>
-          <td>${safeHTML(u.first_name||'')}</td>
-          <td>${safeHTML(u.last_name||'')}</td>
-          <td>${safeHTML(u.email||'')}</td>
-          <td>${u.is_admin==1 ? 'Admin' : 'User'}</td>
-          <td>${safeHTML(u.login_type || 'email')}</td>
-          <td>${u.created_at ? safeHTML(new Date(u.created_at).toLocaleString()) : ''}</td>
-          <td>
-            <button class="action-btn" onclick="openUserEdit(${u.id}, ${fn}, ${ln}, ${em}, ${Number(u.is_admin)})">Edit</button>
-            <button class="delete-btn" onclick="deleteUser(${u.id})">Delete</button>
-          </td>
-        </tr>`;
-      }).join("") || `<tr><td colspan="8" style="text-align:center">No users</td></tr>`;
-      // pagination
-      const pagination = el("usersPagination");
-      if (pagination){
-        const pages = Math.max(1, Math.ceil(filtered.length / window.rowsPerPage));
-        pagination.innerHTML = Array.from({length:pages}, (_,i)=>`<button class="page-btn ${i+1===window.currentPage?'active-page':''}" onclick="changePage(${i+1})">${i+1}</button>`).join('');
+
+    const r = await fetch(
+      id ? `/admin/products/${id}` : "/admin/products",
+      {
+        method: id ? "PUT" : "POST",
+        headers: { Authorization: "Bearer " + token },
+        body: fd
       }
-    };
+    );
 
-    window.changePage = function(p){ window.currentPage = p; window.renderUsersPaged(); };
-
-    window.deleteUser = async function(id){
-      if (!confirm("Delete user permanently?")) return;
-      const res = await fetch(`/admin/users/${id}/delete`, { method: "POST", headers: { "Authorization": "Bearer " + token }});
-      if (!res.ok) return showToast("Delete failed", "error");
-      window.allUsers = (window.allUsers || []).filter(u => u.id !== id);
-      window.renderUsersPaged();
-      showToast("User deleted");
-    };
-
-    window.openUserEdit = function(id, first, last, email, admin){
-      el("editUserId").value = id;
-      el("editFirstName").value = first || '';
-      el("editLastName").value = last || '';
-      el("editEmail").value = email || '';
-      el("editIsAdmin").value = admin ? 1 : 0;
-      el("editUserModal").style.display = "flex";
-    };
-
-    window.closeUserModal = function(){ el("editUserModal").style.display = "none"; };
-
-    window.saveUserChanges = async function(){
-      const id = el("editUserId").value;
-      const body = {
-        first_name: el("editFirstName").value,
-        last_name: el("editLastName").value,
-        email: el("editEmail").value,
-        is_admin: Number(el("editIsAdmin").value)
-      };
-      const res = await fetch(`/admin/users/${id}`, { method: "POST", headers: { "Content-Type":"application/json", "Authorization":"Bearer " + token }, body: JSON.stringify(body) });
-      if (!res.ok) return showToast("Update failed", "error");
-      // reload user list from server to keep data canonical
-      const d = await loadData("/admin/users", token);
-      window.allUsers = d.users || [];
-      window.currentPage = 1;
-      window.renderUsersPaged();
-      closeUserModal();
-      showToast("User updated");
-    };
-
-    // ---------- SECTION loader ----------
-    async function loadSection(section){
-      // Reset active state for all links
-      links.forEach(x=>x.classList.remove("active"));
-      
-      // Find and activate current link
-      const currentLink = links.find(link => link.dataset.page === section);
-      if (currentLink) {
-        currentLink.classList.add("active");
-      }
-
-      // Handle dashboard separately - it's built-in
-      if (!section || section === "dashboard") {
-        // Restore the original dashboard HTML
-        content.innerHTML = originalDashboardHTML;
-        // Reload dashboard data
-        await reloadDashboardData();
-        return;
-      }
-
-      // For other sections, fetch partial
-      const html = await loadViewRaw(section, token);
-      if (!html){
-        showToast("Failed to load " + section, "error");
-        return;
-      }
-
-      // replace content
-      content.innerHTML = html;
-
-      // execute any inline scripts safely
-      try{ executeScripts(content); } catch(e){ console.warn("executeScripts failed", e); }
-
-      // initialize section-specific client-side wiring
-      switch(section){
-        case "orders":
-          (async ()=>{
-            const d = await loadData("/admin/orders", token);
-            const tbody = el("ordersTableBody");
-            if (!tbody) return;
-            tbody.innerHTML = (d.orders || []).map(o => `
-              <tr>
-                <td>${safeHTML(String(o.id))}</td>
-                <td>${safeHTML(o.first_name||'')} ${safeHTML(o.last_name||'')}</td>
-                <td>${safeHTML(o.email||'')}</td>
-                <td>₹${safeHTML(String(o.total_amount||0))}</td>
-                <td>${safeHTML(o.status||'')}</td>
-                <td>${safeHTML(o.payment_status||'')}</td>
-              </tr>
-            `).join('') || `<tr><td colspan="6">No orders</td></tr>`;
-          })();
-          break;
-
-        case "users":
-          // fetch users and render with our client-side renderer
-          (async ()=>{
-            const d = await loadData("/admin/users", token);
-            window.allUsers = d.users || [];
-            window.currentPage = 1;
-            // ensure the partial has a table with id="usersTableBody"
-            if (!el("usersTableBody")){
-              console.warn("users partial missing usersTableBody; ensure partial provides table with tbody#usersTableBody");
-            }
-            window.renderUsersPaged();
-            // wire search input if present
-            const search = el("userSearchInput");
-            if (search) search.addEventListener("input", ()=>{ window.currentPage = 1; window.renderUsersPaged(); });
-          })();
-          break;
-
-    
-        case "messages":
-          
-          setTimeout(()=>{
-            if (window.loadMessages && typeof window.loadMessages === "function"){
-              try{ window.loadMessages(); } catch(e){ console.error("window.loadMessages threw", e); }
-            } else {
-              
-              (async ()=>{
-                const d = await loadData("/admin/messages", token);
-                const tbody = el("messagesTableBody");
-                if (!tbody){
-                  console.warn("messages partial missing messagesTableBody");
-                  return;
-                }
-                const list = d.messages || [];
-                if (!list.length){ tbody.innerHTML = `<tr><td colspan="7">No messages</td></tr>`; return; }
-                tbody.innerHTML = list.map(m => `
-                  <tr>
-                    <td>${safeHTML(String(m.id))}</td>
-                    <td>${safeHTML(m.name||'')}</td>
-                    <td>${safeHTML(m.email||'')}</td>
-                    <td>${safeHTML(m.phone||'')}</td>
-                    <td class="preview-cell">${safeHTML((m.message||'').slice(0,120))}${(m.message||'').length>120?'...':''}</td>
-                    <td>${m.status==1?'<span class="status-unread">Unread</span>':'<span class="status-read">Read</span>'}</td>
-                    <td><button class="action-btn" onclick="openMessageEdit && openMessageEdit(${m.id})">Edit</button></td>
-                  </tr>
-                `).join('');
-              })();
-            }
-          }, 120);
-          break;
-      }
-
-      try{ feather.replace(); } catch(e){ /* ignore */ }
+    if (r.ok) {
+      Toast.fire({ icon:"success", title: id ? "Product updated" : "Product created" });
+      closeProductModal();
+      loadProducts();
+    } else {
+      Toast.fire({ icon:"error", title:"Save failed" });
     }
+  };
 
-    // Sidebar click handler
-    links.forEach(link=>{
-      link.addEventListener("click", function(e){
-        e.preventDefault();
-        const section = link.dataset.page;
-        loadSection(section);
-      });
+  /* ================= VARIANTS ================= */
+  window.openVariants = async function (pid) {
+    $("variantProductId").value = pid;
+    $("editVariantId").value = "";
+    $("vSku").disabled = false;
+
+    const r = await fetch(`/admin/products/${pid}/variants`, {
+      headers: { Authorization: "Bearer " + token }
+    });
+    const j = await r.json();
+
+    currentVariants = j.variants || [];
+
+    $("variantBody").innerHTML = currentVariants.map(v => `
+      <tr>
+        <td>${v.sku}</td>
+        <td>₹${v.price}</td>
+        <td>${v.length_size || "-"}</td>
+        <td>${v.width || "-"}</td>
+        <td>${v.thickness || "-"}</td>
+        <td>${v.finish || "-"}</td>
+        <td>${v.gemstones_colour || "-"}</td>
+        <td>${v.stock}</td>
+        <td>
+          <button onclick="editVariantById(${v.id})">
+            <i class="fa fa-pen"></i>
+          </button>
+          <button class="delete-btn" onclick="deleteVariant(${v.id})">
+            <i class="fa fa-trash"></i>
+          </button>
+        </td>
+      </tr>
+    `).join("") || `<tr><td colspan="9">No variants</td></tr>`;
+
+    $("variantModal").style.display = "flex";
+  };
+
+  window.closeVariantModal = () => {
+    $("variantModal").style.display = "none";
+  };
+
+  window.editVariantById = id => {
+    const v = currentVariants.find(x => x.id === id);
+    if (!v) return;
+
+    $("editVariantId").value = v.id;
+    $("vSku").value = v.sku;
+    $("vSku").disabled = true;
+    $("vPrice").value = v.price;
+    $("vLength").value = v.length_size || "";
+    $("vWidth").value = v.width || "";
+    $("vThickness").value = v.thickness || "";
+    $("vFinish").value = v.finish || "";
+    $("vGemstone").value = v.gemstones_colour || "";
+    $("vStock").value = v.stock || 0;
+  };
+
+  window.saveVariant = async function () {
+    const payload = {
+      id: $("editVariantId").value || null,
+      product_id: $("variantProductId").value,
+      sku: $("vSku").value.trim(),
+      price: $("vPrice").value,
+      length_size: $("vLength").value,
+      width: $("vWidth").value,
+      thickness: $("vThickness").value,
+      finish: $("vFinish").value,
+      gemstones_colour: $("vGemstone").value,
+      stock: $("vStock").value
+    };
+
+    const r = await fetch("/admin/variants", {
+      method: "POST",
+      headers: {
+        Authorization: "Bearer " + token,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
     });
 
-    // Initial load of dashboard data
-    await reloadDashboardData();
+    if (!r.ok) {
+      Toast.fire({ icon:"error", title:"Save failed" });
+      return;
+    }
 
-  }); 
-})(); 
+    Toast.fire({ icon:"success", title:"Variant saved" });
+    openVariants($("variantProductId").value);
+  };
+
+  window.deleteVariant = async id => {
+    await fetch(`/admin/variants/${id}/delete`, {
+      method: "POST",
+      headers: { Authorization: "Bearer " + token }
+    });
+    Toast.fire({ icon:"success", title:"Variant deleted" });
+    openVariants($("variantProductId").value);
+  };
+
+  /* ================= EVENTS ================= */
+  document.addEventListener("click", e => {
+    if (e.target.closest(".edit-product"))
+      editProduct(+e.target.closest(".edit-product").dataset.id);
+
+    if (e.target.closest(".variants-product"))
+      openVariants(+e.target.closest(".variants-product").dataset.id);
+
+    if (e.target.closest(".delete-product"))
+      deleteProduct(+e.target.closest(".delete-product").dataset.id);
+  });
+
+  /* ================= EDIT PRODUCT ================= */
+  window.editProduct = id => {
+    const p = allProducts.find(x => x.id === id);
+    if (!p) return;
+
+    $("productModalTitle").innerText = "Edit Product";
+    $("productId").value = id;
+    $("pName").value = p.name || "";
+    $("pDesc").value = p.description || "";
+    $("pCategory").value = p.category || "";
+    $("pCategoryDesc").value = p.category_description || "";
+    $("pSubCategory").value = p.sub_category || "";
+    $("pCollection").value = p.collection_name || "";
+    $("pMetal").value = p.metal || "";
+    $("pDiamonds").value = p.diamonds || "";
+
+    $("productModal").style.display = "flex";
+  };
+
+  /* ================= START ================= */
+  loadProducts();
+}
+
+
+/* ======================================================
+   USERS – FINAL WORKING LOGIC (FIXED)
+====================================================== */
+
+function initUsers() {
+
+  const token = localStorage.getItem("token");
+  const $ = id => document.getElementById(id);
+
+  const tbody = $("usersTableBody");
+  const searchInput = $("userSearchInput");
+  const pagination = $("usersPagination");
+
+  const modal = $("editUserModal");
+  const saveBtn = $("saveUserBtn");
+  const closeBtn = $("closeUserBtn");
+
+  let users = [];
+  let currentPage = 1;
+  const perPage = 8;
+
+  /* ================= LOAD USERS ================= */
+  async function loadUsers() {
+    const res = await fetch("/admin/users", {
+      headers: { Authorization: "Bearer " + token }
+    });
+    const data = await res.json();
+    users = data.users || [];
+    render();
+  }
+
+  /* ================= RENDER ================= */
+  function render() {
+    const q = (searchInput.value || "").toLowerCase();
+
+    const filtered = users.filter(u =>
+      `${u.id} ${u.first_name} ${u.last_name} ${u.email}`
+        .toLowerCase()
+        .includes(q)
+    );
+
+    const start = (currentPage - 1) * perPage;
+    const pageUsers = filtered.slice(start, start + perPage);
+
+    tbody.innerHTML = pageUsers.length
+      ? pageUsers.map(u => `
+        <tr>
+          <td>${u.id}</td>
+          <td>${u.first_name}</td>
+          <td>${u.last_name}</td>
+          <td>${u.email}</td>
+          <td>
+            <span class="role-badge ${u.is_admin ? "role-admin" : "role-user"}">
+              ${u.is_admin ? "Admin" : "User"}
+            </span>
+          </td>
+          <td>${u.login_type || "email"}</td>
+          <td>${new Date(u.created_at).toLocaleDateString()}</td>
+          <td>
+            <button class="action-btn edit-btn" data-id="${u.id}">Edit</button>
+            <button class="action-btn delete-btn" data-id="${u.id}">Delete</button>
+          </td>
+        </tr>
+      `).join("")
+      : `<tr><td colspan="8">No users found</td></tr>`;
+
+    renderPagination(filtered.length);
+  }
+
+  /* ================= PAGINATION ================= */
+  function renderPagination(total) {
+    pagination.innerHTML = "";
+    const pages = Math.ceil(total / perPage);
+
+    for (let i = 1; i <= pages; i++) {
+      const btn = document.createElement("button");
+      btn.textContent = i;
+      btn.className = "page-btn" + (i === currentPage ? " active" : "");
+      btn.onclick = () => {
+        currentPage = i;
+        render();
+      };
+      pagination.appendChild(btn);
+    }
+  }
+
+  /* ================= TABLE ACTIONS ================= */
+  tbody.addEventListener("click", async e => {
+
+    // EDIT
+    if (e.target.classList.contains("edit-btn")) {
+      const id = Number(e.target.dataset.id);
+      const u = users.find(x => x.id === id);
+      if (!u) return;
+
+      $("editUserId").value = u.id;
+      $("editFirstName").value = u.first_name;
+      $("editLastName").value = u.last_name;
+      $("editEmail").value = u.email;
+      $("editIsAdmin").value = u.is_admin ? 1 : 0;
+
+      modal.style.display = "flex";
+    }
+
+    // DELETE
+    if (e.target.classList.contains("delete-btn")) {
+      const id = Number(e.target.dataset.id);
+      if (!confirm("Delete this user permanently?")) return;
+
+      const res = await fetch(`/admin/users/${id}/delete`, {
+        method: "POST",
+        headers: { Authorization: "Bearer " + token }
+      });
+
+      if (!res.ok) {
+        showToast("Delete failed", "error");
+        return;
+      }
+
+      users = users.filter(u => u.id !== id);
+      showToast("User deleted");
+      render();
+    }
+  });
+
+  /* ================= MODAL ACTIONS ================= */
+  closeBtn.onclick = () => {
+    modal.style.display = "none";
+  };
+
+  saveBtn.onclick = async () => {
+    const id = $("editUserId").value;
+
+    const payload = {
+      first_name: $("editFirstName").value,
+      last_name: $("editLastName").value,
+      email: $("editEmail").value,
+      is_admin: Number($("editIsAdmin").value)
+    };
+
+    const res = await fetch(`/admin/users/${id}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      showToast("Update failed", "error");
+      return;
+    }
+
+    showToast("User updated");
+    modal.style.display = "none";
+    loadUsers(); // refresh safely
+  };
+
+  /* ================= SEARCH ================= */
+  searchInput.oninput = () => {
+    currentPage = 1;
+    render();
+  };
+
+  /* ================= START ================= */
+  loadUsers();
+}
+
+
+/* ======================================================
+   REVIEWS – FINAL WORKING LOGIC
+====================================================== */
+
+function initReviews() {
+
+  const token = localStorage.getItem("token");
+  const $ = id => document.getElementById(id);
+
+  let allReviews = [];
+  let filteredReviews = [];
+  let editingReviewId = null;
+
+  /* ---------- helpers ---------- */
+  const toast = (msg, type="success") => {
+    if (window.showToast) showToast(msg, type);
+    else alert(msg);
+  };
+
+  /* ---------- DOM ---------- */
+  const reviewSearch = $("reviewSearch");
+  const ratingFilter = $("ratingFilter");
+  const sortBy = $("sortBy");
+  const tbody = $("reviewsTableBody");
+
+  const editModal = $("editReviewModal");
+  const editTitle = $("editTitle");
+  const editComment = $("editComment");
+  const editRating = $("editRating");
+  const saveEditBtn = $("saveEditBtn");
+  const cancelEditBtn = $("cancelEditBtn");
+
+  /* ---------- LOAD REVIEWS ---------- */
+  async function loadReviews() {
+    const r = await fetch("/admin/reviews", {
+      headers: { Authorization: "Bearer " + token }
+    });
+
+    const d = await r.json();
+    allReviews = Array.isArray(d.reviews) ? d.reviews : [];
+    applyFilters();
+  }
+
+  /* ---------- FILTER + SORT ---------- */
+  function applyFilters() {
+    const q = reviewSearch.value.toLowerCase();
+    const r = ratingFilter.value;
+    const s = sortBy.value;
+
+    filteredReviews = allReviews.filter(x => {
+      const text = `${x.user_name||""} ${x.product_name||""} ${x.comment||""}`.toLowerCase();
+      return (!q || text.includes(q)) && (!r || String(x.rating) === r);
+    });
+
+    if (s === "oldest") filteredReviews.sort((a,b)=>a.id-b.id);
+    else if (s === "high") filteredReviews.sort((a,b)=>b.rating-a.rating);
+    else if (s === "low") filteredReviews.sort((a,b)=>a.rating-b.rating);
+    else filteredReviews.sort((a,b)=>b.id-a.id);
+
+    renderReviews(filteredReviews);
+  }
+
+  /* ---------- RENDER ---------- */
+  function renderReviews(list) {
+    tbody.innerHTML = "";
+
+    if (!list.length) {
+      tbody.innerHTML = `<tr><td colspan="6">No reviews found</td></tr>`;
+      return;
+    }
+
+    list.forEach(r => {
+      tbody.insertAdjacentHTML("beforeend", `
+        <tr>
+          <td>${r.user_id || "-"}</td>
+          <td>${r.product_id
+            ? `<a href="/product/${r.product_id}" target="_blank">${r.product_name}</a>`
+            : "Deleted"}
+          </td>
+          <td>${"★".repeat(r.rating)}</td>
+          <td>${r.comment || "-"}</td>
+          <td>${new Date(r.created_at).toLocaleDateString()}</td>
+          <td class="actions">
+            <button class="btn-edit" data-id="${r.id}">Edit</button>
+            <button class="btn-delete" data-id="${r.id}">Delete</button>
+          </td>
+        </tr>
+      `);
+    });
+  }
+
+  /* ---------- EVENTS ---------- */
+  reviewSearch.oninput = applyFilters;
+  ratingFilter.onchange = applyFilters;
+  sortBy.onchange = applyFilters;
+
+  cancelEditBtn.onclick = () => editModal.classList.add("hidden");
+
+  tbody.addEventListener("click", e => {
+    const editBtn = e.target.closest(".btn-edit");
+    const delBtn = e.target.closest(".btn-delete");
+
+    if (editBtn) openEdit(+editBtn.dataset.id);
+    if (delBtn) deleteReview(+delBtn.dataset.id);
+  });
+
+  saveEditBtn.onclick = saveReviewEdit;
+
+  /* ---------- EDIT ---------- */
+  function openEdit(id) {
+    const r = allReviews.find(x => x.id === id);
+    if (!r) return;
+
+    editingReviewId = id;
+    editTitle.value = r.title || "";
+    editComment.value = r.comment || "";
+    editRating.value = r.rating || 5;
+
+    editModal.classList.remove("hidden");
+  }
+
+  function saveReviewEdit() {
+    if (!editingReviewId) return;
+
+    fetch(`/admin/reviews/${editingReviewId}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token
+      },
+      body: JSON.stringify({
+        title: editTitle.value.trim(),
+        comment: editComment.value.trim(),
+        rating: editRating.value
+      })
+    })
+    .then(r => r.json())
+    .then(res => {
+      if (!res.success) {
+        toast("Update failed", "error");
+        return;
+      }
+
+      /* REALTIME UPDATE */
+      const r = allReviews.find(x => x.id === editingReviewId);
+      if (r) {
+        r.title = editTitle.value;
+        r.comment = editComment.value;
+        r.rating = Number(editRating.value);
+      }
+
+      editModal.classList.add("hidden");
+      applyFilters();
+      toast("Review updated successfully");
+    })
+    .catch(() => toast("Update failed", "error"));
+  }
+
+  /* ---------- DELETE ---------- */
+  function deleteReview(id) {
+    if (!confirm("Delete this review permanently?")) return;
+
+    fetch(`/admin/reviews/${id}/delete`, {
+      method: "POST",
+      headers: { Authorization: "Bearer " + token }
+    })
+    .then(r => r.json())
+    .then(res => {
+      if (!res.success) {
+        toast("Delete failed", "error");
+        return;
+      }
+
+      allReviews = allReviews.filter(r => r.id !== id);
+      applyFilters();
+      toast("Review deleted");
+    })
+    .catch(() => toast("Delete failed", "error"));
+  }
+
+  /* ---------- START ---------- */
+  loadReviews();
+}
+
+
+
+
+/* ======================================================
+   MESSAGES – FINAL WORKING LOGIC
+====================================================== */
+
+function initMessages() {
+
+  const token = localStorage.getItem("token");
+  if (!token) return;
+
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s || "")
+    .replace(/[&<>]/g, t => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;" }[t]));
+
+  let allMessages = [];
+  let currentPage = 1;
+  const rowsPerPage = 10;
+
+  /* ================= LOAD ================= */
+  async function loadMessages() {
+    const res = await fetch("/admin/messages", {
+      headers: { Authorization: "Bearer " + token }
+    });
+    const data = await res.json();
+    allMessages = data.messages || [];
+    render();
+  }
+
+  /* ================= RENDER ================= */
+  function render() {
+    const body = $("messagesTableBody");
+    const q = ($("messageSearchInput")?.value || "").toLowerCase();
+    const status = $("filterStatus")?.value;
+
+    let list = allMessages.filter(m => {
+      if (status !== "" && String(m.status) !== status) return false;
+      return (
+        (m.name || "").toLowerCase().includes(q) ||
+        (m.email || "").toLowerCase().includes(q) ||
+        (m.message || "").toLowerCase().includes(q)
+      );
+    });
+
+    const start = (currentPage - 1) * rowsPerPage;
+    const page = list.slice(start, start + rowsPerPage);
+
+    if (!page.length) {
+      body.innerHTML = `<tr><td colspan="7" style="text-align:center;">No messages found</td></tr>`;
+      return;
+    }
+
+    body.innerHTML = page.map(m => `
+      <tr>
+        <td>${m.id}</td>
+        <td>${esc(m.name)}</td>
+        <td>${esc(m.email)}</td>
+        <td>${esc(m.phone)}</td>
+        <td class="msg-preview" data-msg="${esc(m.message)}">
+          ${esc(m.message).slice(0,50)}${m.message.length > 50 ? "..." : ""}
+        </td>
+        <td>
+          <span class="status-chip ${m.status == 1 ? "status-unread" : "status-read"}">
+            ${m.status == 1 ? "Unread" : "Read"}
+          </span>
+        </td>
+        <td>
+          <div class="msg-actions">
+            <i data-feather="edit" data-edit="${m.id}"></i>
+            <i data-feather="check" data-toggle="${m.id}"></i>
+            <i data-feather="trash" data-delete="${m.id}"></i>
+          </div>
+        </td>
+      </tr>
+    `).join("");
+
+    feather.replace();
+  }
+
+  /* ================= EVENTS ================= */
+  $("messageSearchInput").oninput =
+  $("filterStatus").onchange = () => {
+    currentPage = 1;
+    render();
+  };
+
+  $("clearMsgFilters").onclick = () => {
+    $("messageSearchInput").value = "";
+    $("filterStatus").value = "";
+    currentPage = 1;
+    render();
+  };
+
+  /* ================= TABLE ACTIONS ================= */
+  $("messagesTableBody").addEventListener("click", async e => {
+
+    /* VIEW */
+    const preview = e.target.closest(".msg-preview");
+    if (preview) {
+      $("fullMessageText").innerText = preview.dataset.msg;
+      $("viewMessageModal").style.display = "flex";
+    }
+
+    /* EDIT */
+    const editId = e.target.dataset.edit;
+    if (editId) {
+      const m = allMessages.find(x => x.id == editId);
+      if (!m) return;
+
+      $("editMessageId").value = m.id;
+      $("editMessageName").value = m.name;
+      $("editMessageEmail").value = m.email;
+      $("editMessagePhone").value = m.phone;
+      $("editMessageBody").value = m.message;
+      $("editMessageStatus").value = m.status;
+
+      $("messageModal").style.display = "flex";
+    }
+
+    /* TOGGLE STATUS */
+    const toggleId = e.target.dataset.toggle;
+    if (toggleId) {
+      const m = allMessages.find(x => x.id == toggleId);
+      const newStatus = m.status ? 0 : 1;
+
+      await fetch(`/admin/messages/${toggleId}`, {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer " + token,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ status: newStatus })
+      });
+
+      m.status = newStatus;
+      render();
+      showToast("Status updated");
+    }
+
+    /* DELETE */
+    const delId = e.target.dataset.delete;
+    if (delId && confirm("Delete this message?")) {
+      await fetch(`/admin/messages/${delId}/delete`, {
+        method: "POST",
+        headers: { Authorization: "Bearer " + token }
+      });
+
+      allMessages = allMessages.filter(m => m.id != delId);
+      render();
+      showToast("Message deleted");
+    }
+  });
+
+  /* ================= MODALS ================= */
+  window.closeMessageView = () => $("viewMessageModal").style.display = "none";
+  $("cancelMessageBtn").onclick = () => $("messageModal").style.display = "none";
+
+  $("saveMessageBtn").onclick = async () => {
+    const id = $("editMessageId").value;
+
+    const payload = {
+      name: $("editMessageName").value,
+      email: $("editMessageEmail").value,
+      phone: $("editMessagePhone").value,
+      message: $("editMessageBody").value,
+      status: Number($("editMessageStatus").value)
+    };
+
+    await fetch(`/admin/messages/${id}`, {
+      method: "POST",
+      headers: {
+        Authorization: "Bearer " + token,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
+
+    showToast("Message updated");
+    $("messageModal").style.display = "none";
+    loadMessages();
+  };
+
+  /* ================= INIT ================= */
+  loadMessages();
+}
+
+
+  /* ================= START ================= */
+  document.addEventListener("DOMContentLoaded", () => {
+    feather.replace();
+    loadDashboard();
+  });
+
+})();
 </script>

@@ -6,6 +6,38 @@ const multer = require("multer");
 const path = require("path");
 
 
+router.get("/dashboard", adminAuth, (req, res) => {
+  res.render("admin/dashboard", {
+    title: "Admin Dashboard",
+    admin: true,
+    user: req.user
+  });
+});
+
+router.get("/view/dashboard", adminAuth, (req, res) => {
+  res.render("admin/dashboard", { layout: false });
+});
+
+router.get("/view/users", adminAuth, (req, res) => {
+  res.render("admin/sections/users", { layout: false });
+});
+
+router.get("/view/allProducts", adminAuth, (req, res) => {
+  res.render("admin/sections/allProducts", { layout: false });
+});
+
+router.get("/view/orders", adminAuth, (req, res) => {
+  res.render("admin/sections/orders", { layout: false });
+});
+
+router.get("/view/reviews", adminAuth, (req, res) => {
+  res.render("admin/sections/allReviews", { layout: false });
+});
+
+router.get("/view/messages", adminAuth, (req, res) => {
+  res.render("admin/sections/messages", { layout: false });
+});
+
 //get all users
 router.get("/users", adminAuth, async (req, res) => {
   try {

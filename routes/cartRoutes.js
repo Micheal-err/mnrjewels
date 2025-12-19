@@ -8,6 +8,37 @@ const authMiddleware = require("../middleware/authMiddleware");
  * ➕ ADD TO CART (VARIANT-BASED)
  * ===============================
  */
+
+// routes/productRoutes.js
+// ===============================
+// 🔎 GET PRODUCT VARIANTS (API)
+// ===============================
+router.get("/product/:id/variants", async (req, res) => {
+  try {
+    const productId = req.params.id;
+
+    const [variants] = await db.query(
+      `SELECT id, price, finish, length_size, width, thickness
+       FROM product_variants
+       WHERE product_id = ?`,
+      [productId]
+    );
+
+    res.json({
+      success: true,
+      variants
+    });
+
+  } catch (err) {
+    console.error("GET VARIANTS ERROR:", err);
+    res.status(500).json({
+      success: false,
+      variants: []
+    });
+  }
+});
+
+
 router.post("/add", authMiddleware, async (req, res) => {
   try {
     const { variant_id, quantity = 1 } = req.body;
