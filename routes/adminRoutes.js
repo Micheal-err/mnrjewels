@@ -95,6 +95,67 @@ router.post("/users/:id/delete", adminAuth, async (req, res) => {
   }
 });
 
+// ===============================
+// 👤 USER WISHLIST (ADMIN)
+// ===============================
+router.get("/users/:id/wishlist", adminAuth, async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    const [rows] = await db.query(`
+      SELECT 
+        p.id,
+        p.name,
+        p.image1
+      FROM wishlist w
+      JOIN products p ON p.id = w.product_id
+      WHERE w.user_id = ?
+      ORDER BY w.id DESC
+    `, [userId]);
+
+    res.json({ success: true, items: rows });
+
+  } catch (err) {
+    console.log("Admin user wishlist error:", err);
+    res.status(500).json({ success: false, items: [] });
+  }
+});
+// ===============================
+// 🛒 USER CART (ADMIN) – FINAL
+// ===============================
+router.get("/users/:id/cart", adminAuth, async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    const [rows] = await db.query(`
+      SELECT
+        ci.id           AS cart_item_id,
+        ci.quantity,
+        p.id            AS product_id,
+        p.name,
+        p.image1,
+        v.id            AS variant_id,
+        v.finish,
+        v.gemstones_colour,
+        v.length_size,
+        v.width,
+        v.thickness,
+        v.price
+      FROM cart_items ci
+      JOIN product_variants v ON v.id = ci.variant_id
+      JOIN products p ON p.id = v.product_id
+      WHERE ci.user_id = ?
+      ORDER BY ci.id DESC
+    `, [userId]);
+
+    res.json({ success: true, items: rows });
+
+  } catch (err) {
+    console.error("Admin user cart error:", err);
+    res.status(500).json({ success: false, items: [] });
+  }
+});
+
 
 /* ===============================
    📦 MULTER CONFIG

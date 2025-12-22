@@ -24,6 +24,7 @@ body {
     font-size: 18px;
     line-height: 30px; 
     overflow-x: hidden !important;
+
 }
 section {
     padding-top: 100px;
@@ -32,6 +33,40 @@ section {
 a:hover {
     color: var(--dark-gray);
 }
+
+.primary-text{
+    font-size: 32px;
+    letter-spacing: -2px !important;
+    text-transform: uppercase;
+       font-family: var(--primary-font);
+       font-weight: 500;
+    }
+
+.base-text{
+        font-size: 16px;
+        /* letter-spacing: 1px !important; */
+        font-family: var(--alt-font);
+ 
+}
+
+.text-italic{
+    font-style: italic;
+}
+.text-underline{
+    text-decoration: underline;
+}
+
+.text-alt-font{
+    font-family: var(--alt-font);
+}
+.text-base-font{
+    font-family: var(--primary-font) !important;
+}
+.text-uppercase{
+    text-transform: uppercase;
+}
+
+
 .input-small, .textarea-small, .select-small {
     font-size: 14px;
 }
@@ -44,7 +79,7 @@ header .navbar-brand {
     padding: 20px 0;
 }
 header .navbar-brand img {
-    max-height: 50px;
+    max-height: 70px;
 }
 .navbar > .container-fluid, .header-top-bar > .container-fluid {
     padding-left: 15px;
@@ -638,15 +673,15 @@ footer .social-icon-style-09 ul li a span {
     align-items: center;
     justify-content: center;
     text-align: center;
+    padding: 1rem;
 }
-
 /* dark overlay */
-.feature-box-gift .overlay {
+/* .feature-box-gift .overlay {
     position: absolute;
     inset: 0;
     background: rgba(0,0,0,0.45);
     transition: 0.3s ease;
-}
+} */
 
 .feature-box-gift:hover .overlay {
     background: rgba(0,0,0,0.6);
@@ -677,8 +712,8 @@ footer .social-icon-style-09 ul li a span {
 /* EACH CARD */
 .feature-box-gift {
     position: relative;
-    height: 300px;
-    border-radius: 14px;
+    height: 400px;
+    /* border-radius: 14px; */
     overflow: hidden;
     background-size: cover;
     background-position: center;
@@ -687,16 +722,7 @@ footer .social-icon-style-09 ul li a span {
 }
 
 /* OVERLAY */
-.feature-box-gift::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: rgba(0,0,40,0.45);
-    transition: 0.3s ease;
-}
-.feature-box-gift:hover::after {
-    background: rgba(0,0,40,0.65);
-}
+
 
 /* TEXT INSIDE CARD */
 .feature-text {
@@ -707,13 +733,14 @@ footer .social-icon-style-09 ul li a span {
     font-size: 18px;
     z-index: 2;
     line-height: 22px;
+    background-color: #9fa87870;
 }
 
 /* BACKGROUND IMAGES */
-.bg-1 { background-image: url('../../images/gift-men-img.jpg'); }
-.bg-2 { background-image: url('../../images/gift-women-img.jpg'); }
-.bg-3 { background-image: url('../../images/gift-499-img.jpg'); }
-.bg-4 { background-image: url('../../images/gift-1599-img.jpg'); }
+.bg-1 { background-image: url('../../images/home-for-him-img.webp'); }
+.bg-2 { background-image: url('../../images/home-for-her-img.webp'); }
+.bg-3 { background-image: url('../../images/home-under-499.webp'); }
+.bg-4 { background-image: url('../../images/home-under-1499.webp'); }
 
 /* BUTTON STYLE LIKE DESIGN */
 .gift-btn {

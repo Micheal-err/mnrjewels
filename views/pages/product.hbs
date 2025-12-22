@@ -139,11 +139,12 @@ For more details, you can read our <a href=""> shipping policy</a>, & <a href=""
 
         <!-- ACTIONS -->
         <div class="product-actions">
-          <button
-            class="btn-add-cart"
-            onclick="addRelatedToCart({{id}})">
-            Add to cart
-          </button>
+         <button
+  class="btn-add-cart add-cart-btn"
+  data-id="{{id}}">
+  Add to cart
+</button>
+
 
           <button
             class="btn-wishlist"
@@ -159,6 +160,7 @@ For more details, you can read our <a href=""> shipping policy</a>, & <a href=""
 </section>
 
 <style>
+
   .product-grid {
   display:grid;
   grid-template-columns: 1fr 1fr;
@@ -916,39 +918,71 @@ document.querySelectorAll(".details-header").forEach(btn => {
 });
   feather.replace();
 
-  async function addRelatedToCart(productId) {
-  try {
-    const res = await fetch("/cart/add", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("token")
-      },
-      body: JSON.stringify({
-        product_id: productId,
-        qty: 1
-      })
-    });
+  (function () {
 
-    const data = await res.json();
+  const token = localStorage.getItem("token");
 
-    if (!data.success) throw new Error(data.message);
-
+  const toast = (title, icon = "success") =>
     Swal.fire({
-      icon: "success",
-      title: "Added to cart",
-      timer: 1200,
-      showConfirmButton: false
+      toast: true,
+      position: "top-end",
+      timer: 1600,
+      showConfirmButton: false,
+      icon,
+      title
     });
 
-  } catch (err) {
-    Swal.fire({
-      icon: "error",
-      title: "Login required",
-      text: err.message
-    });
-  }
-}
+  document.addEventListener("click", async (e) => {
+    const btn = e.target.closest(".add-cart-btn");
+    if (!btn) return;
+
+    if (!token) {
+      toast("Login required", "warning");
+      return;
+    }
+
+    const productId = btn.dataset.id;
+
+    try {
+      // 1️⃣ fetch variants
+      const r = await fetch(`/cart/product/${productId}/variants`);
+      const data = await r.json();
+
+      if (!data.variants || !data.variants.length) {
+        throw new Error("No variants found");
+      }
+
+      // 2️⃣ multiple variants → go to product page
+      if (data.variants.length > 1) {
+        window.location.href = `/product/${productId}`;
+        return;
+      }
+
+      // 3️⃣ single variant → add directly
+      const add = await fetch("/cart/add", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token
+        },
+        body: JSON.stringify({
+          variant_id: data.variants[0].id,
+          qty: 1
+        })
+      });
+
+      const res = await add.json();
+      if (!res.success) throw new Error(res.message);
+
+      toast("Added to cart");
+
+    } catch (err) {
+      console.error("RELATED ADD ERROR:", err);
+      toast("Add to cart failed", "error");
+    }
+  });
+
+})();
 
 async function toggleRelatedWishlist(productId, btn) {
   try {
