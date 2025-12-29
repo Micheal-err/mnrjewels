@@ -17,9 +17,9 @@
         </a>
 
        {{!-- prodcuts --}}
-  <a href="#" data-page="allProducts" title="Products">
+  {{!-- <a href="#" data-page="allProducts" title="Products">
             <i data-feather="box"></i>
-        </a> 
+        </a>  --}}
 
         <!-- Users -->
         <a href="#" data-page="users" title="Users">
@@ -79,10 +79,27 @@
             </div>
 
             <!-- LOW STOCK -->
-            <h3 class="section-title">Low Stock Products</h3>
-            <ul id="lowStockList" class="low-stock-list">
-                <li>Loading...</li>
-            </ul>
+            <h3 class="section-title">Out of Stock Products</h3>
+
+<table class="admin-table" id="outStockTable">
+  <thead>
+    <tr>
+      <th>Product</th>
+      <th>SKU</th>
+      <th>Stock</th>
+    </tr>
+  </thead>
+  <tbody id="outStockBody">
+    <tr><td colspan="3">Loading...</td></tr>
+  </tbody>
+</table>
+
+            <h3 class="section-title">Most Carted Products</h3>
+          <ul id="mostCartedList" class="low-stock-list"></ul>
+
+        <h3 class="section-title">Most Wishlisted Products</h3>
+        <ul id="mostWishlistedList" class="low-stock-list"></ul>
+
 
             <!-- RECENT ORDERS -->
             <h3 class="section-title">Recent Orders</h3>
@@ -199,8 +216,8 @@
 .modal-input { width:100%; margin:8px 0 12px 0; padding:10px; background:#0f0f0f; border:1px solid #333; color:#fff; border-radius:6px; }
 
 /* Buttons */
-.save-btn { padding:10px 14px; border-radius:8px; background:#00c471; color:#000; border:none; cursor:pointer; }
-.close-btn { padding:10px 14px; border-radius:8px; background:#444; color:#fff; border:none; cursor:pointer; }
+.save-btn { padding:10px 14px;  background:#00c471; color:#000; border:none; cursor:pointer; font-size: 14px; margin-left:8px; }
+.close-btn { padding:10px 14px;  background:#444; color:#fff; border:none; cursor:pointer; font-size: 14px; margin-left:8px; }
 
 /* Toast */
 .toast { position:fixed; top:20px; right:20px; padding:12px 16px; background:#00c471; color:#000; border-radius:8px; transform:translateY(-10px); opacity:0; transition:all .25s; z-index:999999; pointer-events:none; }
@@ -217,6 +234,40 @@
   color: #000;
   margin-left: 6px;
 }
+
+.status-chip {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.pay-paid {
+  background: #00e48d;
+  color: #000;
+}
+
+.pay-unpaid {
+  background: #ffb703;
+  color: #000;
+}
+
+.pay-failed {
+  background: #ff4747;
+  color: #fff;
+}
+
+.pay-refunded {
+  background: #5f9cff;
+  color: #fff;
+}
+
+.pay-partial_refund {
+  background: #b18cff;
+  color: #fff;
+}
+
 
 </style>
 
@@ -238,6 +289,7 @@
     token: localStorage.getItem("token"),
     currentSection: "dashboard"
   };
+
 
   /* ================= HELPERS ================= */
   const el = id => document.getElementById(id);
@@ -286,42 +338,92 @@
 
   /* ================= DASHBOARD ================= */
   async function loadDashboard() {
-    Admin.currentSection = "dashboard";
+  Admin.currentSection = "dashboard";
 
-    const stats = await apiGet("/admin/dashboard/stats") || {};
-    el("statOrders").textContent = stats.totalOrders ?? "--";
-    el("statRevenue").textContent = stats.totalRevenue ? "₹" + stats.totalRevenue : "--";
-    el("statUsers").textContent = stats.totalUsers ?? "--";
-    el("statPending").textContent = stats.pendingOrders ?? "--";
+  /* ---------- STATS ---------- */
+  const stats = await apiGet("/admin/dashboard/stats") || {};
+  el("statOrders").textContent = stats.totalOrders ?? "--";
+  el("statRevenue").textContent = stats.totalRevenue ? "₹" + stats.totalRevenue : "--";
+  el("statUsers").textContent = stats.totalUsers ?? "--";
+  el("statPending").textContent = stats.pendingOrders ?? "--";
 
-    const lowStock = await apiGet("/admin/dashboard/low-stock") || [];
-    el("lowStockList").innerHTML = lowStock.length
-      ? lowStock.map(p => `<li>${safeHTML(p.name)} — ${p.stock} left</li>`).join("")
-      : `<li style="color:#7fff7f">All products well stocked</li>`;
+  /* ---------- OUT OF STOCK ---------- */
+  const outStock = await apiGet("/admin/dashboard/out-of-stock") || [];
+  el("outStockBody").innerHTML = outStock.length
+    ? outStock.map(p => `
+      <tr>
+        <td>
+          <a href="/product/${p.id}" target="_blanked"
+             style="color:#fff;text-decoration:none">
+            ${safeHTML(p.name)}
+          </a>
+        </td>
+        <td>${safeHTML(p.sku)}</td>
+        <td style="color:#ff4d4d;font-weight:700">0</td>
+      </tr>
+    `).join("")
+    : `<tr><td colspan="3" style="color:#7fff7f">No out-of-stock products 🎉</td></tr>`;
 
-    const recentOrders = await apiGet("/admin/dashboard/recent-orders") || [];
-    el("recentOrdersBody").innerHTML = recentOrders.length
-      ? recentOrders.map(o => `
-        <tr>
-          <td>${o.id}</td>
-          <td>${safeHTML(o.first_name)} ${safeHTML(o.last_name)}</td>
-          <td>₹${o.total}</td>
-          <td>${safeHTML(o.status)}</td>
-        </tr>`).join("")
-      : `<tr><td colspan="4">No recent orders</td></tr>`;
+  /* ---------- MOST CARTED ---------- */
+  const mostCarted = await apiGet("/admin/dashboard/most-carted") || [];
+  el("mostCartedList").innerHTML = mostCarted.length
+    ? mostCarted.map(p => `
+      <li style="display:flex;gap:10px;align-items:center">
+        <img src="/uploads/${p.image1 || "placeholder.png"}"
+             style="width:40px;height:40px;border-radius:6px">
+        <a href="/product/${p.id}" target="_blanked"
+           style="color:#fff;text-decoration:none">
+          ${safeHTML(p.name)}
+        </a>
+        <b style="margin-left:auto;color:#00e48d">${p.total_added}</b>
+      </li>
+    `).join("")
+    : `<li>No cart activity</li>`;
 
-    const recentUsers = await apiGet("/admin/dashboard/recent-users") || [];
-    el("recentUsersBody").innerHTML = recentUsers.length
-      ? recentUsers.map(u => `
-        <tr>
-          <td>${u.id}</td>
-          <td>${safeHTML(u.first_name)} ${safeHTML(u.last_name)}</td>
-          <td>${safeHTML(u.email)}</td>
-        </tr>`).join("")
-      : `<tr><td colspan="3">No recent users</td></tr>`;
+  /* ---------- MOST WISHLISTED ---------- */
+  const mostWishlisted = await apiGet("/admin/dashboard/most-wishlisted") || [];
+  el("mostWishlistedList").innerHTML = mostWishlisted.length
+    ? mostWishlisted.map(p => `
+      <li style="display:flex;gap:10px;align-items:center">
+        <img src="/uploads/${p.image1 || "placeholder.png"}"
+             style="width:40px;height:40px;border-radius:6px">
+        <a href="/product/${p.id}" target="_blanked"
+           style="color:#fff;text-decoration:none">
+          ${safeHTML(p.name)}
+        </a>
+        <b style="margin-left:auto;color:#ff5fa2">${p.total_added}</b>
+      </li>
+    `).join("")
+    : `<li>No wishlist activity</li>`;
 
-    feather.replace();
-  }
+  /* ---------- RECENT ORDERS ---------- */
+  const recentOrders = await apiGet("/admin/dashboard/recent-orders") || [];
+  el("recentOrdersBody").innerHTML = recentOrders.length
+    ? recentOrders.map(o => `
+      <tr>
+        <td>#${o.id}</td>
+        <td>${safeHTML(o.first_name || "Guest")} ${safeHTML(o.last_name || "")}</td>
+        <td>₹${o.total}</td>
+        <td>${safeHTML(o.status)}</td>
+      </tr>
+    `).join("")
+    : `<tr><td colspan="4">No recent orders</td></tr>`;
+
+  /* ---------- RECENT USERS ---------- */
+  const recentUsers = await apiGet("/admin/dashboard/recent-users") || [];
+  el("recentUsersBody").innerHTML = recentUsers.length
+    ? recentUsers.map(u => `
+      <tr>
+        <td>${u.id}</td>
+        <td>${safeHTML(u.first_name)} ${safeHTML(u.last_name)}</td>
+        <td>${safeHTML(u.email)}</td>
+      </tr>
+    `).join("")
+    : `<tr><td colspan="3">No recent users</td></tr>`;
+
+  feather.replace();
+}
+
 
   /* ================= SECTION LOADER ================= */
   async function loadSection(section) {
@@ -364,6 +466,227 @@
       loadSection(link.dataset.page);
     });
   });
+
+
+
+
+/* ======================================================
+   ORDERS – FINAL ADMIN MODULE
+====================================================== */
+function initOrders() {
+
+  const token = localStorage.getItem("token");
+  const $ = id => document.getElementById(id);
+
+  let orders = [];
+  let currentPage = 1;
+  const perPage = 8;
+  let activeOrderId = null;
+
+  /* ================= LOAD ================= */
+  async function loadOrders() {
+    const r = await fetch("/admin/orders", {
+      headers: { Authorization: "Bearer " + token }
+    });
+    const j = await r.json();
+    orders = j.orders || [];
+    render();
+  }
+
+  /* ================= RENDER ================= */
+  function render() {
+    const q = ($("orderSearchInput").value || "").toLowerCase();
+    const status = $("orderStatusFilter").value;
+
+    let filtered = orders.filter(o => {
+      const text = `${o.order_number} ${o.first_name||""} ${o.last_name||""} ${o.email||""}`.toLowerCase();
+      if (q && !text.includes(q)) return false;
+      if (status && o.status !== status) return false;
+      return true;
+    });
+
+    const start = (currentPage - 1) * perPage;
+    const page = filtered.slice(start, start + perPage);
+
+    $("ordersTableBody").innerHTML = page.length
+      ? page.map(o => `
+        <tr>
+          <td><b>${o.order_number}</b></td>
+          <td>${o.first_name || "Guest"} ${o.last_name || ""}</td>
+          <td>₹${o.grand_total}</td>
+          <td>${o.status}</td>
+          <td>
+  <span class="status-chip pay-${o.payment_status}">
+    ${o.payment_status.replace("_"," ")}
+  </span>
+</td>
+
+          <td>${new Date(o.created_at).toLocaleDateString()}</td>
+          <td>
+            <button class="action-btn view-order" data-id="${o.id}">
+              View
+            </button>
+          </td>
+        </tr>
+      `).join("")
+      : `<tr><td colspan="7">No orders found</td></tr>`;
+
+    renderPagination(filtered.length);
+  }
+
+  /* ================= PAGINATION ================= */
+  function renderPagination(total) {
+    const p = $("ordersPagination");
+    p.innerHTML = "";
+    const pages = Math.ceil(total / perPage);
+
+    for (let i = 1; i <= pages; i++) {
+      const b = document.createElement("button");
+      b.textContent = i;
+      b.className = "page-btn" + (i === currentPage ? " active" : "");
+      b.onclick = () => { currentPage = i; render(); };
+      p.appendChild(b);
+    }
+  }
+
+  /* ================= DETAIL ================= */
+  async function openOrder(id) {
+    activeOrderId = id;
+    $("orderModal").style.display = "flex";
+
+    const r = await fetch(`/admin/orders/${id}`, {
+      headers: { Authorization: "Bearer " + token }
+    });
+    const d = await r.json();
+
+    $("orderMeta").innerHTML = `
+      <b>${d.order.order_number}</b> •
+      ${d.order.status} •
+      ${d.order.payment_status}
+    `;
+
+    $("orderItemsBody").innerHTML = d.items.map(i => `
+      <tr>
+        <td>${i.product_name}</td>
+        <td>${i.sku || "-"}</td>
+        <td>${i.quantity}</td>
+        <td>₹${i.price}</td>
+        <td>₹${i.total}</td>
+      </tr>
+    `).join("");
+
+   const timeline = d.statusHistory || [];
+
+$("orderTimeline").innerHTML = timeline.length
+  ? timeline.map(h => `
+      <li style="margin-bottom:8px">
+        <b>${h.status}</b>
+        <span style="color:#777">
+          — ${new Date(h.created_at).toLocaleString()}
+        </span>
+        ${h.comment ? `<br><i style="color:#aaa">${h.comment}</i>` : ""}
+      </li>
+    `).join("")
+  : `<li style="color:#777">No status history yet</li>`;
+
+
+    $("orderStatusSelect").value = d.order.status;
+  }
+
+/* ================= PAYMENT UPDATE ================= */
+$("savePaymentStatusBtn").onclick = async () => {
+  const payment_status = $("paymentStatusSelect").value;
+  const comment = $("paymentComment").value;
+
+  await fetch(`/admin/orders/${activeOrderId}/payment`, {
+    method: "POST",
+    headers: {
+      Authorization: "Bearer " + token,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ payment_status, comment })
+  });
+
+  showToast("Payment status updated");
+  loadOrders();
+};
+
+  /* ================= UPDATE STATUS ================= */
+ $("saveOrderStatusBtn").onclick = async () => {
+  const status = $("orderStatusSelect").value;
+  const comment = $("orderStatusComment").value;
+
+  try {
+    // 🔴 IMPORTANT: cancel must hit /cancel API
+    if (status === "cancelled") {
+      const res = await fetch(`/admin/orders/${activeOrderId}/cancel`, {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer " + token
+        }
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        showToast(data.message || "Cancel failed", "error");
+        return;
+      }
+
+      showToast("Order cancelled & stock restored");
+      $("orderModal").style.display = "none";
+      loadOrders();
+      return;
+    }
+
+    // ✅ All OTHER statuses go here
+    const res = await fetch(`/admin/orders/${activeOrderId}/status`, {
+      method: "POST",
+      headers: {
+        Authorization: "Bearer " + token,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ status, comment })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok || !data.success) {
+      showToast(data.message || "Status update blocked", "error");
+      return;
+    }
+
+    showToast("Order status updated");
+    $("orderModal").style.display = "none";
+    loadOrders();
+
+  } catch (err) {
+    console.error(err);
+    showToast("Server error", "error");
+  }
+};
+
+
+  $("closeOrderModal").onclick = () =>
+    $("orderModal").style.display = "none";
+
+  /* ================= EVENTS ================= */
+  $("ordersTableBody").onclick = e => {
+    const btn = e.target.closest(".view-order");
+    if (btn) openOrder(btn.dataset.id);
+  };
+
+  $("orderSearchInput").oninput =
+  $("orderStatusFilter").onchange = () => {
+    currentPage = 1;
+    render();
+  };
+
+  /* ================= START ================= */
+  loadOrders();
+}
+
+
 
 
 /* ======================================================

@@ -19,10 +19,22 @@ app.engine(
     layoutsDir: path.join(__dirname, "views/layouts"),
     partialsDir: path.join(__dirname, "views/partials"),
     helpers: {
-      json: (context) => JSON.stringify(context)
+      json: (context) => JSON.stringify(context),
+
+      formatPrice: (value) => {
+        if (value === null || value === undefined) return "0";
+
+        const cleaned = value.toString().replace(/[^\d.]/g, "");
+        const number = parseFloat(cleaned);
+
+        if (isNaN(number)) return "0";
+
+        return number.toLocaleString("en-IN");
+      }
     }
   })
 );
+
 
 app.set("view engine", "hbs");
 app.set("views", path.join(__dirname, "views"));
@@ -70,7 +82,7 @@ app.use("/contact", require("./routes/contactRoutes"));
 app.use("/api/reviews", require("./routes/reviewRoutes"));
 app.use("/cart", require("./routes/cartRoutes"));
 app.use("/api/wishlist", require("./routes/wishlistRoutes"));
-
+app.use("/checkout", require("./routes/checkoutRoutes"));  
 /* ===============================
    404
 ================================ */

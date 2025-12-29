@@ -23,18 +23,22 @@ router.get("/can-review/:productId", authUser, async (req, res) => {
     JOIN order_items oi ON oi.order_id = o.id
     WHERE o.user_id = ?
       AND oi.product_id = ?
-      AND o.status = 'completed'
+      AND o.payment_status = 'paid'
     LIMIT 1
-  `,
+    `,
     [userId, productId]
   );
 
   if (!rows.length) {
-    return res.json({ canReview: false, reason: "purchase" });
+    return res.json({
+      canReview: false,
+      reason: "purchase"
+    });
   }
 
   res.json({ canReview: true });
 });
+
 
 /* ============================================================
    2. GET REVIEWS (JSON API)
@@ -46,32 +50,26 @@ router.get("/product/:id/reviews", async (req, res) => {
 
     const [rows] = await db.query(
       `
-     SELECT
-  r.id,
-  r.user_id,
-  r.title,
-  r.comment,
-  r.rating,
-  r.created_at,
-  DATE_FORMAT(r.created_at, '%d %b %Y') AS created_at_formatted,
-  u.first_name,
-  u.last_name,
-  u.email
-FROM reviews r
-JOIN users u ON u.id = r.user_id
-WHERE r.product_id = ?
-ORDER BY r.id DESC
-
-    `,
+      SELECT
+        r.id,
+        r.user_id,
+        r.title,
+        r.comment,
+        r.rating,
+        r.created_at,
+        DATE_FORMAT(r.created_at, '%d %b %Y') AS created_at_formatted,
+        u.first_name,
+        u.last_name,
+        u.email
+      FROM reviews r
+      JOIN users u ON u.id = r.user_id
+      WHERE r.product_id = ?
+      ORDER BY r.id DESC
+      `,
       [productId]
     );
 
-    const reviews = rows.map(r => ({
-      ...r,
-      stars: buildStars(r.rating)
-    }));
-
-    res.json({ success: true, reviews });
+    res.json({ success: true, reviews: rows });
 
   } catch (err) {
     console.error("GET reviews error:", err);
@@ -79,17 +77,17 @@ ORDER BY r.id DESC
   }
 });
 
+
 /* ============================================================
    3. SUBMIT REVIEW
    POST /api/reviews/product/:id/reviews
 ============================================================ */
 router.post("/product/:id/reviews", authUser, async (req, res) => {
   const userId = req.user.id;
-  const email = req.user.email;
   const productId = req.params.id;
-  const { name, title, rating, comment } = req.body;
+  const { title, rating, comment } = req.body;
 
-  // Purchase check
+  // Check purchase
   const [rows] = await db.query(
     `
     SELECT oi.id
@@ -97,9 +95,9 @@ router.post("/product/:id/reviews", authUser, async (req, res) => {
     JOIN order_items oi ON oi.order_id = o.id
     WHERE o.user_id = ?
       AND oi.product_id = ?
-      AND o.status = 'completed'
+      AND o.payment_status = 'paid'
     LIMIT 1
-  `,
+    `,
     [userId, productId]
   );
 
@@ -126,10 +124,10 @@ router.post("/product/:id/reviews", authUser, async (req, res) => {
   await db.query(
     `
     INSERT INTO reviews
-      (product_id, user_id, name, email, title, rating, comment)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
-  `,
-    [productId, userId, name, email, title, Number(rating), comment]
+      (product_id, user_id, title, rating, comment)
+    VALUES (?, ?, ?, ?, ?)
+    `,
+    [productId, userId, title, Number(rating), comment]
   );
 
   res.json({ success: true });

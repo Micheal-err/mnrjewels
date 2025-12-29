@@ -1,17 +1,18 @@
 const jwt = require("jsonwebtoken");
 
 module.exports = function authMiddleware(req, res, next) {
-  const authHeader = req.headers.authorization;
+  const headerToken = req.headers.authorization?.split(" ")[1];
+  const cookieToken = req.cookies?.token;
 
-  if (!authHeader) {
-    return res.status(401).json({
-      success: false,
-      message: "Unauthorized"
-    });
-  }
+  const token = headerToken || cookieToken;
 
-  const token = authHeader.split(" ")[1];
   if (!token) {
+    // If page request → redirect
+    if (req.accepts("html")) {
+      return res.redirect("/login");
+    }
+
+    // API request
     return res.status(401).json({
       success: false,
       message: "Unauthorized"
@@ -23,6 +24,10 @@ module.exports = function authMiddleware(req, res, next) {
     req.user = { id: decoded.id };
     next();
   } catch {
+    if (req.accepts("html")) {
+      return res.redirect("/login");
+    }
+
     return res.status(401).json({
       success: false,
       message: "Invalid token"

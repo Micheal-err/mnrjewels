@@ -1,15 +1,15 @@
-<section class="account-section" style="margin-top: 7rem;">
+<section class="account-section bg-base-color" style="margin-top: 7rem;">
     <div class="container">
 
         <!-- ================= AUTH (LOGIN + SIGNUP) ================= -->
-        <div id="authWrapper" class="row g-0 justify-content-between align-items-stretch">
+        <div id="authWrapper" class="row g-0 justify-content-around align-items-center flex-row-reverse">
 
             <!-- ================= LOGIN CARD ================= -->
             <div class="col-xl-4 col-lg-5 col-md-10 mb-4 mb-lg-0">
-                <div class="bg-white border-radius-10px box-shadow-extra-large p-4 h-100 d-flex flex-column justify-content-between">
+                <div class="bg-white border-radius-10px box-shadow-extra-large p-4 d-flex flex-column justify-content-between">
                     <div>
-                        <span class="fs-26 alt-font fw-500 text-dark-gray mb-10px d-block">Welcome back 👋</span>
-                        <p class="mb-20px fs-14 text-muted">Login to view your profile, orders and manage your account.</p>
+                        <span class="fs-26 alt-font fw-500 text-base-color mb-10px d-block">Login </span>
+                        {{!-- <p class="mb-20px fs-14 text-muted">Login to view your profile, orders and manage your account.</p> --}}
 
                         <form id="loginForm">
                             <label class="fw-500 fs-14">Email *</label>
@@ -28,19 +28,19 @@
                     <div class="mt-3">
                         <div class="d-flex align-items-center mb-3">
                             <div class="flex-grow-1 border-top border-color-extra-medium-gray"></div>
-                            <span class="px-3 fs-13 text-uppercase alt-font text-dark-gray">or continue with</span>
+                            <span class="px-3 fs-13 text-uppercase alt-font text-base-color">or continue with</span>
                             <div class="flex-grow-1 border-top border-color-extra-medium-gray"></div>
                         </div>
 
                         <!-- SOCIAL LOGIN BUTTONS -->
                         <div class="d-grid gap-2">
                             <a href="/auth/google" class="btn btn-small bg-white border border-color-extra-medium-gray d-flex align-items-center justify-content-center">
-                                <i class="fa-brands fa-google me-10px"></i>
-                                <span class="alt-font fs-14">Continue with Google</span>
+                                <i class="fa-brands fa-google me-10px text-base-color"></i>
+                                <span class="alt-font fs-14 text-base-color">Continue with Google</span>
                             </a>
                             <a href="/auth/facebook" class="btn btn-small bg-white border border-color-extra-medium-gray d-flex align-items-center justify-content-center">
-                                <i class="fa-brands fa-facebook-f me-10px"></i>
-                                <span class="alt-font fs-14">Continue with Facebook</span>
+                                <i class="fa-brands fa-facebook-f me-10px text-base-color"></i>
+                                <span class="alt-font fs-14 text-base-color">Continue with Facebook</span>
                             </a>
                         </div>
                     </div>
@@ -48,43 +48,43 @@
             </div>
 
             <!-- ================= SIGNUP CARD ================= -->
-            <div class="col-lg-6 col-md-10">
-                <div class="bg-light-medium-gray p-4 border-radius-10px box-shadow-extra-large h-100 d-flex flex-column justify-content-between">
+            <div class="col-lg-6 col-md-10 bg-white text-base-color  border-radius-10px">
+                <div class=" p-4 border-radius-10px box-shadow-extra-large h-100 d-flex flex-column justify-content-between">
                     <div>
-                        <span class="fs-26 alt-font fw-500 mb-10px d-block text-white">Create an account ✨</span>
-                        <p class="mb-20px fs-14 text-white-75">Track your orders, save wishlist and manage your details easily.</p>
+                        <span class="fs-26 alt-font fw-500 mb-10px d-block text-base-color">Create an account </span>
+                        {{!-- <p class="mb-20px fs-14 text-base-color-75">Track your orders, save wishlist and manage your details easily.</p> --}}
 
                         <form id="registerForm">
                             <div class="row">
                                 <div class="col-md-6 mb-2">
-                                    <label class="fs-14 text-white">First Name *</label>
+                                    <label class="fs-14 text-base-color">First Name *</label>
                                     <input class="form-control" name="first_name" type="text" required />
                                 </div>
                                 <div class="col-md-6 mb-2">
-                                    <label class="fs-14 text-white">Last Name *</label>
+                                    <label class="fs-14 text-base-color">Last Name *</label>
                                     <input class="form-control" name="last_name" type="text" required />
                                 </div>
                             </div>
 
-                            <label class="fs-14 text-white mt-2">Email *</label>
+                            <label class="fs-14 text-base-color mt-2">Email *</label>
                             <input class="form-control mb-2" name="email" type="email" required />
 
-                            <label class="fs-14 text-white">Password *</label>
+                            <label class="fs-14 text-base-color">Password *</label>
                             <input class="form-control mb-3" name="password" type="password" required />
 
                             <div class="mb-3">
-                                <label class="d-flex align-items-start" style="cursor:pointer;">
-                                    <input type="checkbox" id="agreeCheck" class="me-2 mt-1" />
-                                    <span class="text-white fs-13">
+                                <label class="d-flex align-items-start justify-content-start" style="cursor:pointer;">
+                                    <input type="checkbox" id="agreeCheck" class="me-2 mt-1" style="width: auto;"/>
+                                    <span class="text-base-color fs-14">
                                         By creating an account, you agree to our
-                                        <a href="/privacy-policy" class="text-white text-decoration-underline">Privacy Policy</a>
+                                        <a href="/privacy-policy" class="text-base-color text-decoration-underline">Privacy Policy</a>
                                         &
-                                        <a href="/terms" class="text-white text-decoration-underline">Terms & Conditions</a>.
+                                        <a href="/terms" class="text-base-color text-decoration-underline">Terms & Conditions</a>.
                                     </span>
                                 </label>
                             </div>
 
-                            <button class="btn text-white border-white w-100 p-1 mb-15px" type="submit">
+                            <button class="btn text-white border-white w-100 p-1 mb-15px bg-base-color" type="submit">
                                 Create account
                             </button>
                         </form>
@@ -93,18 +93,18 @@
                     <div class="mt-3">
                         <div class="d-flex align-items-center my-3">
                             <div class="flex-grow-1 border-top border-color-extra-medium-gray"></div>
-                            <span class="px-3 fs-13 text-uppercase alt-font text-white">or sign up with</span>
+                            <span class="px-3 fs-13 text-uppercase alt-font text-base-color">or sign up with</span>
                             <div class="flex-grow-1 border-top border-color-extra-medium-gray"></div>
                         </div>
 
                         <div class="d-grid gap-2">
                             <a href="/auth/google" class="btn btn-small bg-white border border-color-extra-medium-gray d-flex align-items-center justify-content-center">
-                                <i class="fa-brands fa-google me-10px"></i>
-                                <span class="alt-font fs-14">Google</span>
+                                <i class="fa-brands fa-google me-10px text-base-color"></i>
+                                <span class="alt-font fs-14 text-base-color">Google</span>
                             </a>
                             <a href="/auth/facebook" class="btn btn-small bg-white border border-color-extra-medium-gray d-flex align-items-center justify-content-center">
-                                <i class="fa-brands fa-facebook-f me-10px"></i>
-                                <span class="alt-font fs-14">Facebook</span>
+                                <i class="fa-brands fa-facebook-f me-10px text-base-color"></i>
+                                <span class="alt-font fs-14 text-base-color">Facebook</span>
                             </a>
                         </div>
                     </div>
@@ -123,7 +123,7 @@
                         <p class="fs-13 text-muted mb-0">Manage your profile, security and orders.</p>
                     </div>
                     <span id="loginMethodBadge"
-                          class="badge bg-dark-gray text-white fs-12 px-3 py-1 border-radius-30px">
+                          class="badge bg-dark-gray text-base-color fs-12 px-3 py-1 border-radius-30px">
                     </span>
                 </div>
 
@@ -449,7 +449,7 @@
                 <div class="border border-color-extra-medium-gray p-3 my-2 border-radius-6px">
                     <div class="d-flex justify-content-between align-items-center mb-1">
                         <span class="fw-500">Order #${o.id}</span>
-                        <span class="badge bg-dark-gray text-white fs-11 text-uppercase">${o.status}</span>
+                        <span class="badge bg-dark-gray text-base-color fs-11 text-uppercase">${o.status}</span>
                     </div>
                     <p class="mb-0 fs-14">Total: ₹${o.total_amount}</p>
                 </div>`;

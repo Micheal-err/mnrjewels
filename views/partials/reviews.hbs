@@ -3,20 +3,20 @@
      Fully dynamic via reviews.js
 ================================ --}}
 
-<section id="reviews" class="pt-60px pb-40px">
-  <div class="container">
+<section id="reviews" class="pt-60px pb-40px bg-base-color text-white">
+  <div class="container text-whtie">
 
     <!-- HEADER -->
     <div class="row align-items-center mb-30px">
       <div class="col-md-8">
-        <h3 class="alt-font text-dark-gray fw-500 mb-5px text-uppercase fs-20">
+        <h3 class="alt-font text-white fw-500 mb-5px text-uppercase fs-20">
           Customer reviews
         </h3>
 
         <div class="d-flex align-items-center gap-2">
           <div class="review-stars-lg" id="reviewAvgStars"><span>★★★★★</span></div>
-          <div class="fs-14" id="reviewStatsText">
-            <span class="text-muted">No reviews yet</span>
+          <div class="fs-14 text-white" id="reviewStatsText">
+            <span class="text-white">No reviews yet</span>
           </div>
         </div>
       </div>
@@ -24,7 +24,7 @@
       <div class="col-md-4 text-md-end mt-3 mt-md-0">
         <button type="button"
           id="openReviewBtn"
-          class="btn btn-dark-gray btn-small alt-font text-uppercase">
+          class="btn bg-white text-base-color btn-small alt-font text-uppercase border-radius-10px">
           Write a review
         </button>
       </div>
@@ -38,10 +38,10 @@
           Reviews (<span id="reviewsTotal">0</span>)
         </div>
 
-        <div class="d-flex gap-3 align-items-center">
+        <div class="d-flex gap-3 align-items-center text-white">
           <div class="d-flex  flex-column">
-            <label class="fs-12 me-2 text-uppercase alt-font text-muted">Sort by</label>
-            <select id="sortSelect" class="form-select form-select-sm " style="width:auto;">
+            <label class="fs-12 me-2 text-uppercase alt-font text-white">Sort by</label>
+            <select id="sortSelect" class="form-select form-select-sm " style="width:auto; padding: 8px 25px !important;">
               <option value="rating_desc">Highest rating &nbsp;</option>
               <option value="rating_asc">Lowest rating &nbsp;</option>
               <option value="newest">Newest &nbsp;</option>
@@ -50,8 +50,8 @@
           </div>
 
           <div class="d-flex flex-column">
-            <label class="fs-12 me-2 text-uppercase alt-font text-muted">Per page</label>
-            <select id="perPageSelect" class="form-select form-select-sm" style="width:auto;">
+            <label class="fs-12 me-2 text-uppercase alt-font text-white">Per page</label>
+            <select id="perPageSelect" class="form-select form-select-sm text-base-color" style="width:auto; padding: 8px 25px !important;">
               <option value="5">5 &nbsp;</option>
               <option value="10" selected>10 &nbsp;</option>
               <option value="20">20 &nbsp;</option>
@@ -63,10 +63,10 @@
     </div>
 
     <!-- REVIEWS LIST -->
-    <div class="row">
+    <div class="row text-white">
       <div class="col-12">
         <div id="reviewsContainer">
-          <p class="fs-14 text-muted">Loading reviews…</p>
+          <p class="fs-14 text-white">Loading reviews…</p>
         </div>
 
         <!-- PAGINATION -->
@@ -82,12 +82,12 @@
 {{!-- ================================
      WRITE / EDIT REVIEW MODAL
 ================================ --}}
-<div class="modal fade" id="writeReviewModal" tabindex="-1">
+<div class="modal fade text-base-color" id="writeReviewModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content review-modal">
 
       <div class="modal-header border-0">
-        <h5 class="modal-title alt-font text-dark-gray text-uppercase fs-18">
+        <h5 class="modal-title alt-font text-base-color text-uppercase fs-18">
           Write a review
         </h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -178,13 +178,13 @@
 }
 
 .review-comment {
-  color: #555;
+  color: #fff;
   line-height: 1.4;
 }
 
 .review-date {
   font-size: 12px;
-  color: #777;
+  color: #fff;
 }
 
 .review-actions button {
@@ -325,7 +325,7 @@
     const slice = reviews.slice((page-1)*perPage, page*perPage);
 
     if (!slice.length) {
-      reviewsContainer.innerHTML = `<p class="text-muted">No reviews yet.</p>`;
+      reviewsContainer.innerHTML = `<p class="text-white">No reviews yet.</p>`;
       return;
     }
 
@@ -360,8 +360,8 @@ const fullName = r.first_name +" "+ r.last_name;
             ${
               isOwner
                 ? `
-                  <button class="btn btn-sm btn-outline-dark edit-review" data-id="${r.id}">Edit</button>
-                  <button class="btn btn-sm btn-outline-danger delete-review" data-id="${r.id}">Delete</button>
+                  <button class="btn btn-sm btn-outline-white edit-review text-white" data-id="${r.id}" style="margin-left: -.5rem;">Edit</button>
+                  <button class="btn btn-sm btn-outline-white delete-review text-white" data-id="${r.id}">Delete</button>
                 `
                 : `<span class="text-muted">—</span>`
             }

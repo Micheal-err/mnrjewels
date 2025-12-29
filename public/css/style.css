@@ -7135,7 +7135,7 @@ header.sticky .navbar.disable-fixed {
 .navbar .navbar-nav .nav-link {
   font-size: 16px;
   line-height: 20px;
-  padding: 10px 20px;
+  padding: 10px 35px;
   position: relative;
   font-weight: 500;
   opacity: 1;
@@ -8904,7 +8904,7 @@ header.sticky .left-sidebar-nav .navbar-nav .nav-link {
   cursor: url(../images/mfg-close.png), auto;
 }
 .show-search-popup .search-form-wrapper .search-form {
-  height: 50%;
+  height: 10%;
   cursor: default;
   visibility: visible;
   opacity: 1;

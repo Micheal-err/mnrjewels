@@ -1,0 +1,222 @@
+<section class="checkout-wrapper">
+
+  <!-- ================= STEPS ================= -->
+  <div class="checkout-steps">
+    <span class="step active">Cart</span>
+    <span class="step">Billing</span>
+    <span class="step">Payment</span>
+  </div>
+
+  <!-- ================= EMPTY CART ================= -->
+  <div id="emptyCartBox" style="display:none;text-align:center;padding:60px 20px;">
+    <h2>Your cart is empty</h2>
+    <p>Add products before checkout.</p>
+    <a href="/shop" class="btn-primary">Shop All</a>
+  </div>
+
+  <!-- ================= STEP 1 : CART ================= -->
+  <div class="checkout-step active" id="step-1">
+    <h2>Confirm Your Order</h2>
+
+    <table class="checkout-table" id="cartTable">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Variant</th>
+          <th>Qty</th>
+          <th>Price</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody id="checkoutCartBody"></tbody>
+    </table>
+
+    <div class="checkout-footer">
+      <div>
+        <b>Subtotal:</b> ₹<span id="checkoutSubtotal">0</span>
+      </div>
+      <button class="btn-primary" id="toBillingBtn">
+        Next → Billing
+      </button>
+    </div>
+  </div>
+
+  <!-- ================= STEP 2 : BILLING ================= -->
+  <div class="checkout-step" id="step-2">
+    <h2>Billing Details</h2>
+
+    <form id="billingForm">
+      <input name="name" placeholder="Full Name" required>
+      <input name="email" placeholder="Email" required>
+      <input name="phone" placeholder="Phone" required>
+      <input name="address" placeholder="Address" required>
+      <input name="city" placeholder="City" required>
+      <input name="state" placeholder="State" required>
+      <input name="pincode" placeholder="Pincode" required>
+    </form>
+
+    <div class="checkout-footer">
+      <button class="btn-secondary" onclick="goStep(1)">← Back</button>
+      <button class="btn-primary" id="toPaymentBtn">
+        Next → Payment
+      </button>
+    </div>
+  </div>
+
+  <!-- ================= STEP 3 : PAYMENT ================= -->
+  <div class="checkout-step" id="step-3">
+    <h2>Payment</h2>
+
+      <input type="radio" checked>
+    <label class="pay-option">
+      Cash on Delivery
+    </label>
+
+    <div class="checkout-summary">
+      <p><b>Total Payable:</b> ₹<span id="finalTotal">0</span></p>
+    </div>
+
+    <div class="checkout-footer">
+      <button class="btn-secondary" onclick="goStep(2)">← Back</button>
+      <button class="btn-primary" id="placeOrderBtn">
+        Place Order
+      </button>
+    </div>
+  </div>
+
+</section>
+
+<style>
+.checkout-wrapper { max-width:900px; margin:40px auto; color: #9FA878; }
+.checkout-steps { display:flex; gap:20px; margin-bottom:30px; }
+.checkout-steps .step { opacity:.5; }
+.checkout-steps .step.active { opacity:1; font-weight:700; }
+
+.checkout-step { display:none; }
+.checkout-step.active { display:block; }
+
+.checkout-table { width:100%; border-collapse:collapse; margin-top:20px; }
+.checkout-table th, .checkout-table td {
+  padding:12px;
+  border-bottom:1px solid #9FA878;
+}
+
+.checkout-footer {
+  display:flex;
+  justify-content:space-between;
+  margin-top:20px;
+}
+
+.btn-primary {
+  background:#9FA878;
+  color:#fff;
+  padding:12px 18px;
+  border:none;
+  cursor:pointer;
+}
+
+.btn-secondary {
+  background:#fff;
+  color:#9FA878;
+  padding:12px 18px;
+  border:none;
+  cursor:pointer;
+  border: 2px solid #9FA878;
+}
+
+.pay-option { display:block; margin:10px 0; }
+
+.checkout-summary {
+  margin:20px 0;
+  font-size:18px;
+}
+</style>
+
+<script>
+let checkoutData = { items: [], subtotal: 0 };
+let placingOrder = false;
+
+/* ================= STEP SWITCH ================= */
+function goStep(n) {
+  document.querySelectorAll(".checkout-step").forEach(s => s.classList.remove("active"));
+  document.getElementById(`step-${n}`).classList.add("active");
+
+  document.querySelectorAll(".checkout-steps .step")
+    .forEach((s,i) => s.classList.toggle("active", i === n-1));
+}
+
+/* ================= LOAD CART ================= */
+async function loadCheckoutCart() {
+  const res = await fetch("/checkout/cart", { credentials: "include" });
+  const data = await res.json();
+
+  if (!data.success || !data.items.length) {
+    document.getElementById("cartTable").style.display = "none";
+    document.getElementById("emptyCartBox").style.display = "block";
+    document.getElementById("toBillingBtn").disabled = true;
+    return;
+  }
+
+  if (data.hasStockIssue) {
+    alert("Some items are out of stock. Please update your cart.");
+    document.getElementById("toBillingBtn").disabled = true;
+    return;
+  }
+
+  checkoutData = data;
+
+  document.getElementById("checkoutCartBody").innerHTML =
+    data.items.map(i => `
+      <tr>
+        <td>${i.name}</td>
+        <td>${[i.finish, i.length_size].filter(Boolean).join(" / ")}</td>
+        <td>${i.quantity}</td>
+        <td>₹${i.price}</td>
+        <td>₹${i.price * i.quantity}</td>
+      </tr>
+    `).join("");
+
+  document.getElementById("checkoutSubtotal").innerText = data.subtotal;
+  document.getElementById("finalTotal").innerText = data.subtotal;
+}
+
+/* ================= NAV ================= */
+document.getElementById("toBillingBtn").onclick = () => goStep(2);
+
+document.getElementById("toPaymentBtn").onclick = () => {
+  const form = document.getElementById("billingForm");
+  if (!form.checkValidity()) {
+    alert("Please fill all billing details");
+    return;
+  }
+  goStep(3);
+};
+
+/* ================= PLACE ORDER ================= */
+document.getElementById("placeOrderBtn").onclick = async () => {
+  if (placingOrder) return;
+  placingOrder = true;
+
+  const billing = Object.fromEntries(new FormData(
+    document.getElementById("billingForm")
+  ));
+
+  const res = await fetch("/checkout/cod", {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ billing })
+  });
+
+  const data = await res.json();
+  placingOrder = false;
+
+  if (data.success) {
+    location.href = `/api/orders/order-success/${data.orderId}`;
+  } else {
+    alert(data.message || "Order failed");
+  }
+};
+
+document.addEventListener("DOMContentLoaded", loadCheckoutCart);
+</script>

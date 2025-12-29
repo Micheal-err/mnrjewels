@@ -1,10 +1,10 @@
 {{!-- PRODUCT PAGE --}}
 
-<section class="product-wrapper pb-0">
-  <div class="container product-grid">
+<section class="product-wrapper pb-0 bg-base-color tex-white">
+  <div class="container product-grid text-white">
 
     <!-- LEFT : IMAGES -->
-    <div class="image-section">
+    <div class="image-section  d-flex justify-content-center align-items-center text-white">
       <div class="thumbs">
         {{#each images}}
           <img src="/uploads/{{this}}" class="thumb" data-src="/uploads/{{this}}">
@@ -18,26 +18,26 @@
     </div>
 
     <!-- RIGHT : INFO -->
-    <div class="info-section">
+    <div class="info-section text-white d-flex justify-content-start align-items-start flex-column">
 
-      <p class="collection mb-0">{{product.collection_name}}</p>
-      <p class="collection mb-0">{{product.category}}</p>
-      <h1 class="title mt-0">{{product.name}}</h1>
+    <p class="mb-4 fs-30 fw-600 d-flex justify-content-start align-items-start">  <span class="collection mb-0 lh-1 "> {{product.category}} / </span>  <span class="collection mb-0 lh-1 "> &nbsp;{{product.collection_name}}</span></p>
+      
+      <h1 class="title mt-1 mb-0 lh-0">{{product.name}}</h1>
 
-      <div class="price" id="priceText">Price - Select the variant first</div>
-      <div id="stockText" class="stock"></div>
+      <div class="price mt-3" id="priceText">Price - Select the variant first</div>
 
       <!-- VARIANTS -->
      <div id="variantContainer"></div>
+      <div id="stockText" class="stock"></div>
 
       <!-- ACTIONS -->
       <div class="action-row">
-        <button id="addToCartBtn" class="btn-primary" disabled >
+        <button id="addToCartBtn" class="btn-primary add-to-cart" disabled >
           ADD TO CART
         </button>
 
       <button id="wishlistBtn" class="btn-outline wishlist-btn">
-      <i class="fa-regular fa-heart"></i>
+      <i class="fa-regular fa-heart text-base-color"></i>
       </button>
 
       </div>
@@ -49,7 +49,7 @@
 </div>
 
 <div class="view-more-wrapper">
-  <button id="viewMoreBtn" class="view-more-btn">
+  <button id="viewMoreBtn" class="view-more-btn text-white">
     View more details
   </button>
 </div>
@@ -62,7 +62,7 @@
   <li class="feature-item">
     <i data-feather="check-circle"></i>
     Non-toxic
-  </li>
+  </li> 
 
   <li class="feature-item">
     <i data-feather="award"></i>
@@ -76,20 +76,20 @@
 </section>
 
 <!-- DETAILS ACCORDION -->
-<section id="productDetails" class="container product-details hidden pt-0 pb-0">
+<section id="productDetails" class="container product-details hidden pt-0 pb-0 bg-base-color text-white mb-0">
 
   <div class="details-item">
     <button class="details-header">
-      <span>Materials</span>
-      <span class="icon">+</span>
+      <span class="text-white">Materials</span>
+      <span class="icon text-white">+</span>
     </button>
     <div class="details-content">
-      <h6>925 sterling silver</h6>
+      <h6 class="fs-24 mb-5px">925 sterling silver</h6>
       <p class="pb-0 mb-0">M&R Jewels ensures that all of our pieces are made from 925 sterling silver to enhance the durability of our designs, so what you purchase today can become an heirloom piece tomorrow.</p>
       <p class="pb-0 mb-0">We are redefining luxury for you by providing the perfect blend of modern and elegant designs in a metal that lasts, and has been historically famous for its versatility!</p>
 <p>All our pieces are rhodium-plated to ensure they maintain their classic silver colour, while a few selected pieces are also available plated in gold and rose gold.
 </p>
-<h6>American Diamonds</h6>
+<h6 class="fs-24 mb-5px">American Diamonds</h6>
 <p>We have curated our collections in a way that ensures that there is a special piece for everyone, and everyone loves a good diamond. M&R Jewels presents our pieces adorned with choice American Diamonds to add a shine to your everyday ensembles!
 </p>
     </div>
@@ -97,12 +97,12 @@
 
   <div class="details-item">
     <button class="details-header">
-      <span>Shipping Policy</span>
-      <span class="icon">+</span>
+      <span class="text-white">Shipping Policy</span>
+      <span class="icon text-white">+</span>
     </button>
     <div class="details-content">
      <p>M&R Jewels offers pan-India shipping with a dispatch time of 2 to 3 business days, and the shipping time of 7 to 10 days after your order has been dispatched.
-For more details, you can read our <a href=""> shipping policy</a>, & <a href="" >return and refund policy</a> here. </p>
+For more details, you can read our <a href="" class="text-white text-underline"> shipping policy</a>, & <a href=""  class="text-white text-underline">return and refund policy</a> here. </p>
     </div>
   </div>
 
@@ -114,9 +114,9 @@ For more details, you can read our <a href=""> shipping policy</a>, & <a href=""
 {{> reviews product=product}}
 
 {{!-- RELATED PRODUCTS --}}
-<section class="related">
+<section class="related bg-base-color text-white">
   <div class="container">
-    <h3>You may also like</h3>
+    <h3 class="w-100 text-center ">you may also like </h3>
 
     <div class="related-grid simple-related-grid">
       {{#each relatedProducts}}
@@ -126,6 +126,7 @@ For more details, you can read our <a href=""> shipping policy</a>, & <a href=""
         <a href="/product/{{id}}" class="product-img">
           <img src="/uploads/{{image1}}" alt="{{name}}">
         </a>
+<div class="d-flex justify-content-between align-items-center">
 
         <!-- NAME -->
         <a href="/product/{{id}}" class="product-name">
@@ -134,24 +135,27 @@ For more details, you can read our <a href=""> shipping policy</a>, & <a href=""
 
         <!-- PRICE -->
         <div class="product-price">
-          ₹{{price}}
+          ₹{{formatPrice price}}
         </div>
+</div>
 
         <!-- ACTIONS -->
-        <div class="product-actions">
+        <div class="product-actions d-flex justify-content-center align-items-center">
          <button
-  class="btn-add-cart add-cart-btn"
-  data-id="{{id}}">
-  Add to cart
-</button>
-
-
+        class="btn-add-cart add-cart-btn bg-base-color"
+        data-id="{{id}}">
+        Add to cart
+        </button>
           <button
             class="btn-wishlist"
             onclick="toggleRelatedWishlist({{id}}, this)">
             <i class="fa-regular fa-heart"></i>
           </button>
         </div>
+
+
+
+
 
       </div>
       {{/each}}
@@ -176,12 +180,12 @@ For more details, you can read our <a href=""> shipping policy</a>, & <a href=""
 .thumbs {
   display:flex;
   flex-direction:column;
-  gap:10px;
+  gap: 8px;
 }
 
 .thumb {
-  width:70px;
-  height:70px;
+  width: 170px;
+  height: 170px;
   object-fit:cover;
   border-radius:6px;
   cursor:pointer;
@@ -189,16 +193,16 @@ For more details, you can read our <a href=""> shipping policy</a>, & <a href=""
 }
 
 .main-image img {
-  max-height:520px;
+  max-height:700px;
   width:auto;
   max-width:100%;
   border-radius:8px;
 }
 
-.title { font-size:26px; margin:8px 0; }
-.collection { font-size:12px; letter-spacing:1px; color:#777; }
+.title { font-size: 24px; margin:8px 0; text-transform: capitalize;}
+.collection { font-size:12px; letter-spacing:1px; color white; }
 
-.price { font-size:24px; margin:12px 0; }
+.price { font-size: 18px; margin:12px 0; }
 
 .variant-group { margin:16px 0; }
 .variant-row { display:flex; gap:10px; flex-wrap:wrap; }
@@ -219,14 +223,16 @@ For more details, you can read our <a href=""> shipping policy</a>, & <a href=""
 
 .action-row {
   display:flex;
+  justify-content: center;
+  align-items: center;
   gap:12px;
   margin:24px 0;
 }
 
 .btn-primary {
   padding:12px 22px;
-  background:#000;
-  color:#fff;
+  background: #fff;
+  color: #9FA878;
   border:none;
   border-radius:6px;
   font-size:14px;
@@ -235,7 +241,7 @@ For more details, you can read our <a href=""> shipping policy</a>, & <a href=""
 .btn-outline {
   width:46px;
   height:46px;
-  border:1px solid #000;
+  border:1px solid #fff;
   border-radius:6px;
   background:#fff;
   display:flex;
@@ -259,7 +265,7 @@ For more details, you can read our <a href=""> shipping policy</a>, & <a href=""
 }
 
 .color-variant.active {
-  outline: 2px solid #000;
+  outline: 2px solid #fff;
   outline-offset: 2px;
 }
 
@@ -286,7 +292,7 @@ For more details, you can read our <a href=""> shipping policy</a>, & <a href=""
   font-size: 12px;
   letter-spacing: 1px;
   text-transform: uppercase;
-  color: #666;
+  color: #fff;
   margin-bottom: 6px;
   display: block;
 }
@@ -294,33 +300,40 @@ For more details, you can read our <a href=""> shipping policy</a>, & <a href=""
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  border: 1px solid #bbb;
+  border: 1px solid #fff;
   cursor: pointer;
   position: relative;
 }
 
 .color-variant.active {
-  outline: 2px solid #000;
+  outline: 2px solid #fff;
   outline-offset: 3px;
 }
+.wishlist-btn{
+  height: 95%;
+}
+.add-to-cart{
+  padding: 6px 22px;
+}
+
 .wishlist-btn i {
-  font-size: 18px;
+  font-size: 17px;
   transition: all 0.2s ease;
-  color: #111; /* outline color */
+  color: #fff; /* outline color */
 }
 
 /* NOT in wishlist */
 .wishlist-btn:not(.active) i {
   font-family: "Font Awesome 6 Free";
   font-weight: 400; /* regular */
-  color: #111;
+  color: #9FA878;
 }
 
 /* IN wishlist */
 .wishlist-btn.active i {
   font-family: "Font Awesome 6 Free";
   font-weight: 900; /* solid */
-  color: #e63946; /* 🔥 base / brand color */
+  color: #9FA878; /* 🔥 base / brand color */
 }
 
 /* View more */
@@ -344,7 +357,7 @@ For more details, you can read our <a href=""> shipping policy</a>, & <a href=""
   content: "";
   display: block;
   height: 1px;
-  background: #000;
+  background: #fff;
   width: auto;
 }
 
@@ -390,7 +403,7 @@ For more details, you can read our <a href=""> shipping policy</a>, & <a href=""
   overflow: hidden;
   transition: max-height 0.35s ease;
   font-size: 14px;
-  color: #444;
+  color: #fff;
 }
 
 .details-content p,
@@ -429,7 +442,7 @@ For more details, you can read our <a href=""> shipping policy</a>, & <a href=""
 
 .dimension-line {
   font-size: 14px;
-  color: #444;
+  color: #fff;
   margin-top: 8px;
 }
 
@@ -452,45 +465,68 @@ For more details, you can read our <a href=""> shipping policy</a>, & <a href=""
 }
 
 .product-name {
-  margin-top: 10px;
+  margin-top: 5px;
+  margin-bottom: 10px;
   font-size: 14px;
-  color: #111;
+  color: #fff;
   text-decoration: none;
 }
 
 .product-price {
   font-size: 15px;
   font-weight: 600;
-  margin: 6px 0 10px;
+  margin-top: 5px;
+  margin-bottom: 10px;
 }
 
 .product-actions {
   display: flex;
-  gap: 10px;
 }
 
 .btn-add-cart {
   flex: 1;
   padding: 8px 10px;
-  background: #000;
-  color: #fff;
+  background: #fff;
+  color: #9FA878;
   border: none;
   font-size: 13px;
   cursor: pointer;
+  border-radius: 5px;
 }
 
 .btn-wishlist {
-  width: 38px;
-  height: 38px;
-  border: 1px solid #000;
+    width: 50px;
+  height: 50px;
+  background: #fff;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+outline: none;
+border: 2px solid #9FA878;
+border-radius: 5px;
+}
+
+.btn-wishlist i{
+color: #9FA878;
   background: #fff;
   cursor: pointer;
 }
 
 .btn-wishlist.active i {
   font-weight: 900;
-  color: #e63946;
+  color: #9FA878;
 }
+
+.price.loading {
+  opacity: 0.4;
+  filter: blur(1px);
+}
+
+.price {
+  transition: opacity 0.25s ease, filter 0.25s ease;
+}
+
 
 </style>
 
@@ -523,6 +559,17 @@ const FINISH_STYLES = {
   black: { background: "#111" },
   white: { background: "#fff", border: "#ccc" }
 };
+
+function formatPrice(value) {
+  if (value === null || value === undefined) return "0";
+
+  const cleaned = value.toString().replace(/[^\d.]/g, "");
+  const number = parseFloat(cleaned);
+
+  if (isNaN(number)) return "0";
+
+  return number.toLocaleString("en-IN");
+}
 
 /* ===============================
    RENDER VARIANTS
@@ -694,16 +741,28 @@ function renderDimensions() {
   el.textContent = parts.join(" | ");
 }
 
-
 function applyVariant(variant) {
   selectedVariant = variant;
 
-  priceEl.textContent = "₹" + variant.price;
-  stockEl.textContent = variant.stock > 0 ? "In stock" : "Out of stock";
-  cartBtn.disabled = variant.stock <= 0;
+  // show loading state
+  priceEl.classList.add("loading");
+  priceEl.textContent = "Updating price…";
 
-  renderDimensions(); // 🔴 THIS IS WHY IT WAS NOT SHOWING
+  stockEl.textContent = "";
+  cartBtn.disabled = true;
+
+  // intentional micro-delay (UX polish)
+  setTimeout(() => {
+    priceEl.textContent = "₹" + formatPrice(variant.price);
+    stockEl.textContent = variant.stock > 0 ? "In stock" : "Out of stock";
+    cartBtn.disabled = variant.stock <= 0;
+
+    priceEl.classList.remove("loading");
+    renderDimensions();
+  }, 250); // 👈 sweet spot (200–300ms)
 }
+
+
 
 /* ===============================
    SELECT OPTION (AUTO RESOLVE)

@@ -3,7 +3,7 @@ const router = express.Router();
 const db = require("../config/db");
 const passport = require("passport");
 const jwt = require("jsonwebtoken");
-
+const authMiddleware = require("../middleware/authMiddleware");
 /* =========================
    HOME
 ========================= */
@@ -161,107 +161,251 @@ router.get("/account", (req, res) =>
 router.get("/wishlist", (req, res) =>
   res.render("pages/wishlist", { title: "My Wishlist" })
 );
+// ===============================
+// 🛒 CHECKOUT PAGE
+// ===============================
+router.get("/checkout", authMiddleware, async (req, res) => {
+  res.render("pages/checkout", {
+    title: "Checkout"
+  });
+});
+
+//terms
+router.get("/terms", (req, res) => {
+  res.render("pages/terms-condition", {
+    title: "Terms & Conditions"
+  });
+});
+router.get("/shipping-policy", (req, res) => {
+  res.render("pages/shipping", {
+    title: "Shipping Policy"
+  });
+});
+router.get("/privacy-policy", (req, res) => {
+  res.render("pages/privacy-policy", {
+    title: "Privacy Policy"
+  });
+});
+router.get("/refund-policy", (req, res) => {
+  res.render("pages/refund-policy", {
+    title: "Refund Policy"
+  });
+}); 
+router.get("/product-care", (req, res) => {
+  res.render("pages/product-care", {
+    title: "Product Care"
+  });
+});
+router.get("/faqs", (req, res) => {
+  res.render("pages/faqs", {
+    title: "Product Care"
+  });
+});
+
+/* =========================
+   SHOP ALL BY CATEGORY
+   /shop/men
+   /shop/women
+   /shop/unisex
+========================= */
+router.get("/shop/:category", async (req, res) => {
+  const category = req.params.category.toLowerCase();
+  const isAjax = req.xhr;
+
+  const { sort, price, finish } = req.query;
+
+  let where = [`LOWER(p.category) = ?`];
+  let params = [category];
+
+  if (price) {
+    const ranges = price.split(",");
+    const cond = [];
+
+    ranges.forEach(r => {
+      if (r.includes("+")) {
+        cond.push("v.price >= ?");
+        params.push(Number(r.replace("+", "")));
+      } else {
+        const [min, max] = r.split("-").map(Number);
+        cond.push("v.price BETWEEN ? AND ?");
+        params.push(min, max);
+      }
+    });
+
+    where.push(`(${cond.join(" OR ")})`);
+  }
+
+  if (finish) {
+    const finishes = finish.split(",");
+    where.push(`LOWER(v.finish) IN (${finishes.map(() => "?").join(",")})`);
+    params.push(...finishes.map(f => f.toLowerCase()));
+  }
+
+  let orderBy = "p.id DESC";
+  if (sort === "low") orderBy = "price ASC";
+  if (sort === "high") orderBy = "price DESC";
+
+  const [rows] = await db.query(`
+    SELECT 
+      p.id,
+      p.name,
+      p.image1,
+      MIN(v.price) AS price
+    FROM products p
+    JOIN product_variants v ON v.product_id = p.id
+    WHERE ${where.join(" AND ")}
+    GROUP BY p.id
+    ORDER BY ${orderBy}
+  `, params);
+
+  if (isAjax) {
+    return res.json({
+      products: rows,
+      totalProducts: rows.length
+    });
+  }
+
+  // ✅ SSR MUST MATCH SHOP-ALL
+  res.render("pages/category", {
+    categoryTitle: category,
+    collections: { All: rows },
+    totalProducts: rows.length
+  });
+});
+
+
+/* =========================
+   SHOP ALL (MEN + WOMEN + UNISEX)
+   /shop/all
+========================= */
+router.get("/shop-all", async (req, res) => {
+  const isAjax = req.xhr;
+
+  const [rows] = await db.query(`
+    SELECT 
+      p.id,
+      p.name,
+      p.collection_name,
+      p.image1,
+      MIN(v.price) AS price
+    FROM products p
+    JOIN product_variants v ON v.product_id = p.id
+    WHERE LOWER(p.category) IN ('men','women','unisex')
+    GROUP BY p.id
+    ORDER BY p.id DESC
+  `);
+
+  if (isAjax) {
+    return res.json({
+      products: rows,
+      totalProducts: rows.length
+    });
+  }
+
+  const collections = {};
+  rows.forEach(p => {
+    if (!collections[p.collection_name]) {
+      collections[p.collection_name] = [];
+    }
+    collections[p.collection_name].push(p);
+  });
+
+  res.render("pages/category", {
+    categoryTitle: "Shop All Jewellery",
+    collections,
+    totalProducts: rows.length
+  });
+});
+
 
 /* =========================
    SHOP FILTER (AJAX + SSR)
 ========================= */
-router.get("/shop/:category/:subCategory", async (req, res) => {
-  try {
-    const { category, subCategory } = req.params;
-    const { collection, finish, gemstone, price, sort } = req.query;
-    const isAjax = req.headers["x-requested-with"] === "XMLHttpRequest";
+/* =========================
+   SHOP PAGE (CATEGORY + OPTIONAL SUBCATEGORY)
+   /shop/men
+   /shop/men/rings
+========================= */
+router.get("/shop/:category/:subCategory?", async (req, res) => {
+  const { category, subCategory } = req.params;
+  const { sort, price, finish } = req.query;
 
-    let sql = `
-      SELECT
-        p.id,
-        p.name,
-        p.collection_name,
-        p.image1,
-        MIN(v.price) AS price
-      FROM products p
-      JOIN product_variants v ON v.product_id = p.id
-      WHERE LOWER(p.category) = ?
-        AND LOWER(p.sub_category) = ?
-    `;
+  const isAjax =
+    req.xhr ||
+    req.headers.accept?.includes("application/json") ||
+    req.query.ajax === "1";
 
-    const params = [
-      category.toLowerCase(),
-      subCategory.toLowerCase()
-    ];
+  let where = ["LOWER(p.category) = ?"];
+  let params = [category.toLowerCase()];
 
-    if (collection) {
-      sql += ` AND p.collection_name IN (?)`;
-      params.push(collection.split(","));
-    }
+  // ✅ SUB CATEGORY (OPTIONAL)
+  if (subCategory) {
+    where.push("LOWER(p.sub_category) = ?");
+    params.push(subCategory.toLowerCase());
+  }
 
-    if (finish) {
-      sql += ` AND v.finish IN (?)`;
-      params.push(finish.split(","));
-    }
+  // ✅ PRICE FILTER
+  if (price) {
+    const ranges = price.split(",");
+    const priceConditions = [];
 
-    if (gemstone) {
-      sql += ` AND v.gemstones_colour IN (?)`;
-      params.push(gemstone.split(","));
-    }
-
-    /* PRICE — FIXED */
-    if (price) {
-      const ranges = price.split(",");
-      const conditions = [];
-
-      ranges.forEach(r => {
-        if (r.includes("+")) {
-          conditions.push(`v.price >= ${Number(r.replace("+", ""))}`);
-        } else {
-          const [min, max] = r.split("-").map(Number);
-          conditions.push(`v.price BETWEEN ${min} AND ${max}`);
-        }
-      });
-
-      sql += ` AND (${conditions.join(" OR ")})`;
-    }
-
-    sql += ` GROUP BY p.id`;
-
-    switch (sort) {
-      case "low":
-        sql += ` ORDER BY price ASC`;
-        break;
-      case "high":
-        sql += ` ORDER BY price DESC`;
-        break;
-      default:
-        sql += ` ORDER BY p.id DESC`;
-    }
-
-    const [rows] = await db.query(sql, params);
-
-    const collections = {};
-    rows.forEach(p => {
-      if (!collections[p.collection_name]) {
-        collections[p.collection_name] = [];
+    ranges.forEach(r => {
+      if (r.includes("+")) {
+        priceConditions.push("v.price >= ?");
+        params.push(Number(r.replace("+", "")));
+      } else {
+        const [min, max] = r.split("-").map(Number);
+        priceConditions.push("v.price BETWEEN ? AND ?");
+        params.push(min, max);
       }
-      collections[p.collection_name].push(p);
     });
 
-    if (isAjax) {
-      return res.json({
-        products: rows,
-        totalProducts: rows.length
-      });
-    }
+    where.push(`(${priceConditions.join(" OR ")})`);
+  }
 
-    res.render("pages/category", {
-      categoryTitle: `${category} / ${subCategory}`,
-      collections,
+  // ✅ FINISH FILTER
+  if (finish) {
+    const finishes = finish.split(",");
+    where.push(
+      `LOWER(v.finish) IN (${finishes.map(() => "?").join(",")})`
+    );
+    params.push(...finishes.map(f => f.toLowerCase()));
+  }
+
+  // ✅ SORT
+  let orderBy = "p.id DESC";
+  if (sort === "low") orderBy = "price ASC";
+  if (sort === "high") orderBy = "price DESC";
+
+  const [rows] = await db.query(
+    `
+    SELECT 
+      p.id,
+      p.name,
+      p.image1,
+      MIN(v.price) AS price
+    FROM products p
+    JOIN product_variants v ON v.product_id = p.id
+    WHERE ${where.join(" AND ")}
+    GROUP BY p.id
+    ORDER BY ${orderBy}
+    `,
+    params
+  );
+
+  if (isAjax) {
+    return res.json({
+      products: rows,
       totalProducts: rows.length
     });
-
-  } catch (err) {
-    console.error("SHOP FILTER ERROR:", err);
-    res.status(500).send("Server error");
   }
+
+  res.render("pages/category", {
+    collections: { All: rows },
+    totalProducts: rows.length
+  });
 });
+
 
 /* =========================
    AUTH (GOOGLE CALLBACK)

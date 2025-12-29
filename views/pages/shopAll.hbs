@@ -1,0 +1,238 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<style>
+.filter-sidebar {
+  background: #fff;
+  border-radius: 14px;
+  padding: 22px;
+  box-shadow: 0 20px 50px rgba(0,0,0,.08);
+}
+
+.filter-block { margin-bottom: 22px; }
+
+.filter-block h6 {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.filter-block p {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 6px 0;
+}
+
+.apply-btn {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  font-weight: 600;
+  background: #000;
+  color: #fff;
+}
+
+.clear-btn {
+  width: 100%;
+  margin-top: 10px;
+  padding: 12px;
+  border-radius: 10px;
+  background: transparent;
+  border: 1px solid #ddd;
+}
+
+.shop-modern {
+  display: flex;
+  flex-wrap: wrap;
+  margin: -12px;
+}
+
+.grid-item {
+  width: 25%;
+  padding: 12px;
+}
+
+@media (max-width: 991px) { .grid-item { width: 33.33%; } }
+@media (max-width: 767px) { .grid-item { width: 50%; } }
+
+.shop-box {
+  background: #fff;
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.shop-image img {
+  width: 100%;
+  border-radius: 10px;
+}
+
+.wishlist-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  border: none;
+  background: #fff;
+  color: #aaa;
+}
+
+.wishlist-btn.active { color: var(--base-color); }
+</style>
+
+<div class="container mt-6">
+  <div class="row">
+
+    <!-- SIDEBAR -->
+    <aside class="col-lg-2 filter-sidebar">
+      <form id="filterForm">
+
+        <div class="filter-block">
+          <h6>Sort by</h6>
+          <p><input type="radio" name="sort" value="new" checked> New arrivals</p>
+          <p><input type="radio" name="sort" value="high"> Price: High to Low</p>
+          <p><input type="radio" name="sort" value="low"> Price: Low to High</p>
+        </div>
+
+        <div class="filter-block">
+          <h6>Price range</h6>
+          <p><input type="checkbox" name="price" value="0-1000"> 0 – 1000</p>
+          <p><input type="checkbox" name="price" value="1000-2000"> 1000 – 2000</p>
+          <p><input type="checkbox" name="price" value="2000-4000"> 2000 – 4000</p>
+          <p><input type="checkbox" name="price" value="4000+"> 4000+</p>
+        </div>
+
+        <div class="filter-block">
+          <h6>Finish</h6>
+          <p><input type="checkbox" name="finish" value="silver"> Silver</p>
+          <p><input type="checkbox" name="finish" value="gold"> Gold</p>
+          <p><input type="checkbox" name="finish" value="rose"> Rose Gold</p>
+        </div>
+
+        <button class="apply-btn">Apply</button>
+        <button type="button" id="clearFilters" class="clear-btn">Reset</button>
+
+      </form>
+    </aside>
+
+    <!-- PRODUCTS -->
+    <main class="col-lg-9">
+
+      <div class="mb-3">
+        <span id="productCount">{{totalProducts}} products</span>
+      </div>
+
+      <!-- IMPORTANT: THIS IS SSR CONTENT -->
+      <div id="productsContainer">
+        <ul class="shop-modern">
+
+          {{#each collections}}
+            {{#each this}}
+              <li class="grid-item">
+                <div class="shop-box">
+
+                  <div class="shop-image">
+                    <a href="/product/{{id}}">
+                      <img src="/uploads/{{image1}}" alt="{{name}}">
+                    </a>
+                  </div>
+
+                  <div class="shop-footer">
+                    <a href="/product/{{id}}">{{name}}</a>
+                    <p>₹{{price}}</p>
+                  </div>
+
+                  <div class="d-flex gap-2">
+                    <button class="btn bg-base-color text-white w-100 add-cart-btn" data-id="{{id}}">
+                      ADD TO CART
+                    </button>
+                    <button class="wishlist-btn" data-id="{{id}}">
+                      <i class="fa-solid fa-heart"></i>
+                    </button>
+                  </div>
+
+                </div>
+              </li>
+            {{/each}}
+          {{/each}}
+
+        </ul>
+      </div>
+
+    </main>
+  </div>
+</div>
+<script>
+(() => {
+
+  const form = document.getElementById("filterForm");
+  const container = document.getElementById("productsContainer");
+  const productCount = document.getElementById("productCount");
+  const token = localStorage.getItem("token");
+
+  if (!form || !container) return;
+
+  /* FILTER SUBMIT (AJAX ONLY WHEN USER CLICKS APPLY) */
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const fd = new FormData(form);
+    const params = new URLSearchParams();
+
+    for (const [k, v] of fd.entries()) {
+      params.has(k)
+        ? params.set(k, params.get(k) + "," + v)
+        : params.set(k, v);
+    }
+
+    const res = await fetch(`${location.pathname}?${params}`, {
+      headers: { "X-Requested-With": "XMLHttpRequest" }
+    });
+
+    const data = await res.json();
+
+    renderProducts(data.products || []);
+    productCount.textContent = `${data.totalProducts || 0} products`;
+    history.replaceState({}, "", "?" + params.toString());
+  });
+
+  /* RESET = FULL PAGE RELOAD (SSR SAFE) */
+  document.getElementById("clearFilters").onclick = () => {
+    location.href = location.pathname;
+  };
+
+  function renderProducts(products) {
+    if (!products.length) {
+      container.innerHTML = `<p class="text-center mt-5">No products found</p>`;
+      return;
+    }
+
+    container.innerHTML = `
+      <ul class="shop-modern">
+        ${products.map(p => `
+          <li class="grid-item">
+            <div class="shop-box">
+              <div class="shop-image">
+                <a href="/product/${p.id}">
+                  <img src="/uploads/${p.image1}">
+                </a>
+              </div>
+              <div class="shop-footer">
+                <a href="/product/${p.id}">${p.name}</a>
+                <p>₹${p.price}</p>
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn bg-base-color text-white w-100 add-cart-btn" data-id="${p.id}">
+                  ADD TO CART
+                </button>
+                <button class="wishlist-btn" data-id="${p.id}">
+                  <i class="fa-solid fa-heart"></i>
+                </button>
+              </div>
+            </div>
+          </li>
+        `).join("")}
+      </ul>
+    `;
+  }
+
+})();
+</script>

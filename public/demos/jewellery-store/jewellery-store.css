@@ -3,8 +3,9 @@
 ====================================== */
 /* font */
 @import url('https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700;800;900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Lancelot&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Lancelot&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+
+@import url('https://fonts.googleapis.com/css2?family=Cardo:ital,wght@0,400;0,700;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Lancelot&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Pinyon+Script&display=swap" rel="stylesheet"');
+
 /* variable */
 :root {     
     --base-color: #9FA878;   
@@ -15,12 +16,13 @@
 --chablis-red: #fde5d9;
 --cinderella-red: #fadbc9;
 --light-medium-gray: #9FA878; 
-
-    --primary-font: 'courier new', serif;
-    --alt-font: 'Open sans', sans-serif;
+    --alt-font : "DM Sans", sans-serif;
+    --primary-font: 'Times New Roman', Times, serif;
 }
 /* reset */
+
 body {
+
     font-size: 18px;
     line-height: 30px; 
     overflow-x: hidden !important;
@@ -49,6 +51,12 @@ a:hover {
  
 }
 
+.font-stylish{
+    font-family:  "Pinyon Script", 'cursive' !important;
+}
+.font-stylish-2{
+    font-family: "Cardo", 'serif' !important;
+}
 .text-italic{
     font-style: italic;
 }
@@ -79,7 +87,7 @@ header .navbar-brand {
     padding: 20px 0;
 }
 header .navbar-brand img {
-    max-height: 70px;
+    max-height: 60px;
 }
 .navbar > .container-fluid, .header-top-bar > .container-fluid {
     padding-left: 15px;
@@ -273,7 +281,7 @@ footer .elements-social li {
     margin: 0 1px 5px 0;
 }
 footer .footer-logo img {
-    max-height: 50px;
+    max-height: 120px;
 }
 footer ul li {
     margin-bottom: 0;
@@ -649,7 +657,7 @@ footer .social-icon-style-09 ul li a span {
 
 /* Make all images identical to the first one */
 .shop-home-image img {
-    border-radius: 40px !important;
+    border-radius: 10px !important;
 }
 
 /* Remove the "New" label if you want */
@@ -1139,4 +1147,20 @@ footer .social-icon-style-09 ul li a span {
     padding: 25px;
     border-radius: 8px;
     width: 350px;
+}
+
+
+.btn:disabled{
+    color: #9FA878 !important;
+}
+
+.btn:hover{
+color: #9FA878;
+}
+.hover-first:hover{
+    color: white !important;
+    background-color: #9FA878;
+}
+a:hover{
+color: #fff;
 }
