@@ -283,6 +283,8 @@
 ====================================================== */
 
 (function () {
+  const DASHBOARD_HTML = document.getElementById("dashboardView").outerHTML;
+
 
   /* ================= GLOBAL STATE ================= */
   const Admin = {
@@ -337,145 +339,124 @@
   }
 
   /* ================= DASHBOARD ================= */
-  async function loadDashboard() {
+async function loadDashboard() {
+
+  // ⛔ HARD GUARD — DASHBOARD MUST EXIST
+  if (!document.getElementById("dashboardView")) {
+    return;
+  }
+
   Admin.currentSection = "dashboard";
+
+  /* ---------- SAFE SETTER ---------- */
+  const setText = (id, value) => {
+    const node = el(id);
+    if (node) node.textContent = value;
+  };
+
+  const setHTML = (id, html) => {
+    const node = el(id);
+    if (node) node.innerHTML = html;
+  };
 
   /* ---------- STATS ---------- */
   const stats = await apiGet("/admin/dashboard/stats") || {};
-  el("statOrders").textContent = stats.totalOrders ?? "--";
-  el("statRevenue").textContent = stats.totalRevenue ? "₹" + stats.totalRevenue : "--";
-  el("statUsers").textContent = stats.totalUsers ?? "--";
-  el("statPending").textContent = stats.pendingOrders ?? "--";
+  setText("statOrders", stats.totalOrders ?? "--");
+  setText("statRevenue", stats.totalRevenue ? "₹" + stats.totalRevenue : "--");
+  setText("statUsers", stats.totalUsers ?? "--");
+  setText("statPending", stats.pendingOrders ?? "--");
 
   /* ---------- OUT OF STOCK ---------- */
   const outStock = await apiGet("/admin/dashboard/out-of-stock") || [];
-  el("outStockBody").innerHTML = outStock.length
-    ? outStock.map(p => `
-      <tr>
-        <td>
-          <a href="/product/${p.id}" target="_blanked"
-             style="color:#fff;text-decoration:none">
-            ${safeHTML(p.name)}
-          </a>
-        </td>
-        <td>${safeHTML(p.sku)}</td>
-        <td style="color:#ff4d4d;font-weight:700">0</td>
-      </tr>
-    `).join("")
-    : `<tr><td colspan="3" style="color:#7fff7f">No out-of-stock products 🎉</td></tr>`;
+  setHTML("outStockBody",
+    outStock.length
+      ? outStock.map(p => `
+        <tr>
+          <td>${safeHTML(p.name)}</td>
+          <td>${safeHTML(p.sku)}</td>
+          <td style="color:#ff4d4d;font-weight:700">0</td>
+        </tr>
+      `).join("")
+      : `<tr><td colspan="3">No out-of-stock products</td></tr>`
+  );
 
   /* ---------- MOST CARTED ---------- */
   const mostCarted = await apiGet("/admin/dashboard/most-carted") || [];
-  el("mostCartedList").innerHTML = mostCarted.length
-    ? mostCarted.map(p => `
-      <li style="display:flex;gap:10px;align-items:center">
-        <img src="/uploads/${p.image1 || "placeholder.png"}"
-             style="width:40px;height:40px;border-radius:6px">
-        <a href="/product/${p.id}" target="_blanked"
-           style="color:#fff;text-decoration:none">
-          ${safeHTML(p.name)}
-        </a>
-        <b style="margin-left:auto;color:#00e48d">${p.total_added}</b>
-      </li>
-    `).join("")
-    : `<li>No cart activity</li>`;
+  setHTML("mostCartedList",
+    mostCarted.length
+      ? mostCarted.map(p => `
+        <li style="display:flex;gap:10px;align-items:center">
+          <img src="/uploads/${p.image1 || "placeholder.png"}"
+               style="width:40px;height:40px;border-radius:6px">
+          <span>${safeHTML(p.name)}</span>
+          <b style="margin-left:auto;color:#00e48d">${p.total_added}</b>
+        </li>
+      `).join("")
+      : `<li>No cart activity</li>`
+  );
 
   /* ---------- MOST WISHLISTED ---------- */
   const mostWishlisted = await apiGet("/admin/dashboard/most-wishlisted") || [];
-  el("mostWishlistedList").innerHTML = mostWishlisted.length
-    ? mostWishlisted.map(p => `
-      <li style="display:flex;gap:10px;align-items:center">
-        <img src="/uploads/${p.image1 || "placeholder.png"}"
-             style="width:40px;height:40px;border-radius:6px">
-        <a href="/product/${p.id}" target="_blanked"
-           style="color:#fff;text-decoration:none">
-          ${safeHTML(p.name)}
-        </a>
-        <b style="margin-left:auto;color:#ff5fa2">${p.total_added}</b>
-      </li>
-    `).join("")
-    : `<li>No wishlist activity</li>`;
+  setHTML("mostWishlistedList",
+    mostWishlisted.length
+      ? mostWishlisted.map(p => `
+        <li style="display:flex;gap:10px;align-items:center">
+          <img src="/uploads/${p.image1 || "placeholder.png"}"
+               style="width:40px;height:40px;border-radius:6px">
+          <span>${safeHTML(p.name)}</span>
+          <b style="margin-left:auto;color:#ff5fa2">${p.total_added}</b>
+        </li>
+      `).join("")
+      : `<li>No wishlist activity</li>`
+  );
 
   /* ---------- RECENT ORDERS ---------- */
   const recentOrders = await apiGet("/admin/dashboard/recent-orders") || [];
-  el("recentOrdersBody").innerHTML = recentOrders.length
-    ? recentOrders.map(o => `
-      <tr>
-        <td>#${o.id}</td>
-        <td>${safeHTML(o.first_name || "Guest")} ${safeHTML(o.last_name || "")}</td>
-        <td>₹${o.total}</td>
-        <td>${safeHTML(o.status)}</td>
-      </tr>
-    `).join("")
-    : `<tr><td colspan="4">No recent orders</td></tr>`;
+  setHTML("recentOrdersBody",
+    recentOrders.length
+      ? recentOrders.map(o => `
+        <tr>
+          <td>#${o.id}</td>
+          <td>${safeHTML(o.first_name || "Guest")} ${safeHTML(o.last_name || "")}</td>
+          <td>₹${o.grand_total}</td>
+          <td>${safeHTML(o.status)}</td>
+        </tr>
+      `).join("")
+      : `<tr><td colspan="4">No recent orders</td></tr>`
+  );
 
   /* ---------- RECENT USERS ---------- */
   const recentUsers = await apiGet("/admin/dashboard/recent-users") || [];
-  el("recentUsersBody").innerHTML = recentUsers.length
-    ? recentUsers.map(u => `
-      <tr>
-        <td>${u.id}</td>
-        <td>${safeHTML(u.first_name)} ${safeHTML(u.last_name)}</td>
-        <td>${safeHTML(u.email)}</td>
-      </tr>
-    `).join("")
-    : `<tr><td colspan="3">No recent users</td></tr>`;
+  setHTML("recentUsersBody",
+    recentUsers.length
+      ? recentUsers.map(u => `
+        <tr>
+          <td>${u.id}</td>
+          <td>${safeHTML(u.first_name)} ${safeHTML(u.last_name)}</td>
+          <td>${safeHTML(u.email)}</td>
+        </tr>
+      `).join("")
+      : `<tr><td colspan="3">No recent users</td></tr>`
+  );
 
   feather.replace();
 }
 
 
-  /* ================= SECTION LOADER ================= */
-  async function loadSection(section) {
-    if (Admin.currentSection === section) return;
-    Admin.currentSection = section;
-
-    document.querySelectorAll(".admin-sidebar a")
-      .forEach(a => a.classList.remove("active"));
-
-    document.querySelector(`.admin-sidebar a[data-page="${section}"]`)
-      ?.classList.add("active");
-
-    if (section === "dashboard") {
-      location.reload(); // dashboard is server-rendered
-      return;
-    }
-
-    const html = await loadView(section);
-    if (!html) {
-      showToast("Failed to load section", "error");
-      return;
-    }
-
-    el("adminContent").innerHTML = html;
-
-    // call section initializer (we’ll add these one by one later)
-    if (section === "users") initUsers?.();
-    if (section === "allProducts") initProducts?.();
-    if (section === "reviews") initReviews?.();
-    if (section === "orders") initOrders?.();
-    if (section === "messages") initMessages?.();
-
-    feather.replace();
-  }
-
-  /* ================= SIDEBAR ================= */
-  document.querySelectorAll(".admin-sidebar a").forEach(link => {
-    link.addEventListener("click", e => {
-      e.preventDefault();
-      loadSection(link.dataset.page);
-    });
-  });
-
-
-
-
 /* ======================================================
-   ORDERS – FINAL ADMIN MODULE
+   ORDERS – FINAL, CRASH-PROOF ADMIN MODULE
+   - Works with AJAX view loading
+   - Guards ALL DOM access
+   - Payment-first UX enforced
 ====================================================== */
 function initOrders() {
 
+  /* ================= HARD GUARD ================= */
+  if (!document.getElementById("ordersTableBody")) return;
+
   const token = localStorage.getItem("token");
+  if (!token) return;
+
   const $ = id => document.getElementById(id);
 
   let orders = [];
@@ -483,23 +464,30 @@ function initOrders() {
   const perPage = 8;
   let activeOrderId = null;
 
-  /* ================= LOAD ================= */
+  /* ================= LOAD ORDERS ================= */
   async function loadOrders() {
-    const r = await fetch("/admin/orders", {
-      headers: { Authorization: "Bearer " + token }
-    });
-    const j = await r.json();
-    orders = j.orders || [];
-    render();
+    try {
+      const res = await fetch("/admin/orders", {
+        headers: { Authorization: "Bearer " + token }
+      });
+      const data = await res.json();
+      orders = data.orders || [];
+      render();
+    } catch {
+      showToast("Failed to load orders", "error");
+    }
   }
 
-  /* ================= RENDER ================= */
+  /* ================= RENDER LIST ================= */
   function render() {
-    const q = ($("orderSearchInput").value || "").toLowerCase();
-    const status = $("orderStatusFilter").value;
+    const body = $("ordersTableBody");
+    if (!body) return;
 
-    let filtered = orders.filter(o => {
-      const text = `${o.order_number} ${o.first_name||""} ${o.last_name||""} ${o.email||""}`.toLowerCase();
+    const q = ($("orderSearchInput")?.value || "").toLowerCase();
+    const status = $("orderStatusFilter")?.value || "";
+
+    const filtered = orders.filter(o => {
+      const text = `${o.order_number} ${o.customer_name || ""} ${o.email || ""}`.toLowerCase();
       if (q && !text.includes(q)) return false;
       if (status && o.status !== status) return false;
       return true;
@@ -508,28 +496,27 @@ function initOrders() {
     const start = (currentPage - 1) * perPage;
     const page = filtered.slice(start, start + perPage);
 
-    $("ordersTableBody").innerHTML = page.length
-      ? page.map(o => `
-        <tr>
-          <td><b>${o.order_number}</b></td>
-          <td>${o.first_name || "Guest"} ${o.last_name || ""}</td>
-          <td>₹${o.grand_total}</td>
-          <td>${o.status}</td>
-          <td>
-  <span class="status-chip pay-${o.payment_status}">
-    ${o.payment_status.replace("_"," ")}
-  </span>
-</td>
-
-          <td>${new Date(o.created_at).toLocaleDateString()}</td>
-          <td>
-            <button class="action-btn view-order" data-id="${o.id}">
-              View
-            </button>
-          </td>
-        </tr>
-      `).join("")
-      : `<tr><td colspan="7">No orders found</td></tr>`;
+    body.innerHTML = page.length ? page.map(o => `
+      <tr>
+        <td><b>${o.order_number}</b></td>
+        <td>${o.customer_name || "Guest"}</td>
+        <td style="font-weight:700;color:#00e48d">
+          ₹${o.grand_total}
+        </td>
+        <td>${o.status}</td>
+        <td>
+          <span class="status-chip pay-${o.payment_status}">
+            ${o.payment_status.replace("_"," ")}
+          </span>
+        </td>
+        <td>${new Date(o.created_at).toLocaleDateString()}</td>
+        <td>
+          <button class="view-order" data-id="${o.id}">
+            View
+          </button>
+        </td>
+      </tr>
+    `).join("") : `<tr><td colspan="7">No orders found</td></tr>`;
 
     renderPagination(filtered.length);
   }
@@ -537,150 +524,186 @@ function initOrders() {
   /* ================= PAGINATION ================= */
   function renderPagination(total) {
     const p = $("ordersPagination");
+    if (!p) return;
+
     p.innerHTML = "";
     const pages = Math.ceil(total / perPage);
 
     for (let i = 1; i <= pages; i++) {
-      const b = document.createElement("button");
-      b.textContent = i;
-      b.className = "page-btn" + (i === currentPage ? " active" : "");
-      b.onclick = () => { currentPage = i; render(); };
-      p.appendChild(b);
+      const btn = document.createElement("button");
+      btn.textContent = i;
+      btn.className = "page-btn" + (i === currentPage ? " active" : "");
+      btn.onclick = () => {
+        currentPage = i;
+        render();
+      };
+      p.appendChild(btn);
     }
   }
 
-  /* ================= DETAIL ================= */
-  async function openOrder(id) {
-    activeOrderId = id;
-    $("orderModal").style.display = "flex";
+  /* ================= OPEN ORDER ================= */
+async function openOrder(id) {
+  activeOrderId = id;
 
-    const r = await fetch(`/admin/orders/${id}`, {
-      headers: { Authorization: "Bearer " + token }
-    });
-    const d = await r.json();
+  const modal = document.getElementById("orderModal");
+  if (!modal) return;
 
-    $("orderMeta").innerHTML = `
-      <b>${d.order.order_number}</b> •
-      ${d.order.status} •
-      ${d.order.payment_status}
-    `;
+  modal.style.display = "flex";
 
-    $("orderItemsBody").innerHTML = d.items.map(i => `
-      <tr>
-        <td>${i.product_name}</td>
-        <td>${i.sku || "-"}</td>
-        <td>${i.quantity}</td>
-        <td>₹${i.price}</td>
-        <td>₹${i.total}</td>
-      </tr>
-    `).join("");
-
-   const timeline = d.statusHistory || [];
-
-$("orderTimeline").innerHTML = timeline.length
-  ? timeline.map(h => `
-      <li style="margin-bottom:8px">
-        <b>${h.status}</b>
-        <span style="color:#777">
-          — ${new Date(h.created_at).toLocaleString()}
-        </span>
-        ${h.comment ? `<br><i style="color:#aaa">${h.comment}</i>` : ""}
-      </li>
-    `).join("")
-  : `<li style="color:#777">No status history yet</li>`;
-
-
-    $("orderStatusSelect").value = d.order.status;
-  }
-
-/* ================= PAYMENT UPDATE ================= */
-$("savePaymentStatusBtn").onclick = async () => {
-  const payment_status = $("paymentStatusSelect").value;
-  const comment = $("paymentComment").value;
-
-  await fetch(`/admin/orders/${activeOrderId}/payment`, {
-    method: "POST",
-    headers: {
-      Authorization: "Bearer " + token,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ payment_status, comment })
+  const res = await fetch(`/admin/orders/${id}`, {
+    headers: { Authorization: "Bearer " + token }
   });
 
-  showToast("Payment status updated");
-  loadOrders();
-};
+  const d = await res.json();
+  if (!d || !d.success) return;
 
-  /* ================= UPDATE STATUS ================= */
- $("saveOrderStatusBtn").onclick = async () => {
-  const status = $("orderStatusSelect").value;
-  const comment = $("orderStatusComment").value;
+  /* ================= META ================= */
+  document.getElementById("orderMeta").innerHTML = `
+    <b>${d.order.order_number}</b> •
+    ${d.order.customer_name} •
+    ${new Date(d.order.created_at).toLocaleString()}
+  `;
 
-  try {
-    // 🔴 IMPORTANT: cancel must hit /cancel API
-    if (status === "cancelled") {
-      const res = await fetch(`/admin/orders/${activeOrderId}/cancel`, {
-        method: "POST",
-        headers: {
-          Authorization: "Bearer " + token
-        }
-      });
+  /* ================= ITEMS (SKU FIXED) ================= */
+  document.getElementById("orderItemsBody").innerHTML =
+    d.items.length
+      ? d.items.map(i => `
+        <tr>
+          <td>${i.product_name}</td>
+          <td><b>${i.sku || "—"}</b></td>
+          <td>${i.quantity}</td>
+          <td>₹${i.price}</td>
+          <td>₹${i.total}</td>
+        </tr>
+      `).join("")
+      : `<tr><td colspan="5">No items found</td></tr>`;
 
-      const data = await res.json();
+  /* ================= TOTALS ================= */
+ // ================= TOTALS =================
+$("orderSubtotal").innerText   = d.order.subtotal ?? 0;
+$("orderDiscount").innerText   = d.order.discount ?? 0;
+$("orderGrandTotal").innerText = d.order.grand_total ?? 0;
 
-      if (!res.ok || !data.success) {
-        showToast(data.message || "Cancel failed", "error");
-        return;
-      }
+// ================= COUPON =================
+if (d.order.coupon_code) {
+  $("orderCouponBox").style.display = "block";
+  $("orderCouponCode").innerText = d.order.coupon_code;
+} else {
+  $("orderCouponBox").style.display = "none";
+  $("orderCouponCode").innerText = "";
+}
 
-      showToast("Order cancelled & stock restored");
-      $("orderModal").style.display = "none";
-      loadOrders();
-      return;
-    }
 
-    // ✅ All OTHER statuses go here
+  /* ================= COUPON ================= */
+  const couponBox = document.getElementById("orderCouponBox");
+  const couponCode = document.getElementById("orderCouponCode");
+
+  if (d.order.coupon_code && d.order.discount > 0) {
+    couponBox.style.display = "block";
+    couponCode.innerText =
+      `${d.order.coupon_code} (−₹${d.order.discount})`;
+  } else {
+    couponBox.style.display = "none";
+  }
+
+  /* ================= STATUS TIMELINE ================= */
+  document.getElementById("orderTimeline").innerHTML =
+    d.statusHistory.length
+      ? d.statusHistory.map(s => `
+        <li>
+          <b>${s.status}</b>
+          ${s.comment ? " — " + s.comment : ""}
+          <small style="opacity:.6">
+            (${new Date(s.created_at).toLocaleString()})
+          </small>
+        </li>
+      `).join("")
+      : `<li>No status history</li>`;
+
+  /* ================= SELECTS ================= */
+  document.getElementById("orderStatusSelect").value = d.order.status;
+  document.getElementById("paymentStatusSelect").value = d.order.payment_status;
+
+  syncLocks();
+}
+
+
+  /* ================= PAYMENT-FIRST UX ================= */
+  function syncLocks() {
+    const pay = $("paymentStatusSelect");
+    const statusBtn = $("saveOrderStatusBtn");
+    if (!pay || !statusBtn) return;
+
+    statusBtn.disabled = pay.value !== "paid";
+    statusBtn.style.opacity = pay.value !== "paid" ? "0.4" : "1";
+  }
+
+  /* ================= EVENTS ================= */
+  $("ordersTableBody").addEventListener("click", e => {
+    const btn = e.target.closest(".view-order");
+    if (btn) openOrder(btn.dataset.id);
+  });
+
+  $("orderSearchInput")?.addEventListener("input", () => {
+    currentPage = 1;
+    render();
+  });
+
+  $("orderStatusFilter")?.addEventListener("change", () => {
+    currentPage = 1;
+    render();
+  });
+
+  $("closeOrderModal")?.addEventListener("click", () => {
+    $("orderModal").style.display = "none";
+  });
+
+  $("paymentStatusSelect")?.addEventListener("change", syncLocks);
+
+  $("savePaymentStatusBtn")?.addEventListener("click", async () => {
+    if (!activeOrderId) return;
+
+    await fetch(`/admin/orders/${activeOrderId}/payment`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token
+      },
+      body: JSON.stringify({
+        payment_status: $("paymentStatusSelect").value,
+        comment: $("paymentComment").value
+      })
+    });
+
+    showToast("Payment updated");
+    syncLocks();
+    loadOrders();
+  });
+
+  $("saveOrderStatusBtn")?.addEventListener("click", async () => {
+    if (!activeOrderId) return;
+
     const res = await fetch(`/admin/orders/${activeOrderId}/status`, {
       method: "POST",
       headers: {
-        Authorization: "Bearer " + token,
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token
       },
-      body: JSON.stringify({ status, comment })
+      body: JSON.stringify({
+        status: $("orderStatusSelect").value,
+        comment: $("orderStatusComment").value
+      })
     });
 
-    const data = await res.json();
-
-    if (!res.ok || !data.success) {
-      showToast(data.message || "Status update blocked", "error");
+    if (!res.ok) {
+      showToast("Payment required first", "error");
       return;
     }
 
     showToast("Order status updated");
     $("orderModal").style.display = "none";
     loadOrders();
-
-  } catch (err) {
-    console.error(err);
-    showToast("Server error", "error");
-  }
-};
-
-
-  $("closeOrderModal").onclick = () =>
-    $("orderModal").style.display = "none";
-
-  /* ================= EVENTS ================= */
-  $("ordersTableBody").onclick = e => {
-    const btn = e.target.closest(".view-order");
-    if (btn) openOrder(btn.dataset.id);
-  };
-
-  $("orderSearchInput").oninput =
-  $("orderStatusFilter").onchange = () => {
-    currentPage = 1;
-    render();
-  };
+  });
 
   /* ================= START ================= */
   loadOrders();
@@ -1597,12 +1620,66 @@ function initMessages() {
   loadMessages();
 }
 
+function loadSection(section) {
+  const content = document.getElementById("adminContent");
+
+  // DASHBOARD (already in DOM)
+if (section === "dashboard") {
+  content.innerHTML = DASHBOARD_HTML;
+  loadDashboard();
+  feather.replace();
+  return;
+}
+
+
+
+  // AJAX VIEWS
+  fetch(`/admin/view/${section}`, {
+    headers: { Authorization: "Bearer " + Admin.token }
+  })
+  .then(r => r.text())
+  .then(html => {
+    content.innerHTML = html;
+
+    // INIT BASED ON SECTION
+    if (section === "orders") initOrders();
+    if (section === "users") initUsers();
+    if (section === "reviews") initReviews();
+    if (section === "messages") initMessages();
+      if (section === "allProducts") initProducts();
+
+    feather.replace();
+  });
+}
+
+function initSidebarNavigation() {
+  document.querySelectorAll(".admin-sidebar a").forEach(link => {
+    link.addEventListener("click", e => {
+      e.preventDefault();
+
+      // active state
+      document
+        .querySelectorAll(".admin-sidebar a")
+        .forEach(a => a.classList.remove("active"));
+
+      link.classList.add("active");
+
+      const page = link.dataset.page;
+      if (page) {
+        loadSection(page);
+      }
+    });
+  });
+}
+
 
   /* ================= START ================= */
-  document.addEventListener("DOMContentLoaded", () => {
-    feather.replace();
-    loadDashboard();
-  });
+ document.addEventListener("DOMContentLoaded", () => {
+  feather.replace();
+  initSidebarNavigation();   // ✅ ENABLE TABS
+  loadDashboard();           // ✅ DEFAULT VIEW
+});
 
 })();
+
 </script>

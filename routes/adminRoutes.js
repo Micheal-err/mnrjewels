@@ -41,10 +41,21 @@ router.get("/view/messages", adminAuth, (req, res) => {
 
 router.get("/dashboard/stats", adminAuth, async (req, res) => {
   try {
-    const [[orders]] = await db.query(`SELECT COUNT(*) total FROM orders`);
-    const [[revenue]] = await db.query(`SELECT IFNULL(SUM(total),0) total FROM orders`);
-    const [[users]] = await db.query(`SELECT COUNT(*) total FROM users`);
-    const [[pending]] = await db.query(`SELECT COUNT(*) total FROM orders WHERE status='pending'`);
+    const [[orders]] = await db.query(
+      `SELECT COUNT(*) total FROM orders`
+    );
+
+    const [[revenue]] = await db.query(
+      `SELECT IFNULL(SUM(grand_total), 0) total FROM orders WHERE payment_status='paid'`
+    );
+
+    const [[users]] = await db.query(
+      `SELECT COUNT(*) total FROM users`
+    );
+
+    const [[pending]] = await db.query(
+      `SELECT COUNT(*) total FROM orders WHERE status='pending'`
+    );
 
     res.json({
       totalOrders: orders.total,
@@ -52,7 +63,7 @@ router.get("/dashboard/stats", adminAuth, async (req, res) => {
       totalUsers: users.total,
       pendingOrders: pending.total
     });
-  } catch (err) {
+  } catch {
     res.status(500).json({});
   }
 });
@@ -129,7 +140,8 @@ router.get("/dashboard/recent-orders", adminAuth, async (req, res) => {
     const [rows] = await db.query(`
       SELECT 
         o.id,
-        o.total,
+        COALESCE(o.order_number, CONCAT('ORD-', o.id)) AS order_number,
+        COALESCE(o.grand_total, 0) AS grand_total,
         o.status,
         u.first_name,
         u.last_name
@@ -145,6 +157,7 @@ router.get("/dashboard/recent-orders", adminAuth, async (req, res) => {
     res.status(500).json([]);
   }
 });
+
 
 
 router.get("/dashboard/recent-users", adminAuth, async (req, res) => {
@@ -654,44 +667,77 @@ router.post("/reviews/:id/delete", adminAuth, async (req, res) => {
 router.get("/orders", adminAuth, async (req, res) => {
   try {
     const [rows] = await db.query(`
-      SELECT 
+      SELECT
         o.id,
-        CONCAT('MNR-', o.id) AS order_number,
-        o.total AS grand_total,
+        COALESCE(o.order_number, CONCAT('ORD-', o.id)) AS order_number,
+
+        /* 👤 customer */
+        COALESCE(
+          CONCAT(u.first_name, ' ', u.last_name),
+          'Guest'
+        ) AS customer_name,
+
+        u.email,
+
+        /* 💰 money */
+        COALESCE(o.subtotal, 0)        AS subtotal,
+        COALESCE(o.discount, 0)        AS discount,
+        COALESCE(o.grand_total, 0)     AS grand_total,
+
+        /* 🎟 coupon */
+        o.coupon_code,
+
+        /* 📦 status */
         o.status,
         o.payment_status,
-        o.created_at,
-        CONCAT(u.first_name, ' ', u.last_name) AS customer_name,
-        u.email
+        o.created_at
+
       FROM orders o
       LEFT JOIN users u ON u.id = o.user_id
       ORDER BY o.id DESC
     `);
 
-    res.json({ success: true, orders: rows });
+    res.json({
+      success: true,
+      orders: rows
+    });
   } catch (err) {
-    console.error("Get orders error:", err);
-    res.status(500).json({ success: false });
+    console.error("ADMIN ORDERS LIST ERROR:", err);
+    res.status(500).json({ success: false, orders: [] });
   }
 });
+
 
 /**
  * GET SINGLE ORDER (DETAIL VIEW)
  */
+// ===============================
+// 📦 GET SINGLE ORDER (ADMIN)
+// ===============================
 router.get("/orders/:id", adminAuth, async (req, res) => {
   const orderId = req.params.id;
 
   try {
     const [[order]] = await db.query(`
-      SELECT 
+      SELECT
         o.id,
-        CONCAT('MNR-', o.id) AS order_number,
-        o.total,
+        COALESCE(o.order_number, CONCAT('ORD-', o.id)) AS order_number,
+
+        COALESCE(
+          CONCAT(u.first_name, ' ', u.last_name),
+          'Guest'
+        ) AS customer_name,
+
+        u.email,
+
+        COALESCE(o.subtotal, 0)    AS subtotal,
+        COALESCE(o.discount, 0)    AS discount,
+        COALESCE(o.grand_total, 0) AS grand_total,
+
+        o.coupon_code,
         o.status,
         o.payment_status,
-        o.created_at,
-        CONCAT(u.first_name, ' ', u.last_name) AS customer_name,
-        u.email
+        o.created_at
       FROM orders o
       LEFT JOIN users u ON u.id = o.user_id
       WHERE o.id = ?
@@ -701,38 +747,25 @@ router.get("/orders/:id", adminAuth, async (req, res) => {
       return res.status(404).json({ success: false });
     }
 
+    /* 📦 ITEMS — SKU FROM VARIANT (CORRECT) */
     const [items] = await db.query(`
       SELECT
-        p.name AS product_name,
-        v.finish,
-        v.length_size,
-        v.width,
-        v.thickness,
+        p.name            AS product_name,
+        pv.sku            AS sku,
         oi.quantity,
         oi.price,
         (oi.price * oi.quantity) AS total
       FROM order_items oi
       JOIN products p ON p.id = oi.product_id
-      JOIN product_variants v ON v.id = oi.variant_id
+      LEFT JOIN product_variants pv ON pv.id = oi.variant_id
       WHERE oi.order_id = ?
     `, [orderId]);
 
-    const [addresses] = await db.query(
-      `SELECT * FROM order_addresses WHERE order_id=?`,
-      [orderId]
-    );
-
+    /* 🕒 STATUS TIMELINE */
     const [statusHistory] = await db.query(`
-      SELECT status, changed_by, comment, created_at
+      SELECT status, comment, created_at
       FROM order_status_history
-      WHERE order_id=?
-      ORDER BY created_at ASC
-    `, [orderId]);
-
-    const [paymentHistory] = await db.query(`
-      SELECT payment_status, changed_by, comment, created_at
-      FROM order_payment_history
-      WHERE order_id=?
+      WHERE order_id = ?
       ORDER BY created_at ASC
     `, [orderId]);
 
@@ -740,16 +773,15 @@ router.get("/orders/:id", adminAuth, async (req, res) => {
       success: true,
       order,
       items,
-      addresses,
-      statusHistory,
-      paymentHistory
+      statusHistory
     });
 
   } catch (err) {
-    console.error("Order detail error:", err);
+    console.error("ADMIN ORDER DETAIL ERROR:", err);
     res.status(500).json({ success: false });
   }
 });
+
 
 
 /**
@@ -769,13 +801,12 @@ router.post("/orders/:id/status", adminAuth, async (req, res) => {
       return res.status(404).json({ success: false });
     }
 
-    // 🔒 PAYMENT DEPENDENCY RULE
     const requiresPaid = ["confirmed", "processing", "shipped", "delivered"];
 
     if (requiresPaid.includes(status) && order.payment_status !== "paid") {
       return res.status(400).json({
         success: false,
-        message: "Payment must be PAID before moving this order forward"
+        message: "Payment must be PAID before updating this status"
       });
     }
 
@@ -784,19 +815,16 @@ router.post("/orders/:id/status", adminAuth, async (req, res) => {
       [status, orderId]
     );
 
-    await db.query(
-      `
+    await db.query(`
       INSERT INTO order_status_history
       (order_id, status, changed_by, comment)
       VALUES (?, ?, 'admin', ?)
-      `,
-      [orderId, status, comment || null]
-    );
+    `, [orderId, status, comment || null]);
 
     res.json({ success: true });
 
   } catch (err) {
-    console.error("Order status update error:", err);
+    console.error("ORDER STATUS UPDATE ERROR:", err);
     res.status(500).json({ success: false });
   }
 });
@@ -885,19 +913,16 @@ router.post("/orders/:id/payment", adminAuth, async (req, res) => {
       [payment_status, orderId]
     );
 
-    await db.query(
-      `
+    await db.query(`
       INSERT INTO order_payment_history
       (order_id, payment_status, changed_by, comment)
       VALUES (?, ?, 'admin', ?)
-      `,
-      [orderId, payment_status, comment || null]
-    );
+    `, [orderId, payment_status, comment || null]);
 
     res.json({ success: true });
 
   } catch (err) {
-    console.error("Payment status update error:", err);
+    console.error("PAYMENT UPDATE ERROR:", err);
     res.status(500).json({ success: false });
   }
 });

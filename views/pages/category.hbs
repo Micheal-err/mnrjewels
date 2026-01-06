@@ -2,6 +2,9 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <style>
+  body{
+    background-color: #9FA878;
+  }
 /* ================= SIDEBAR ================= */
 .filter-sidebar {
   background: #F4F6F8;
@@ -120,13 +123,90 @@
   color: #9FA878 !important;
 }
 
+
+/* ================= MOBILE FILTER DRAWER ================= */
+@media (max-width: 991px) {
+
+  body.filter-open {
+    overflow: hidden;
+  }
+
+  .filter-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.45);
+    z-index: 998;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .3s ease;
+  }
+
+  .filter-overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .filter-sidebar {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    width: 85%;
+    max-width: 320px;
+    height: 100vh;
+    z-index: 999;
+    overflow-y: auto;
+    border-radius: 0;
+    transition: left .35s cubic-bezier(.22,.61,.36,1);
+  }
+
+  .filter-sidebar.show {
+    left: 0;
+  }
+
+  .filter-close {
+    display: block;
+    text-align: right;
+    margin-bottom: 10px;
+  }
+
+}
+
+/* ================= GRID FIX FOR SMALL SCREENS ================= */
+@media (max-width: 575px) {
+  .grid-item {
+    width: 100%;
+  }
+
+  .shop-image img {
+    height: auto;
+  }
+
+  .apply-btn,
+  .clear-btn {
+    width: 100%;
+  }
+}
+
+
 </style>
+<div id="filterOverlay" class="filter-overlay"></div>
 
 <div class="container mt-6 bg-base-color">
   <div class="row">
+<!-- MOBILE FILTER TOGGLE -->
+<div class="d-lg-none mb-3" style="margin-top: 6rem;">
+  <button id="filterToggle" class="btn bg-base-color text-white w-100">
+    <i class="fa-solid fa-sliders"></i> Filters
+  </button>
+</div>
 
     <!-- SIDEBAR -->
     <aside class="col-lg-2 filter-sidebar">
+        <div class="filter-close d-lg-none">
+    <button type="button" id="filterClose" class="btn btn-sm">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+  </div>
       <form id="filterForm">
 
         <div class="filter-block">
@@ -208,8 +288,6 @@
     </main>
   </div>
 </div>
-
-
 <script>
 (function () {
   const form = document.getElementById("filterForm");
@@ -219,80 +297,67 @@
 
   if (!productsContainer) return;
 
-  /* ===============================
-     TOAST
-  =============================== */
+  /* ================= TOAST ================= */
   function toast(title, icon = "success") {
-    if (window.Swal) {
-      Swal.fire({
-        toast: true,
-        position: "top-end",
-        timer: 1800,
-        showConfirmButton: false,
-        icon,
-        title
-      });
-    }
+    Swal.fire({
+      toast: true,
+      position: "top-end",
+      timer: 1800,
+      showConfirmButton: false,
+      icon,
+      title
+    });
   }
 
-  /* ===============================
-     APPLY FILTERS (AJAX)
-  =============================== */
+  /* ================= SAFE JSON ================= */
+  async function safeJson(res) {
+    const ct = res.headers.get("content-type") || "";
+    if (!res.ok || !ct.includes("application/json")) {
+      throw new Error("Invalid JSON response");
+    }
+    return res.json();
+  }
+
+  /* ================= FILTER ================= */
   if (form) {
-    form.addEventListener("submit", async function (e) {
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
 
       const fd = new FormData(form);
       const params = new URLSearchParams();
 
-      for (const [key, value] of fd.entries()) {
-        const clean = value.replace(/[^a-zA-Z0-9,+-]/g, "");
-        params.has(key)
-          ? params.set(key, params.get(key) + "," + clean)
-          : params.set(key, clean);
+      for (const [k, v] of fd.entries()) {
+        const clean = v.replace(/[^a-zA-Z0-9,+-]/g, "");
+        params.has(k)
+          ? params.set(k, params.get(k) + "," + clean)
+          : params.set(k, clean);
       }
 
       try {
         const res = await fetch(
           `${location.pathname}?${params.toString()}&ajax=1`,
-          {
-            headers: {
-              "Accept": "application/json",
-              "X-Requested-With": "XMLHttpRequest"
-            }
-          }
+          { headers: { Accept: "application/json" } }
         );
 
-        if (!res.ok) throw new Error("Request failed");
-
-        const data = await res.json();
-
+        const data = await safeJson(res);
         renderProducts(data.products || []);
         productCount.textContent = `${data.totalProducts || 0} products`;
         history.replaceState({}, "", "?" + params.toString());
-
-        toast("Filters applied");
-      } catch (err) {
-        console.error("FILTER ERROR:", err);
+      } catch {
         toast("Filter failed", "error");
       }
     });
 
-    document.getElementById("clearFilters")?.addEventListener("click", function () {
+    document.getElementById("clearFilters")?.addEventListener("click", () => {
       form.reset();
-      history.replaceState({}, "", location.pathname);
       form.dispatchEvent(new Event("submit"));
-      toast("Filters reset", "info");
     });
   }
 
-  /* ===============================
-     RENDER PRODUCTS
-  =============================== */
+  /* ================= RENDER ================= */
   function renderProducts(products) {
     if (!products.length) {
-      productsContainer.innerHTML =
-        `<p class="text-center mt-4">No products found</p>`;
+      productsContainer.innerHTML = `<p class="text-center mt-4">No products found</p>`;
       return;
     }
 
@@ -308,13 +373,11 @@
               </div>
               <div class="shop-footer">
                 <a href="/product/${p.id}" class="text-white">${p.name}</a>
-                <p class="mb-0">₹${Number(p.price).toLocaleString("en-IN")}</p>
+                <p>₹${Number(p.price).toLocaleString("en-IN")}</p>
               </div>
               <div class="d-flex gap">
                 <button class="btn bg-white text-base-color w-100 add-cart-btn"
-                        data-id="${p.id}">
-                  ADD TO CART
-                </button>
+                        data-id="${p.id}">ADD TO CART</button>
                 <button class="wishlist-btn" data-id="${p.id}">
                   <i class="fa-solid fa-heart"></i>
                 </button>
@@ -328,9 +391,7 @@
     syncWishlistState();
   }
 
-  /* ===============================
-     WISHLIST SYNC
-  =============================== */
+  /* ================= WISHLIST SYNC ================= */
   async function syncWishlistState() {
     if (!token) return;
 
@@ -339,18 +400,14 @@
         const res = await fetch(`/api/wishlist/check/${btn.dataset.id}`, {
           headers: { Authorization: "Bearer " + token }
         });
-        const data = await res.json();
+        const data = await safeJson(res);
         btn.classList.toggle("active", data.inWishlist);
       } catch {}
     }
   }
 
-  document.addEventListener("DOMContentLoaded", syncWishlistState);
-
-  /* ===============================
-     WISHLIST TOGGLE
-  =============================== */
-  document.addEventListener("click", async function (e) {
+  /* ================= WISHLIST TOGGLE ================= */
+  document.addEventListener("click", async (e) => {
     const btn = e.target.closest(".wishlist-btn");
     if (!btn) return;
 
@@ -369,18 +426,16 @@
         body: JSON.stringify({ product_id: btn.dataset.id })
       });
 
-      const data = await res.json();
+      const data = await safeJson(res);
       btn.classList.toggle("active", data.added);
-      toast(data.added ? "Added to wishlist" : "Removed from wishlist", "info");
+      toast(data.added ? "Added to wishlist" : "Removed from wishlist");
     } catch {
       toast("Wishlist failed", "error");
     }
   });
 
-  /* ===============================
-     ADD TO CART
-  =============================== */
-  document.addEventListener("click", async function (e) {
+  /* ================= ADD TO CART ================= */
+  document.addEventListener("click", async (e) => {
     const btn = e.target.closest(".add-cart-btn");
     if (!btn) return;
 
@@ -392,10 +447,10 @@
     btn.disabled = true;
 
     try {
-      const r = await fetch(`/cart/product/${btn.dataset.id}/variants`);
-      const { variants } = await r.json();
+      const vr = await fetch(`/cart/product/${btn.dataset.id}/variants`);
+      const vdata = await safeJson(vr);
 
-      if (!variants || variants.length !== 1) {
+      if (!vdata.variants || vdata.variants.length !== 1) {
         location.href = `/product/${btn.dataset.id}`;
         return;
       }
@@ -407,22 +462,22 @@
           Authorization: "Bearer " + token
         },
         body: JSON.stringify({
-          variant_id: variants[0].id,
+          variant_id: vdata.variants[0].id,
           quantity: 1
         })
       });
 
-      const data = await add.json();
+      const data = await safeJson(add);
       if (!data.success) throw new Error();
 
       toast("Added to cart");
     } catch (err) {
       console.error("ADD TO CART ERROR:", err);
-      toast("Add to cart failed", "error");
+      toast("Please login again", "warning");
     } finally {
       btn.disabled = false;
     }
   });
+
 })();
 </script>
-

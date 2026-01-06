@@ -1,4 +1,6 @@
- <!-- start footer --> 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<!-- start footer --> 
         <!-- start section -->
         <footer class="p-2 position-relative bg-base-color d-flex justify-content-center align-items-center">
 
@@ -125,3 +127,182 @@
             </div>
         </footer>
         <!-- end footer --> 
+<style>
+    /* ================= ROOT ================= */
+.footer-root {
+  font-family: inherit;
+}
+
+/* ================= INSTAGRAM ================= */
+.footer-instagram {
+  position: relative;
+  background: #9FA878;
+  padding: 2rem 0 4rem;
+}
+
+.insta-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 16px;
+  padding: 0 24px;
+}
+
+.insta-grid img {
+  width: 100%;
+  aspect-ratio: 1/1;
+  object-fit: cover;
+  border-radius: 14px;
+}
+
+.insta-center-btn {
+  position: absolute;
+  left: 50%;
+  bottom: -32px;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 120px;
+  background: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  color: #9FA878;
+  box-shadow: 0 20px 40px rgba(0,0,0,.15);
+}
+
+/* ================= MAIN FOOTER ================= */
+.footer-main {
+  background: #9FA878;
+  padding: 6rem 1rem 4rem;
+}
+
+.footer-main-inner {
+  max-width: 1300px;
+  margin: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 4rem;
+}
+
+/* LEFT */
+.footer-left {
+  max-width: 320px;
+}
+
+.footer-logo {
+  max-width: 220px;
+  margin-bottom: 2rem;
+}
+
+.footer-socials {
+  display: flex;
+  gap: 18px;
+}
+
+.footer-socials a {
+  font-size: 22px;
+  color: #fff;
+}
+
+/* RIGHT */
+.footer-right {
+  max-width: 520px;
+  text-align: right;
+  color: #fff;
+}
+
+.footer-right h3 {
+  font-size: 22px;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+}
+
+.footer-newsletter {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 1.5rem;
+}
+
+.footer-newsletter input {
+  flex: 1;
+  padding: 14px 16px;
+  border-radius: 10px;
+  border: none;
+}
+
+.footer-newsletter button {
+  padding: 14px 22px;
+  border-radius: 10px;
+  background: #fff;
+  color: #9FA878;
+  font-weight: 600;
+  border: none;
+}
+
+.footer-right p {
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* ================= BOTTOM ================= */
+.footer-bottom {
+  background: #fff;
+  padding: 2rem 1rem;
+}
+
+.footer-bottom-inner {
+  max-width: 1300px;
+  margin: auto;
+  display: flex;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+.footer-bottom ul {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  gap: 24px;
+}
+
+.footer-bottom a {
+  text-decoration: none;
+  color: #9FA878;
+  font-weight: 500;
+}
+
+.footer-copy {
+  text-align: center;
+  margin-top: 1.5rem;
+  font-size: 14px;
+  opacity: .7;
+}
+
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 991px) {
+  .insta-grid { grid-template-columns: repeat(3, 1fr); }
+
+  .footer-main-inner {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .footer-right {
+    text-align: center;
+  }
+
+  .footer-bottom-inner {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .footer-bottom ul {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}
+
+</style>

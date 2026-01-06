@@ -38,10 +38,23 @@
 
         <p class="text-white"><b>Status:</b> {{order.status}}</p>
         <p class="text-white"><b>Payment:</b> {{order.payment_method}}</p>
-        <p class="text-white"><b>Total:</b> ₹{{formatPrice order.total}}</p>
+
         <p class="text-white">
-          <b>Date:</b>
-          {{order.created_at}}
+          <b>Subtotal:</b> ₹{{formatPrice order.subtotal}}
+        </p>
+
+        {{#if order.discount}}
+        <p class="text-white">
+          <b>Discount:</b> − ₹{{formatPrice order.discount}}
+        </p>
+        {{/if}}
+
+        <p class="text-white">
+          <b>Grand Total:</b> ₹{{formatPrice order.grand_total}}
+        </p>
+
+        <p class="text-white">
+          <b>Date:</b> {{order.created_at}}
         </p>
       </div>
 
@@ -61,7 +74,6 @@
         {{else}}
           <p>Billing details not available</p>
         {{/if}}
-
       </div>
 
     </div>
@@ -70,9 +82,10 @@
     <h3 class="mt">Ordered Items</h3>
 
     <table class="items-table text-base-color">
-      <thead >
+      <thead>
         <tr>
           <th>Product</th>
+          <th>SKU</th>
           <th>Qty</th>
           <th>Price</th>
           <th>Total</th>
@@ -83,10 +96,10 @@
         {{#each items}}
         <tr>
           <td>{{product_name}}</td>
+          <td>{{sku}}</td>
           <td>{{quantity}}</td>
-          <td class="price">₹{{formatPrice price}}</td>
-        <td>₹{{formatPrice total}}</td>
-
+          <td>₹{{formatPrice price}}</td>
+          <td>₹{{formatPrice total}}</td>
         </tr>
         {{/each}}
       </tbody>
@@ -94,7 +107,7 @@
 
     <!-- ACTIONS -->
     <div class="actions">
-      <a href="/orders" class="btn-secondary">View Orders</a>
+      <a href="/account" class="btn-secondary">View Orders</a>
       <a href="/shop" class="btn-primary">Continue Shopping</a>
     </div>
 
@@ -136,7 +149,6 @@
 }
 
 .sub {
-  color: #9fa878;
   margin-bottom: 32px;
   line-height: 1.6;
 }
@@ -164,7 +176,6 @@
   width: 100%;
   border-collapse: collapse;
   margin-top: 16px;
-  color: #9fa878;
 }
 
 .items-table th,
@@ -175,7 +186,6 @@
 }
 
 .items-table th {
-  color: #9fa878;
   font-weight: 600;
 }
 

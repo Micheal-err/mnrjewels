@@ -539,6 +539,11 @@ color: #9FA878;
 ================================ */
 const VARIANTS = {{{json variants}}};
 const PRODUCT_ID = {{product.id}};
+const PRODUCT = {{{json product}}};
+
+const IS_RING =
+  PRODUCT.sub_category &&
+  PRODUCT.sub_category.toLowerCase().includes("ring");
 
 let selectedOptions = {};
 let selectedVariant = null;
@@ -589,7 +594,10 @@ function renderVariants() {
     ["gemstone_colour", "gemstone_color"].includes(k.toLowerCase())
   );
 
-  const keys = [finishKey, gemstoneKey].filter(Boolean);
+const ringSizeKey = IS_RING ? "length_size" : null;
+const keys = [finishKey, gemstoneKey, ringSizeKey].filter(Boolean);
+
+
 
   keys.forEach(key => {
     const values = [...new Set(VARIANTS.map(v => v[key]).filter(Boolean))];
@@ -599,8 +607,14 @@ function renderVariants() {
     group.className = "variant-group";
 
     const label = document.createElement("label");
-    label.textContent =
-      key.includes("finish") ? "Finish" : "Gemstone colour";
+   if (key === "length_size" && IS_RING) {
+  label.textContent = "Ring Size";
+} else if (key.includes("finish")) {
+  label.textContent = "Finish";
+} else {
+  label.textContent = "Gemstone colour";
+}
+
     group.appendChild(label);
 
     const row = document.createElement("div");
@@ -612,7 +626,11 @@ function renderVariants() {
       btn.dataset.value = value;
 
       // 🎨 Finish / Gemstone colour
-      if (key.includes("finish") || key.includes("colour") || key.includes("color")) {
+     if (
+  (key.includes("finish") || key.includes("colour") || key.includes("color")) &&
+  !(IS_RING && key === "length_size")
+) {
+
         btn.classList.add("color-variant");
         const style = FINISH_STYLES[value.toLowerCase()] || { background: value };
         Object.assign(btn.style, style);
@@ -648,12 +666,15 @@ function autoSelectLowestPriceVariant() {
     Object.entries(lowest).forEach(([k, v]) => {
       if (!v) return;
 
-      if (
-        (label.includes("finish") && k.includes("finish")) ||
-        (label.includes("gemstone") && k.includes("gemstone"))
-      ) {
+     if (
+  (label.includes("finish") && k.includes("finish")) ||
+  (label.includes("gemstone") && k.includes("gemstone")) ||
+  (IS_RING && label.includes("ring") && k === "length_size")
+) {
+
         group.querySelectorAll(".variant").forEach(btn => {
-          if (btn.dataset.value === v) btn.classList.add("active");
+          if (String(btn.dataset.value) === String(v))
+         btn.classList.add("active");
         });
         selectedOptions[k] = v;
       }
@@ -666,61 +687,7 @@ function autoSelectLowestPriceVariant() {
 renderVariants();
 autoSelectLowestPriceVariant();
 
-function renderVariants() {
-  if (!VARIANTS.length) return;
 
-  variantContainer.innerHTML = "";
-
-  const sample = VARIANTS[0];
-
-  const finishKey = Object.keys(sample).find(k =>
-    k.toLowerCase().includes("finish")
-  );
-
-  const gemstoneKey = Object.keys(sample).find(k =>
-    ["gemstone_colour", "gemstone_color"].includes(k.toLowerCase())
-  );
-
-  const keys = [finishKey, gemstoneKey].filter(Boolean);
-
-  keys.forEach(key => {
-    const values = [...new Set(VARIANTS.map(v => v[key]).filter(Boolean))];
-    if (!values.length) return;
-
-    const group = document.createElement("div");
-    group.className = "variant-group";
-
-    const label = document.createElement("label");
-    label.textContent =
-      key.includes("finish") ? "Finish" : "Gemstone colour";
-    group.appendChild(label);
-
-    const row = document.createElement("div");
-    row.className = "variant-row";
-
-    values.forEach(value => {
-      const btn = document.createElement("div");
-      btn.className = "variant";
-      btn.dataset.value = value;
-
-      // 🎨 Finish / Gemstone colour
-      if (key.includes("finish") || key.includes("colour") || key.includes("color")) {
-        btn.classList.add("color-variant");
-        const style = FINISH_STYLES[value.toLowerCase()] || { background: value };
-        Object.assign(btn.style, style);
-        btn.title = value;
-      } else {
-        btn.textContent = value;
-      }
-
-      btn.onclick = () => selectOption(key, value, row);
-      row.appendChild(btn);
-    });
-
-    group.appendChild(row);
-    variantContainer.appendChild(group);
-  });
-}
 
 //render dimenssion 
 function renderDimensions() {
@@ -729,8 +696,10 @@ function renderDimensions() {
 
   const parts = [];
 
-  if (selectedVariant.length_size !== null && selectedVariant.length_size !== undefined)
-    parts.push(`Length: ${selectedVariant.length_size} cm`);
+if (!IS_RING && selectedVariant.length_size != null) {
+  parts.push(`Length: ${selectedVariant.length_size} cm`);
+}
+
 
   if (selectedVariant.width !== null && selectedVariant.width !== undefined)
     parts.push(`Width: ${selectedVariant.width} cm`);
@@ -759,7 +728,7 @@ function applyVariant(variant) {
 
     priceEl.classList.remove("loading");
     renderDimensions();
-  }, 250); // 👈 sweet spot (200–300ms)
+  }, 250);
 }
 
 
@@ -802,7 +771,10 @@ cartBtn.onclick = async () => {
     Swal.fire({
       icon: "warning",
       title: "Select a variant",
-      text: "Please choose color / size before adding to cart"
+      text: IS_RING
+  ? "Please select a ring size"
+  : "Please choose product options"
+
     });
     return;
   }

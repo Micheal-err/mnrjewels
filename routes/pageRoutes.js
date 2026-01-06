@@ -201,6 +201,19 @@ router.get("/faqs", (req, res) => {
     title: "Product Care"
   });
 });
+router.get("/about", (req, res) => {
+  res.render("pages/about", {
+    title: "About Us | M&R Jewels"
+  });
+});
+
+router.get("/login", (req, res) => {
+  return res.redirect("/account");
+});
+
+router.get("/signup", (req, res) => {
+  return res.redirect("/account");
+});
 
 /* =========================
    SHOP ALL BY CATEGORY
@@ -405,6 +418,103 @@ router.get("/shop/:category/:subCategory?", async (req, res) => {
     totalProducts: rows.length
   });
 });
+/* =========================
+   SHOP (ALL PRODUCTS)
+   /shop
+========================= */
+router.get("/shop", async (req, res) => {
+  try {
+    const isAjax =
+      req.xhr ||
+      req.headers.accept?.includes("application/json") ||
+      req.query.ajax === "1";
+
+    const { sort, price, finish } = req.query;
+
+    let where = [];
+    let params = [];
+
+    // PRICE FILTER
+    if (price) {
+      const ranges = price.split(",");
+      const priceConditions = [];
+
+      ranges.forEach(r => {
+        if (r.includes("+")) {
+          priceConditions.push("v.price >= ?");
+          params.push(Number(r.replace("+", "")));
+        } else {
+          const [min, max] = r.split("-").map(Number);
+          priceConditions.push("v.price BETWEEN ? AND ?");
+          params.push(min, max);
+        }
+      });
+
+      where.push(`(${priceConditions.join(" OR ")})`);
+    }
+
+    // FINISH FILTER
+    if (finish) {
+      const finishes = finish.split(",");
+      where.push(
+        `LOWER(v.finish) IN (${finishes.map(() => "?").join(",")})`
+      );
+      params.push(...finishes.map(f => f.toLowerCase()));
+    }
+
+    // SORT
+    let orderBy = "p.id DESC";
+    if (sort === "low") orderBy = "price ASC";
+    if (sort === "high") orderBy = "price DESC";
+
+    const [rows] = await db.query(
+      `
+      SELECT 
+        p.id,
+        p.name,
+        p.collection_name,
+        p.image1,
+        MIN(v.price) AS price
+      FROM products p
+      JOIN product_variants v ON v.product_id = p.id
+      ${where.length ? `WHERE ${where.join(" AND ")}` : ""}
+      GROUP BY p.id
+      ORDER BY ${orderBy}
+      `,
+      params
+    );
+
+    if (isAjax) {
+      return res.json({
+        products: rows,
+        totalProducts: rows.length
+      });
+    }
+
+    // GROUP BY COLLECTION (SSR EXPECTS THIS)
+    const collections = {};
+    rows.forEach(p => {
+      if (!collections[p.collection_name || "All"]) {
+        collections[p.collection_name || "All"] = [];
+      }
+      collections[p.collection_name || "All"].push(p);
+    });
+
+    res.render("pages/category", {
+      categoryTitle: "Shop All Jewellery",
+      collections,
+      totalProducts: rows.length
+    });
+
+  } catch (err) {
+    console.error("SHOP PAGE ERROR:", err);
+    res.render("pages/category", {
+      categoryTitle: "Shop",
+      collections: {},
+      totalProducts: 0
+    });
+  }
+});
 
 
 /* =========================
@@ -452,6 +562,8 @@ router.get(
     }
   }
 );
+
+
 
 /* =========================
    DEBUG

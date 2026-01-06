@@ -82,6 +82,7 @@ app.use("/contact", require("./routes/contactRoutes"));
 app.use("/api/reviews", require("./routes/reviewRoutes"));
 app.use("/cart", require("./routes/cartRoutes"));
 app.use("/api/wishlist", require("./routes/wishlistRoutes"));
+app.use("/api/coupons", require("./routes/couponsRoutes"));
 app.use("/checkout", require("./routes/checkoutRoutes"));  
 /* ===============================
    404

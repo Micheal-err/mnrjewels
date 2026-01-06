@@ -1,9 +1,14 @@
 <h2 class="admin-title">Orders</h2>
 
-<!-- FILTER BAR -->
+<!-- ================= FILTER BAR ================= -->
 <div class="products-filter-row">
-  <input id="orderSearchInput" class="search-bar" placeholder="Search by Order #, User, Email">
-  <select id="orderStatusFilter" class="modal-input" style="max-width:180px">
+  <input
+    id="orderSearchInput"
+    class="search-bar"
+    placeholder="Search by Order #, Customer, Email"
+  >
+
+  <select id="orderStatusFilter" class="search-bar" style="max-width:180px">
     <option value="">All Status</option>
     <option value="pending">Pending</option>
     <option value="confirmed">Confirmed</option>
@@ -14,7 +19,7 @@
   </select>
 </div>
 
-<!-- ORDERS TABLE -->
+<!-- ================= ORDERS TABLE ================= -->
 <table class="admin-table">
   <thead>
     <tr>
@@ -24,23 +29,30 @@
       <th>Status</th>
       <th>Payment</th>
       <th>Date</th>
-      <th>Actions</th>
+      <th>Action</th>
     </tr>
   </thead>
+
   <tbody id="ordersTableBody">
-    <tr><td colspan="7">Loading...</td></tr>
+    <tr>
+      <td colspan="7">Loading orders…</td>
+    </tr>
   </tbody>
 </table>
 
+<!-- PAGINATION -->
 <div id="ordersPagination" class="pagination"></div>
 
-<!-- ORDER DETAIL MODAL -->
-<div id="orderModal" class="edit-modal">
-  <div class="edit-box" style="width:720px;max-height:90vh;overflow:auto">
-    <h3>Order Details</h3>
+<!-- ======================================================
+     ORDER DETAIL MODAL
+====================================================== -->
+<div id="orderModal" class="edit-modal" style="display:none;">
+  <div class="edit-box" style="width:780px;max-height:90vh;overflow:auto">
 
+    <h3>Order Details</h3>
     <div id="orderMeta" style="margin-bottom:14px;font-size:14px;color:#aaa"></div>
 
+    <!-- ================= ITEMS ================= -->
     <table class="admin-table">
       <thead>
         <tr>
@@ -52,48 +64,189 @@
         </tr>
       </thead>
       <tbody id="orderItemsBody">
-        <tr><td colspan="5">Loading...</td></tr>
+        <tr><td colspan="5">Loading items…</td></tr>
       </tbody>
     </table>
 
-    <h4>Status Timeline</h4>
+    <!-- ================= COUPON ================= -->
+    <div
+      id="orderCouponBox"
+      style="
+        display:none;
+        margin-top:14px;
+        padding:14px;
+        background:#101010;
+        border:1px dashed #333;
+        border-radius:10px
+      "
+    >
+      <p style="margin:0;font-size:14px">
+        <b>Coupon Applied:</b>
+        <span id="orderCouponCode" style="color:#ffb703"></span>
+      </p>
+      <p style="margin-top:4px;font-size:12px;color:#aaa">
+        Discount applied successfully
+      </p>
+    </div>
+
+    <!-- ================= TOTALS ================= -->
+    <div
+      style="
+        margin-top:16px;
+        padding:16px;
+        background:#141414;
+        border-radius:12px
+      "
+    >
+      <p><b>Subtotal:</b> ₹<span id="orderSubtotal">0</span></p>
+      <p><b>Discount:</b> ₹<span id="orderDiscount">0</span></p>
+      <p style="font-size:18px;margin-top:6px">
+        <b>Grand Total:</b> ₹<span id="orderGrandTotal">0</span>
+      </p>
+    </div>
+
+    <!-- ================= STATUS TIMELINE ================= -->
+    <h4 style="margin-top:20px">Status Timeline</h4>
     <ul id="orderTimeline" style="font-size:13px;color:#bbb"></ul>
 
-    <div class="edit-actions">
-      <select id="orderStatusSelect" class="modal-input">
-        <option value="pending">Pending</option>
-        <option value="confirmed">Confirmed</option>
-        <option value="processing">Processing</option>
-        <option value="shipped">Shipped</option>
-        <option value="delivered">Delivered</option>
-        <option value="cancelled">Cancelled</option>
-      </select>
+    <!-- ================= PAYMENT ================= -->
+    <h4 style="margin-top:20px">Payment Verification</h4>
 
-      <input id="orderStatusComment" class="modal-input" placeholder="Admin note (optional)">
-      <button class="save-btn" id="saveOrderStatusBtn">Update Status</button>
-      <button class="close-btn" id="closeOrderModal">Close</button>
+    <select id="paymentStatusSelect" class="modal-input">
+      <option value="unpaid">Unpaid</option>
+      <option value="paid">Paid</option>
+      <option value="failed">Failed</option>
+      <option value="refunded">Refunded</option>
+      <option value="partial_refund">Partial Refund</option>
+    </select>
+
+    <input
+      id="paymentComment"
+      class="modal-input"
+      placeholder="Payment note (UTR / Txn ID / remark)"
+    >
+
+    <button class="save-btn" id="savePaymentStatusBtn">
+      Update Payment
+    </button>
+
+    <p style="font-size:12px;color:#888;margin-top:6px">
+      Payment must be verified before updating order status
+    </p>
+
+    <!-- ================= ORDER STATUS ================= -->
+    <h4 style="margin-top:22px">Order Status</h4>
+
+    <select id="orderStatusSelect" class="modal-input">
+      <option value="pending">Pending</option>
+      <option value="confirmed">Confirmed</option>
+      <option value="processing">Processing</option>
+      <option value="shipped">Shipped</option>
+      <option value="delivered">Delivered</option>
+      <option value="cancelled">Cancelled</option>
+    </select>
+
+    <input
+      id="orderStatusComment"
+      class="modal-input"
+      placeholder="Admin note (optional)"
+    >
+
+    <div style="display:flex;gap:10px;margin-top:12px">
+      <button class="save-btn" id="saveOrderStatusBtn" disabled>
+        Update Status
+      </button>
+      <button class="close-btn" id="closeOrderModal">
+        Close
+      </button>
     </div>
-    <h4>Payment Verification</h4>
-
-<div style="display:flex;gap:10px;margin-bottom:12px; flex-direction:column; ">
-  <select id="paymentStatusSelect" class="modal-input">
-    <option value="unpaid">Unpaid</option>
-    <option value="paid">Paid</option>
-    <option value="failed">Failed</option>
-    <option value="refunded">Refunded</option>
-    <option value="partial_refund">Partial Refund</option>
-  </select>
-
-  <input
-    id="paymentComment"
-    class="modal-input"
-    placeholder="Payment note (UTR / Txn ID / remark)"
-  >
-
-  <button class="save-btn" id="savePaymentStatusBtn">
-    Update Payment
-  </button>
-</div>
 
   </div>
 </div>
+
+
+<script>
+const $ = (id) => document.getElementById(id);
+
+async function openOrder(orderId) {
+  $("orderModal").style.display = "flex";
+
+  // reset
+  $("orderItemsBody").innerHTML =
+    `<tr><td colspan="5">Loading items…</td></tr>`;
+  $("orderTimeline").innerHTML = "";
+  $("orderCouponBox").style.display = "none";
+
+  const res = await fetch(`/admin/orders/${orderId}`);
+  const d = await res.json();
+
+  if (!d.success) {
+    alert("Failed to load order");
+    return;
+  }
+
+  const o = d.order;
+
+  // ================= META =================
+  $("orderMeta").innerHTML = `
+    <b>${o.order_number}</b> •
+    ${o.customer_name} •
+    ${o.email ?? "—"} •
+    ${new Date(o.created_at).toLocaleString()}
+  `;
+
+  // ================= ITEMS =================
+  if (!d.items.length) {
+    $("orderItemsBody").innerHTML =
+      `<tr><td colspan="5">No items found</td></tr>`;
+  } else {
+    $("orderItemsBody").innerHTML = d.items.map(i => `
+      <tr>
+        <td>${i.product_name}</td>
+        <td><b>${i.sku ?? "—"}</b></td>
+        <td>${i.quantity}</td>
+        <td>₹${i.price}</td>
+        <td>₹${i.total}</td>
+      </tr>
+    `).join("");
+  }
+
+  // ================= TOTALS =================
+  $("orderSubtotal").innerText   = o.subtotal ?? 0;
+  $("orderDiscount").innerText   = o.discount ?? 0;
+  $("orderGrandTotal").innerText = o.grand_total ?? 0;
+
+  // ================= COUPON =================
+  if (o.coupon_code) {
+    $("orderCouponBox").style.display = "block";
+    $("orderCouponCode").innerText = o.coupon_code;
+  }
+
+  // ================= STATUS =================
+  $("orderStatusSelect").value = o.status;
+  $("paymentStatusSelect").value = o.payment_status;
+
+  // ================= TIMELINE =================
+  if (d.statusHistory.length) {
+    $("orderTimeline").innerHTML = d.statusHistory.map(s => `
+      <li>
+        <b>${s.status}</b>
+        ${s.comment ? `— ${s.comment}` : ""}
+        <span style="opacity:.6">
+          (${new Date(s.created_at).toLocaleString()})
+        </span>
+      </li>
+    `).join("");
+  } else {
+    $("orderTimeline").innerHTML = `<li>No status updates</li>`;
+  }
+
+  // enable buttons
+  $("saveOrderStatusBtn").disabled = false;
+}
+
+$("closeOrderModal").onclick = () => {
+  $("orderModal").style.display = "none";
+};
+</script>
+

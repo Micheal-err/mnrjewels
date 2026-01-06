@@ -1,17 +1,40 @@
-<div id="toast" class="toast" style="display:none;"></div>
+<div id="toast" class="toast" style="display:none; "></div>
 
 <!-- CONTACT SECTION -->
-<section class="position-relative z-index-1 pb-0" style="margin-top: 5rem;">
-  <div class="container">
-    <div class="row">
-      <div class="col-lg-5 md-mb-50px">
-        <img src="/images/img-2.jpg" class="mb-13 md-mb-25px w-100" alt="">
+<section class="bg-base-color contact-section-fix position-relative z-index-1 pb-0" >
+
+  <div class="container" style="margin-bottom: 8rem;">
+    <div class="row d-flex justify-content-center align-items-center">
+     <div class="col-xl-5 col-lg-5 mb-5 mb-lg-0">
+    <div class="contact-info-box">
+      <h3 class="contact-info-title">Message us at</h3>
+
+      <div class="contact-info-item">
+        <span>For customer queries</span>
+        <a href="mailto:contact.mnrjewels@gmail.com" class="text-white">
+          contact.mnrjewels@gmail.com
+        </a>
       </div>
 
-      <div class="col-xl-6 offset-xl-1 col-lg-7">
-        <h4 class="fw-500 alt-font ls-minus-1px text-dark-gray text-center text-lg-start">
-          We'd love to hear from you.
-        </h4>
+      <div class="contact-info-item">
+        <span>For business</span>
+        <a href="mailto:mnrjewels.in@gmail.com" class="text-white">
+          mnrjewels.in@gmail.com
+        </a>
+      </div>
+
+      <div class="contact-info-item">
+        <span>For work</span>
+        <a href="mailto:team.mnrjewels@gmail.com" class="text-white">
+          team.mnrjewels@gmail.com
+        </a>
+      </div>
+    </div>
+  </div>
+
+
+      <div class="col-xl-6 col-lg-6">
+      
 
         <div class="contact-form-style-03 bg-chablis-red p-13 position-relative overflow-hidden">
           <i class="bi bi-chat-text fs-140 text-cinderella-red position-absolute top-minus-30px right-minus-40px"></i>
@@ -56,28 +79,149 @@
     </div>
   </div>
 </section>
+<style>
+  
+
+/* ===============================
+   CONTACT SECTION FIX
+================================ */
+.contact-section-fix {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+}
+
+/* ===============================
+   FORM CONTAINER
+================================ */
+.contact-form-style-03 {
+  background: #ffffff !important;
+  border-radius: 10px !important;
+  padding: 48px !important;
+  position: relative;
+}
+
+/* REMOVE DECORATIVE ICON OVERLAP */
+.contact-form-style-03 > i {
+  display: none;
+}
+
+/* ===============================
+   HEADINGS
+================================ */
+.contact-form-style-03 h2 {
+  color: #9FA878;
+}
 
 
-<!-- GOOGLE MAP -->
-<section class="p-0">
-  <div class="container-fluid p-0">
-    <div class="row justify-content-center g-0">
-      <div class="col-12">
-        <iframe class="map" src="https://www.google.com/maps/embed?pb=!1m18!...yourmap..." style="border:0;width:100%;" loading="lazy"></iframe>
-      </div>
-    </div>
-  </div>
-</section>
 
 
-<!-- INSTAGRAM SECTION -->
-<section class="p-0 position-relative">
-  <div class="container-fluid p-0">
-    <div class="row row-cols-3 row-cols-md-6 instagram-follow-api g-0 d-flex justify-content-center align-items-center">
-      {{!-- your instagram images --}}
-    </div>
-  </div>
-</section>
+/* ===============================
+   INPUTS & TEXTAREA
+================================ */
+.contact-form-style-03 .form-control {
+  border: none;
+  border-bottom: 2px solid rgba(15, 23, 42, 0.25);
+  border-radius: 0;
+  padding-left: 28px;
+  background: transparent;
+  color: #9FA878;
+  font-size: 16px;
+}
+
+.contact-form-style-03 textarea.form-control {
+  padding-left: 28px;
+  resize: none;
+}
+
+.contact-form-style-03 .form-control::placeholder {
+  color: rgba(15, 23, 42, 0.5);
+}
+
+.contact-form-style-03 .form-control:focus {
+  outline: none;
+  box-shadow: none;
+  border-color: #0f172a;
+}
+
+/* ===============================
+   BUTTON
+================================ */
+#contactSubmitBtn {
+  margin-top: 30px;
+  background: #9FA878;
+  color: #ffffff;
+  border-radius: 6px;
+  padding: 14px 28px;
+  font-weight: 600;
+  border: none;
+}
+
+#contactSubmitBtn:hover {
+  background: #9FA878;
+}
+
+/* ===============================
+   TOAST (CLEAN)
+================================ */
+#toast {
+  font-weight: 600;
+  box-shadow: 0 12px 30px rgba(0,0,0,.2);
+}
+
+/* ===============================
+   CONTACT INFO PANEL
+================================ */
+.contact-info-box {
+  color: #ffffff;
+  padding-right: 40px;
+}
+
+.contact-info-title {
+  font-size: 32px;
+  font-weight: 600;
+  margin-bottom: 32px;
+  color: #ffffff;
+}
+
+/* ITEM */
+.contact-info-item {
+  margin-bottom: 22px;
+}
+
+.contact-info-item span {
+  display: block;
+  font-size: 14px;
+  opacity: 0.75;
+  margin-bottom: 6px;
+}
+
+.contact-info-item a {
+  font-size: 18px;
+  font-weight: 500;
+  color: #9FA878;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.contact-info-item a:hover {
+  opacity: 0.8;
+}
+
+/* ===============================
+   RESPONSIVE
+================================ */
+@media (max-width: 991px) {
+  .contact-info-box {
+    padding-right: 0;
+    text-align: center;
+  }
+}
+
+
+</style>
+
+
 
 
 <!-- 🔥 FIXED WORKING SCRIPT — NO DOMContentLoaded -->

@@ -1,0 +1,365 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<style>
+/* ================= TOAST ================= */
+.toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #111;
+  color: #fff;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: .3s ease;
+  z-index: 9999;
+}
+.toast.show { opacity: 1; transform: none; }
+
+/* ================= FILTER ================= */
+.filter-sidebar {
+  background: #fff;
+  border-radius: 14px;
+  padding: 22px;
+  box-shadow: 0 20px 50px rgba(0,0,0,.08);
+}
+
+.filter-block { margin-bottom: 22px; }
+.filter-block h6 { font-weight: 600; margin-bottom: 10px; }
+.filter-block p { display: flex; gap: 10px; margin: 6px 0; }
+
+.apply-btn {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  background: #000;
+  color: #fff;
+  border: none;
+  font-weight: 600;
+}
+
+.clear-btn {
+  width: 100%;
+  margin-top: 10px;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  background: transparent;
+}
+
+/* ================= GRID ================= */
+.shop-modern {
+  display: flex;
+  flex-wrap: wrap;
+  margin: -12px;
+}
+
+.grid-item {
+  width: 25%;
+  padding: 12px;
+}
+
+@media (max-width: 991px) { .grid-item { width: 33.33%; } }
+@media (max-width: 767px) { .grid-item { width: 50%; } }
+@media (max-width: 575px) { .grid-item { width: 100%; } }
+
+.shop-box {
+  background: #fff;
+  border-radius: 14px;
+  padding: 14px;
+  transition: .25s ease;
+}
+
+.shop-box:hover { transform: translateY(-3px); }
+
+.shop-image img {
+  width: 100%;
+  border-radius: 10px;
+}
+
+.shop-footer a {
+  font-weight: 600;
+  text-decoration: none;
+  color: #000;
+}
+
+.shop-footer p { margin: 0; font-weight: 600; }
+
+.wishlist-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  border: none;
+  background: #fff;
+  color: #aaa;
+}
+.wishlist-btn.active { color: crimson; }
+
+/* ================= MOBILE FILTER ================= */
+#filterOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  opacity: 0;
+  pointer-events: none;
+  transition: .3s;
+  z-index: 998;
+}
+#filterOverlay.show { opacity: 1; pointer-events: auto; }
+
+@media (max-width: 991px) {
+  body.filter-open { overflow: hidden; }
+
+  .filter-sidebar {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    width: 85%;
+    max-width: 320px;
+    height: 100vh;
+    border-radius: 0;
+    overflow-y: auto;
+    z-index: 999;
+    transition: left .35s cubic-bezier(.22,.61,.36,1);
+  }
+
+  .filter-sidebar.show { left: 0; }
+}
+
+/* ================= EMPTY ================= */
+.no-products {
+  text-align: center;
+  padding: 80px 0;
+  opacity: .6;
+}
+</style>
+
+<div id="toast" class="toast"></div>
+<div id="filterOverlay"></div>
+
+<div class="container mt-6">
+  <div class="row">
+
+    <!-- MOBILE FILTER BUTTON -->
+    <div class="d-lg-none mb-3">
+      <button id="openFilter" class="btn bg-dark text-white w-100">
+        <i class="fa-solid fa-sliders"></i> Filters
+      </button>
+    </div>
+
+    <!-- FILTER -->
+    <aside class="col-lg-2 filter-sidebar" id="filterSidebar">
+      <div class="d-lg-none text-end mb-2">
+        <button id="closeFilter" class="btn btn-sm">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="filterForm">
+        <div class="filter-block">
+          <h6>Sort by</h6>
+          <p><input type="radio" name="sort" value="new" checked> New arrivals</p>
+          <p><input type="radio" name="sort" value="high"> Price: High to Low</p>
+          <p><input type="radio" name="sort" value="low"> Price: Low to High</p>
+        </div>
+
+        <div class="filter-block">
+          <h6>Price</h6>
+          <p><input type="checkbox" name="price" value="0-1000"> 0 – 1000</p>
+          <p><input type="checkbox" name="price" value="1000-2000"> 1000 – 2000</p>
+          <p><input type="checkbox" name="price" value="2000-4000"> 2000 – 4000</p>
+          <p><input type="checkbox" name="price" value="4000+"> 4000+</p>
+        </div>
+
+        <div class="filter-block">
+          <h6>Finish</h6>
+          <p><input type="checkbox" name="finish" value="silver"> Silver</p>
+          <p><input type="checkbox" name="finish" value="gold"> Gold</p>
+          <p><input type="checkbox" name="finish" value="rose"> Rose Gold</p>
+        </div>
+
+        <button class="apply-btn">Apply</button>
+        <button type="button" id="clearFilters" class="clear-btn">Reset</button>
+      </form>
+    </aside>
+
+    <!-- PRODUCTS -->
+    <main class="col-lg-9">
+      <div class="mb-3">
+        <strong id="productCount">{{totalProducts}} products</strong>
+      </div>
+
+      <div id="productsContainer">
+        <ul class="shop-modern">
+          {{#each collections}}
+            {{#each this}}
+              <li class="grid-item">
+                <div class="shop-box">
+                  <div class="shop-image">
+                    <a href="/product/{{id}}">
+                      <img src="/uploads/{{image1}}" alt="{{name}}">
+                    </a>
+                  </div>
+                  <div class="shop-footer">
+                    <a href="/product/{{id}}">{{name}}</a>
+                    <p>₹{{price}}</p>
+                  </div>
+                  <div class="d-flex gap-2">
+                    <button class="btn bg-dark text-white w-100 add-cart-btn" data-id="{{id}}">
+                      ADD TO CART
+                    </button>
+                    <button class="wishlist-btn" data-id="{{id}}">
+                      <i class="fa-solid fa-heart"></i>
+                    </button>
+                  </div>
+                </div>
+              </li>
+            {{/each}}
+          {{/each}}
+        </ul>
+      </div>
+    </main>
+
+  </div>
+</div>
+
+<script>
+(() => {
+  const form = document.getElementById("filterForm");
+  const container = document.getElementById("productsContainer");
+  const count = document.getElementById("productCount");
+  const toastEl = document.getElementById("toast");
+  const token = localStorage.getItem("token");
+
+  const sidebar = document.getElementById("filterSidebar");
+  const overlay = document.getElementById("filterOverlay");
+
+  const toast = msg => {
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    setTimeout(() => toastEl.classList.remove("show"), 1800);
+  };
+
+  /* FILTER */
+  form.addEventListener("submit", async e => {
+    e.preventDefault();
+    const fd = new FormData(form);
+    const qs = new URLSearchParams();
+
+    for (const [k,v] of fd.entries()) {
+      qs.has(k) ? qs.set(k, qs.get(k)+","+v) : qs.set(k,v);
+    }
+
+    const res = await fetch(`${location.pathname}?${qs}&ajax=1`, {
+      headers: { "X-Requested-With": "XMLHttpRequest" }
+    });
+
+    const data = await res.json();
+    render(data.products || []);
+    count.textContent = `${data.totalProducts || 0} products`;
+    history.replaceState({}, "", "?" + qs);
+    closeFilter();
+    toast("Filters applied");
+  });
+
+  document.getElementById("clearFilters").onclick = () =>
+    location.href = location.pathname;
+
+  function render(products) {
+    if (!products.length) {
+      container.innerHTML = `<div class="no-products">No products found</div>`;
+      return;
+    }
+
+    container.innerHTML = `
+      <ul class="shop-modern">
+        ${products.map(p => `
+          <li class="grid-item">
+            <div class="shop-box">
+              <img src="/uploads/${p.image1}">
+              <div class="shop-footer">
+                <a href="/product/${p.id}">${p.name}</a>
+                <p>₹${p.price}</p>
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn bg-dark text-white w-100 add-cart-btn" data-id="${p.id}">
+                  ADD TO CART
+                </button>
+                <button class="wishlist-btn" data-id="${p.id}">
+                  <i class="fa-solid fa-heart"></i>
+                </button>
+              </div>
+            </div>
+          </li>
+        `).join("")}
+      </ul>`;
+  }
+
+  /* ADD TO CART */
+  document.addEventListener("click", async e => {
+    const btn = e.target.closest(".add-cart-btn");
+    if (!btn) return;
+
+    if (!token) return toast("Login required");
+
+    const r = await fetch(`/cart/product/${btn.dataset.id}/variants`);
+    const { variants } = await r.json();
+
+    if (!variants || variants.length !== 1) {
+      location.href = `/product/${btn.dataset.id}`;
+      return;
+    }
+
+    await fetch("/cart/add", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token
+      },
+      body: JSON.stringify({ variant_id: variants[0].id, quantity: 1 })
+    });
+
+    toast("Added to cart");
+  });
+
+  /* WISHLIST */
+  document.addEventListener("click", async e => {
+    const btn = e.target.closest(".wishlist-btn");
+    if (!btn) return;
+
+    if (!token) return toast("Login required");
+
+    const res = await fetch("/api/wishlist/toggle", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token
+      },
+      body: JSON.stringify({ product_id: btn.dataset.id })
+    });
+
+    const data = await res.json();
+    btn.classList.toggle("active", data.added);
+    toast(data.added ? "Added to wishlist" : "Removed from wishlist");
+  });
+
+  /* MOBILE FILTER */
+  document.getElementById("openFilter")?.onclick = () => {
+    sidebar.classList.add("show");
+    overlay.classList.add("show");
+    document.body.classList.add("filter-open");
+  };
+
+  function closeFilter() {
+    sidebar.classList.remove("show");
+    overlay.classList.remove("show");
+    document.body.classList.remove("filter-open");
+  }
+
+  document.getElementById("closeFilter")?.onclick = closeFilter;
+  overlay.onclick = closeFilter;
+
+})();
+</script>

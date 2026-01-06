@@ -1,20 +1,17 @@
 <section class="checkout-wrapper">
 
-  <!-- ================= STEPS ================= -->
   <div class="checkout-steps">
     <span class="step active">Cart</span>
     <span class="step">Billing</span>
     <span class="step">Payment</span>
   </div>
 
-  <!-- ================= EMPTY CART ================= -->
   <div id="emptyCartBox" style="display:none;text-align:center;padding:60px 20px;">
     <h2>Your cart is empty</h2>
-    <p>Add products before checkout.</p>
     <a href="/shop" class="btn-primary">Shop All</a>
   </div>
 
-  <!-- ================= STEP 1 : CART ================= -->
+  <!-- STEP 1 -->
   <div class="checkout-step active" id="step-1">
     <h2>Confirm Your Order</h2>
 
@@ -32,16 +29,12 @@
     </table>
 
     <div class="checkout-footer">
-      <div>
-        <b>Subtotal:</b> ₹<span id="checkoutSubtotal">0</span>
-      </div>
-      <button class="btn-primary" id="toBillingBtn">
-        Next → Billing
-      </button>
+      <div><b>Subtotal:</b> ₹<span id="checkoutSubtotal">0</span></div>
+      <button class="btn-primary" id="toBillingBtn">Next → Billing</button>
     </div>
   </div>
 
-  <!-- ================= STEP 2 : BILLING ================= -->
+  <!-- STEP 2 -->
   <div class="checkout-step" id="step-2">
     <h2>Billing Details</h2>
 
@@ -49,28 +42,36 @@
       <input name="name" placeholder="Full Name" required>
       <input name="email" placeholder="Email" required>
       <input name="phone" placeholder="Phone" required>
-      <input name="address" placeholder="Address" required>
+      <input name="address_line1" placeholder="Address" required>
       <input name="city" placeholder="City" required>
       <input name="state" placeholder="State" required>
-      <input name="pincode" placeholder="Pincode" required>
+      <input name="postal_code" placeholder="Pincode" required>
+      <input name="country" value="India" hidden>
     </form>
 
     <div class="checkout-footer">
       <button class="btn-secondary" onclick="goStep(1)">← Back</button>
-      <button class="btn-primary" id="toPaymentBtn">
-        Next → Payment
-      </button>
+      <button class="btn-primary" id="toPaymentBtn">Next → Payment</button>
     </div>
   </div>
 
-  <!-- ================= STEP 3 : PAYMENT ================= -->
+  <!-- STEP 3 -->
   <div class="checkout-step" id="step-3">
     <h2>Payment</h2>
 
-      <input type="radio" checked>
     <label class="pay-option">
-      Cash on Delivery
+      <input type="radio" checked> Cash on Delivery
     </label>
+
+    <div class="coupon-box" id="couponBox" style="display:none;">
+      <p><b>Available Coupon</b></p>
+      <div id="couponList"></div>
+    </div>
+
+    <div class="applied-coupon" id="appliedCoupon" style="display:none;">
+      Coupon <b id="appliedCode"></b> applied
+      <span onclick="removeCoupon()" style="cursor:pointer;color:red;">✕</span>
+    </div>
 
     <div class="checkout-summary">
       <p><b>Total Payable:</b> ₹<span id="finalTotal">0</span></p>
@@ -78,24 +79,22 @@
 
     <div class="checkout-footer">
       <button class="btn-secondary" onclick="goStep(2)">← Back</button>
-      <button class="btn-primary" id="placeOrderBtn">
-        Place Order
-      </button>
+      <button class="btn-primary" id="placeOrderBtn">Place Order</button>
     </div>
   </div>
 
 </section>
 
 <style>
-.checkout-wrapper { max-width:900px; margin:40px auto; color: #9FA878; }
+.checkout-wrapper { max-width:900px; margin:40px auto; color:#9FA878; }
 .checkout-steps { display:flex; gap:20px; margin-bottom:30px; }
-.checkout-steps .step { opacity:.5; }
-.checkout-steps .step.active { opacity:1; font-weight:700; }
+.step { opacity:.5; }
+.step.active { opacity:1; font-weight:700; }
 
 .checkout-step { display:none; }
 .checkout-step.active { display:block; }
 
-.checkout-table { width:100%; border-collapse:collapse; margin-top:20px; }
+.checkout-table { width:100%; border-collapse:collapse; }
 .checkout-table th, .checkout-table td {
   padding:12px;
   border-bottom:1px solid #9FA878;
@@ -119,102 +118,196 @@
   background:#fff;
   color:#9FA878;
   padding:12px 18px;
-  border:none;
+  border:2px solid #9FA878;
   cursor:pointer;
-  border: 2px solid #9FA878;
 }
 
-.pay-option { display:block; margin:10px 0; }
+.coupon-box {
+  border:1px dashed #9FA878;
+  padding:12px;
+  margin:15px 0;
+}
 
-.checkout-summary {
-  margin:20px 0;
-  font-size:18px;
+.coupon-item {
+  display:flex;
+  justify-content:space-between;
+  margin:6px 0;
+}
+
+.coupon-item button {
+  background:#9FA878;
+  color:#fff;
+  border:none;
+  padding:6px 10px;
+  cursor:pointer;
+}
+
+.applied-coupon {
+  font-weight:600;
+  margin-bottom:10px;
 }
 </style>
 
 <script>
-let checkoutData = { items: [], subtotal: 0 };
+let checkoutData = {
+  items: [],
+  subtotal: 0,
+  discount: 0,
+  grand_total: 0,
+  coupon_code: null
+};
+
 let placingOrder = false;
 
-/* ================= STEP SWITCH ================= */
+/* ================= STEP NAV ================= */
 function goStep(n) {
   document.querySelectorAll(".checkout-step").forEach(s => s.classList.remove("active"));
   document.getElementById(`step-${n}`).classList.add("active");
-
-  document.querySelectorAll(".checkout-steps .step")
-    .forEach((s,i) => s.classList.toggle("active", i === n-1));
+  document.querySelectorAll(".step").forEach((s,i)=>s.classList.toggle("active",i===n-1));
 }
 
 /* ================= LOAD CART ================= */
 async function loadCheckoutCart() {
-  const res = await fetch("/checkout/cart", { credentials: "include" });
+  const res = await fetch("/checkout/cart", { credentials:"include" });
   const data = await res.json();
 
   if (!data.success || !data.items.length) {
-    document.getElementById("cartTable").style.display = "none";
-    document.getElementById("emptyCartBox").style.display = "block";
-    document.getElementById("toBillingBtn").disabled = true;
+    document.getElementById("emptyCartBox").style.display="block";
     return;
   }
 
-  if (data.hasStockIssue) {
-    alert("Some items are out of stock. Please update your cart.");
-    document.getElementById("toBillingBtn").disabled = true;
-    return;
-  }
+  // 🔥 NORMALIZE ITEMS FOR BACKEND
+  checkoutData.items = data.items.map(i => ({
+    product_id: i.product_id,
+    variant_id: i.variant_id || null,
+    product_name: i.name,
+    sku: i.sku || null,
+    price: Number(i.price),
+    qty: Number(i.quantity)
+  }));
 
-  checkoutData = data;
+  checkoutData.subtotal = Number(data.subtotal);
+  checkoutData.grand_total = checkoutData.subtotal;
 
-  document.getElementById("checkoutCartBody").innerHTML =
-    data.items.map(i => `
-      <tr>
-        <td>${i.name}</td>
-        <td>${[i.finish, i.length_size].filter(Boolean).join(" / ")}</td>
-        <td>${i.quantity}</td>
-        <td>₹${i.price}</td>
-        <td>₹${i.price * i.quantity}</td>
-      </tr>
-    `).join("");
+  checkoutCartBody.innerHTML = data.items.map(i=>`
+    <tr>
+      <td>${i.name}</td>
+      <td>${[i.finish,i.length_size].filter(Boolean).join(" / ")}</td>
+      <td>${i.quantity}</td>
+      <td>₹${i.price}</td>
+      <td>₹${i.price * i.quantity}</td>
+    </tr>
+  `).join("");
 
-  document.getElementById("checkoutSubtotal").innerText = data.subtotal;
-  document.getElementById("finalTotal").innerText = data.subtotal;
+  checkoutSubtotal.innerText = checkoutData.subtotal;
+  finalTotal.innerText = checkoutData.subtotal;
 }
 
-/* ================= NAV ================= */
-document.getElementById("toBillingBtn").onclick = () => goStep(2);
+/* ================= BILLING ================= */
+toBillingBtn.onclick = () => goStep(2);
 
-document.getElementById("toPaymentBtn").onclick = () => {
-  const form = document.getElementById("billingForm");
-  if (!form.checkValidity()) {
-    alert("Please fill all billing details");
+toPaymentBtn.onclick = () => {
+  if (!billingForm.checkValidity()) {
+    alert("Fill billing details");
     return;
   }
   goStep(3);
+  loadCoupons();
 };
 
-/* ================= PLACE ORDER ================= */
-document.getElementById("placeOrderBtn").onclick = async () => {
-  if (placingOrder) return;
-  placingOrder = true;
+/* ================= COUPONS ================= */
+async function loadCoupons() {
+  try {
+    const res = await fetch("/api/coupons/available", { credentials:"include" });
+    if (!res.ok) return;
 
-  const billing = Object.fromEntries(new FormData(
-    document.getElementById("billingForm")
-  ));
+    const data = await res.json();
+    if (!data.success || !data.coupons?.length) return;
 
-  const res = await fetch("/checkout/cod", {
-    method: "POST",
-    credentials: "include",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ billing })
+    couponBox.style.display="block";
+    couponList.innerHTML = data.coupons.map(c=>`
+      <div class="coupon-item">
+        <span>${c.code}</span>
+        <button onclick="applyCoupon('${c.code}')">Apply</button>
+      </div>
+    `).join("");
+  } catch {}
+}
+
+async function applyCoupon(code) {
+  const res = await fetch("/api/coupons/apply", {
+    method:"POST",
+    credentials:"include",
+    headers:{ "Content-Type":"application/json" },
+    body:JSON.stringify({
+      code,
+      cartTotal: checkoutData.subtotal
+    })
   });
 
   const data = await res.json();
-  placingOrder = false;
+  if (!data.success) {
+    alert(data.message);
+    return;
+  }
 
-  if (data.success) {
-    location.href = `/api/orders/order-success/${data.orderId}`;
-  } else {
-    alert(data.message || "Order failed");
+  checkoutData.discount = Number(data.coupon.discount);
+  checkoutData.grand_total = Number(data.coupon.finalAmount);
+  checkoutData.coupon_code = data.coupon.code;
+
+  finalTotal.innerText = checkoutData.grand_total;
+  appliedCode.innerText = data.coupon.code;
+
+  couponBox.style.display="none";
+  appliedCoupon.style.display="block";
+}
+
+function removeCoupon() {
+  checkoutData.discount = 0;
+  checkoutData.grand_total = checkoutData.subtotal;
+  checkoutData.coupon_code = null;
+
+  finalTotal.innerText = checkoutData.subtotal;
+  appliedCoupon.style.display="none";
+  loadCoupons();
+}
+
+/* ================= PLACE ORDER ================= */
+placeOrderBtn.onclick = async () => {
+  if (placingOrder) return;
+  placingOrder = true;
+
+  const billing = Object.fromEntries(new FormData(billingForm));
+
+  // 🔒 FINAL FRONTEND VALIDATION
+  if (!billing.postal_code) {
+    alert("Pincode required");
+    placingOrder = false;
+    return;
+  }
+
+  try {
+    const res = await fetch("/api/orders", {
+      method:"POST",
+      credentials:"include",
+      headers:{ "Content-Type":"application/json" },
+      body:JSON.stringify({
+        items: checkoutData.items,
+        billing_address: billing,
+        shipping_address: billing,
+        payment_method: "cod",
+        coupon_code: checkoutData.coupon_code
+      })
+    });
+
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error);
+
+    location.href = `/api/orders/order-success/${data.order_id}`;
+  } catch (err) {
+    alert(err.message || "Order failed");
+  } finally {
+    placingOrder = false;
   }
 };
 
