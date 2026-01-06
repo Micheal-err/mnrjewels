@@ -9,6 +9,8 @@ html, body {
   overflow-x: hidden;
 }
 
+
+
 img {
   width: 100%;
   display: block;
@@ -104,6 +106,15 @@ img {
   .journal-image { height: 220px; }
   .journal-title { font-size: 18px; }
 }
+
+/* ===== FORCE POPUP OUT OF BODY FLEX ===== */
+.mfp-wrap{
+  height: 100% !important;
+}
+.mfp-bg{
+  height: 100% !important;
+}
+
 </style>
 
 <!-- ================= HERO SLIDER ================= -->
@@ -441,6 +452,35 @@ img {
         </section>
         <!-- end section -->
        
+           <!-- start subscription popup -->
+        <div id="subscribe-popup" class="mfp-hide subscribe-popup">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-xl-10 col-md-10 bg-white">
+                        <div class="row position-relative box-shadow-quadruple-large">
+                            <div class="col-lg-6 cover-background md-h-400px xs-h-300px" style="background-image:url('/images/slider-1.webp');"></div>
+                            <div class="col-lg-6 newsletter-popup p-8 pt-10 pb-10 lg-p-5 md-p-6 xs-p-8 position-relative">
+                                <h4 class="d-inline-block alt-font ls-minus-1px fw-600 text-dark-gray mb-15px">Welcome to M&R Jewels</h4>
+                                <p class="text-center mt-0 mb-0">Your first order, made even better.</p>
+                                <p class="text-center mt-0 mb-4">Sign up to enjoy 10% off now!</p>
+                                <div class="d-inline-block w-100 newsletter-style-05 position-relative mb-20px mt-6">
+                                    <form action="email-templates/subscribe-newsletter.php" method="post">
+                                        <input class="input-medium w-100 border-radius-4px form-control required mb-15px" type="email" name="email" placeholder="Enter your email address" />
+                                        <input type="hidden" name="redirect" value="">
+                                        <button type="submit" class="btn btn-medium btn-round-edge btn-dark-gray btn-box-shadow w-100 submit">Subscribe now!</button>
+                                        <div class="form-results border-radius-4px mt-10px lh-normal pt-10px pb-10px ps-15px pe-15px fs-16 w-100 text-center position-absolute z-index-1 d-none"></div>
+                                    </form>
+                                </div>
+                                
+                            </div>
+                            <button title="Close (Esc)" type="button" class="mfp-close text-dark-gray"></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- end subscription popup -->
+
 
 
 

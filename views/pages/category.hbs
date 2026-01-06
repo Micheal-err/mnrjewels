@@ -186,6 +186,12 @@
     width: 100%;
   }
 }
+@media (max-width: 991px) {
+  .filter-sidebar {
+    padding: 22px 18px;
+  }
+}
+
 
 
 </style>
@@ -479,5 +485,32 @@
     }
   });
 
+})();
+</script>
+<script>
+/* ================= MOBILE FILTER TOGGLE ================= */
+(function () {
+  const toggleBtn = document.getElementById("filterToggle");
+  const closeBtn = document.getElementById("filterClose");
+  const sidebar = document.querySelector(".filter-sidebar");
+  const overlay = document.getElementById("filterOverlay");
+
+  if (!toggleBtn || !sidebar || !overlay) return;
+
+  function openFilter() {
+    sidebar.classList.add("show");
+    overlay.classList.add("show");
+    document.body.classList.add("filter-open");
+  }
+
+  function closeFilter() {
+    sidebar.classList.remove("show");
+    overlay.classList.remove("show");
+    document.body.classList.remove("filter-open");
+  }
+
+  toggleBtn.addEventListener("click", openFilter);
+  closeBtn?.addEventListener("click", closeFilter);
+  overlay.addEventListener("click", closeFilter);
 })();
 </script>

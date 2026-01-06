@@ -1,3 +1,216 @@
+ <style>
+          
+             
+.cart-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  visibility: hidden;
+  transition: .3s;
+  z-index: 9998;
+}
+.cart-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* --- Sidebar --- */
+.cart-sidebar {
+  position: fixed;
+  top: 0;
+  right: -420px;
+  width: 420px;
+  height: 100vh;
+  background: #fff;
+  color: #9FA878;
+  display: flex;
+  flex-direction: column;
+  transition: .35s ease;
+  z-index: 999999;
+  padding: 25px;
+opacity: 0;
+display: none;
+}
+.cart-sidebar.active {
+  right: 0;
+  opacity: 1;
+  display: block;
+  
+}
+
+/* Header */
+.cart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  margin-top: 2rem;
+}
+.cart-header h3 {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 600;
+}
+.close-btn {
+  font-size: 32px;
+  background: none;
+  border: none;
+  color: #9FA878;
+  cursor: pointer;
+}
+
+/* Cart Items */
+.cart-items {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 60vh;
+  padding-right: 6px;
+}
+.cart-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 18px;
+}
+.cart-item img {
+  width: 70px;
+  height: 70px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+.cart-details {
+  margin-left: 12px;
+  flex: 1;
+}
+
+.qty-box {
+  display: flex;
+  align-items: center;
+  margin-top: 6px;
+}
+.qty-box button {
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  background: none;
+  border: 1px solid #9FA878;
+  color: #9FA878;
+  cursor: pointer;
+}
+.qty-box span {
+  margin: 0 10px;
+  font-size: 14px;
+}
+
+/* Remove button */
+.remove-item {
+  cursor: pointer;
+  color: #9FA878;
+  font-size: 22px;
+  margin-left: 8px;
+}
+
+/* Gift notes */
+.gift-note-toggle button {
+  width: 100%;
+  background: none;
+  border: 1px solid #9FA878;
+  padding: 10px;
+  color: #9FA878;
+  text-align: left;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+.gift-note-box {
+  display: none;
+  margin-bottom: 15px;
+}
+.gift-note-box.active {
+  display: block;
+}
+
+/* Footer */
+.cart-footer {
+  border-top: 1px solid #556176;
+  padding-top: 15px;
+}
+.cart-total-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+.checkout-btn {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  background: #9FA878;
+  color: #fff;
+  text-align: center;
+  font-size: 18px;
+  border-radius: 30px;
+  margin-top: 12px;
+  font-weight: 600;
+  
+}
+.cart-tax-msg {
+  font-size: 12px;
+  opacity: .7;
+}
+#cartbox{
+  margin-top: -1rem;
+  margin-left: -1.7rem;
+}
+#headerCartCount{
+padding-left: .4rem;
+padding-right: .4rem;
+border-radius: 100%;
+background-color: #9FA878;
+color: white;
+font-size: 15px;
+position: relative;
+}
+/* ================= MOBILE NAV FIX ================= */
+@media (max-width: 991px) {
+
+  /* Hide bootstrap hamburger */
+  .navbar-toggler {
+    display: none !important;
+  }
+
+  /* Disable bootstrap collapse menu */
+  .navbar-collapse {
+    display: none !important;
+  }
+header .push-menu {
+  display: block !important;
+
+}
+.header-icon {
+  justify-content: center;
+}
+ .header-push-button.icon{
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+}
+.push-menu{
+  margin-top: 5rem;
+}
+}
+/* Ensure sidebar hamburger is visible on mobile */
+@media (max-width: 991px) {
+  .header-push-button {
+    display: block !important;
+  }
+}
+
+
+            </style>
+
+
+
  <header class="header-with-topbar" >
   <!-- start header top bar -->
  <div class="header-top-bar top-bar-light bg-dark-gray disable-fixed md-border-bottom border-color-transparent-dark-very-light">
@@ -163,25 +376,23 @@
               </form>
             </div>
           </div>
-          <div class="widget-text icon alt-font fw-500 d-none d-sm-flex">
+          <div class="widget-text icon alt-font fw-500 d-sm-flex">
             <a class="ps-20px" href="/wishlist"><i class="fa-regular fa-heart"></i></a>
           </div>
           <div class="header-account-icon icon alt-font">
             <div class="header-account dropdown">
               <a href="/account" class="fw-500">
-                <i
-                  class="feather icon-feather-user d-inline-block d-sm-none fs-18"
-                ></i>
-                <span class="d-none d-sm-inline-block"><i class="fa-regular fa-user"></i></span>
+             
+                <span class=" d-sm-inline-block"><i class="fa-regular fa-user"></i></span>
               </a>
               
             </div>
           </div>
-     <div class="widget-text icon alt-font fw-500 d-none d-sm-flex" id="openCartBtn">
+     <div class="widget-text icon alt-font fw-500 d-sm-flex" id="openCartBtn">
            <a href="javascript:void(0);" class="ps-20px"><i class="feather icon-feather-shopping-bag"></i>
            <div id="cartbox">
 
-           <span class="cart-count alt-font text-da" id="headerCartCount"></span></a> 
+           <span class="cart-count alt-font text-da" id="headerCartCount"></span> </a> 
            </div>
           </div>
           <!-- CART SIDEBAR OVERLAY -->
@@ -524,176 +735,7 @@ updateCartCount();
 
 
 
-            <style>
-             
-.cart-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,.45);
-  backdrop-filter: blur(4px);
-  opacity: 0;
-  visibility: hidden;
-  transition: .3s;
-  z-index: 9998;
-}
-.cart-overlay.active {
-  opacity: 1;
-  visibility: visible;
-}
-
-/* --- Sidebar --- */
-.cart-sidebar {
-  position: fixed;
-  top: 0;
-  right: -420px;
-  width: 420px;
-  height: 100vh;
-  background: #fff;
-  color: #9FA878;
-  display: flex;
-  flex-direction: column;
-  transition: .35s ease;
-  z-index: 999999;
-  padding: 25px;
-}
-.cart-sidebar.active {
-  right: 0;
-}
-
-/* Header */
-.cart-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  margin-top: 2rem;
-}
-.cart-header h3 {
-  margin: 0;
-  font-size: 26px;
-  font-weight: 600;
-}
-.close-btn {
-  font-size: 32px;
-  background: none;
-  border: none;
-  color: #9FA878;
-  cursor: pointer;
-}
-
-/* Cart Items */
-.cart-items {
-  flex: 1;
-  overflow-y: auto;
-  max-height: 60vh;
-  padding-right: 6px;
-}
-.cart-item {
-  display: flex;
-  align-items: center;
-  margin-bottom: 18px;
-}
-.cart-item img {
-  width: 70px;
-  height: 70px;
-  border-radius: 6px;
-  object-fit: cover;
-}
-.cart-details {
-  margin-left: 12px;
-  flex: 1;
-}
-
-.qty-box {
-  display: flex;
-  align-items: center;
-  margin-top: 6px;
-}
-.qty-box button {
-  width: 28px;
-  height: 28px;
-  border-radius: 4px;
-  background: none;
-  border: 1px solid #9FA878;
-  color: #9FA878;
-  cursor: pointer;
-}
-.qty-box span {
-  margin: 0 10px;
-  font-size: 14px;
-}
-
-/* Remove button */
-.remove-item {
-  cursor: pointer;
-  color: #9FA878;
-  font-size: 22px;
-  margin-left: 8px;
-}
-
-/* Gift notes */
-.gift-note-toggle button {
-  width: 100%;
-  background: none;
-  border: 1px solid #9FA878;
-  padding: 10px;
-  color: #9FA878;
-  text-align: left;
-  cursor: pointer;
-  margin-bottom: 10px;
-}
-.gift-note-box {
-  display: none;
-  margin-bottom: 15px;
-}
-.gift-note-box.active {
-  display: block;
-}
-
-/* Footer */
-.cart-footer {
-  border-top: 1px solid #556176;
-  padding-top: 15px;
-}
-.cart-total-row {
-  display: flex;
-  justify-content: space-between;
-  font-size: 18px;
-  margin-bottom: 10px;
-}
-.checkout-btn {
-  display: block;
-  width: 100%;
-  padding: 14px;
-  background: #9FA878;
-  color: #fff;
-  text-align: center;
-  font-size: 18px;
-  border-radius: 30px;
-  margin-top: 12px;
-  font-weight: 600;
-  
-}
-.cart-tax-msg {
-  font-size: 12px;
-  opacity: .7;
-}
-#cartbox{
-  margin-top: -1rem;
-  margin-left: -1.7rem;
-}
-#headerCartCount{
-padding-left: .4rem;
-padding-right: .4rem;
-border-radius: 100%;
-background-color: #9FA878;
-color: white;
-font-size: 15px;
-position: relative;
-}
-
-            </style>
-
+           
 
             <script>
               const openCartBtn = document.getElementById("openCartBtn");
@@ -733,7 +775,7 @@ async function loadCart(){
 
   const items = json.cart;
 
-  headerCartCount.textContent = items.length;
+  headerCartCount.textContent = items.length ;
   cartItemsContainer.innerHTML = "";
 
   let total = 0;
@@ -801,6 +843,15 @@ async function removeCartItem(cartId){
     showToast("Remove failed", "error");
   }
 }
+
+document.querySelector(".header-push-button").addEventListener("click", () => {
+  document.body.classList.add("menu-open");
+});
+
+document.querySelector(".menu-overlay").addEventListener("click", () => {
+  document.body.classList.remove("menu-open");
+});
+
 
 
             </script>
