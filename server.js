@@ -37,8 +37,11 @@ app.set("views", path.join(__dirname, "views"));
    CORE MIDDLEWARE
 ================================ */
 app.use(cors({
-  origin: true,        // allows localhost + IP + domain
-  credentials: true    // REQUIRED for cookies
+  origin: [
+    "https://mnrjewels.onrender.com",
+    "https://localhost:5000"
+  ],
+  credentials: true  
 }));
 
 app.use(cookieParser());

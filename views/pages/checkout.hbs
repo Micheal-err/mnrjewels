@@ -259,7 +259,7 @@ async function loadCoupons() {
 async function applyCoupon(code) {
   if (!code) return;
 
-  const res = await fetch("/api/coupons/apply", {
+  const res = await fetch("https://mnrjewels.onrender.com/api/coupons/apply", {
     method: "POST",
     credentials: "include",
     headers: { "Content-Type": "application/json" },
