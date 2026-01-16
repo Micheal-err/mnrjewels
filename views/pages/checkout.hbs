@@ -164,6 +164,18 @@
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 <script>
+  function authFetch(url, options = {}) {
+  return fetch(url, {
+    credentials: "include",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + localStorage.getItem("token"),
+      ...(options.headers || {})
+    }
+  });
+}
+
 let checkoutData = {
   items: [],
   subtotal: 0,
@@ -240,7 +252,8 @@ toPaymentBtn.onclick = () => {
 /* ================= COUPONS ================= */
 async function loadCoupons() {
   try {
-    const res = await fetch("/api/coupons/available", { credentials:"include" });
+  const res = await authFetch("/api/coupons/available");
+
     if (!res.ok) return;
 
     const data = await res.json();
@@ -259,15 +272,14 @@ async function loadCoupons() {
 async function applyCoupon(code) {
   if (!code) return;
 
-  const res = await fetch("https://mnrjewels.onrender.com/api/coupons/apply", {
-    method: "POST",
-    credentials: "include",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      code: code.trim().toUpperCase(),
-      cartTotal: checkoutData.subtotal
-    })
-  });
+ const res = await authFetch("/api/coupons/apply", {
+  method: "POST",
+  body: JSON.stringify({
+    code: code.trim().toUpperCase(),
+    cartTotal: checkoutData.subtotal
+  })
+});
+
 
   const data = await res.json();
 
@@ -310,16 +322,14 @@ function removeCoupon() {
 placeOrderBtn.onclick = async () => {
   const billing = Object.fromEntries(new FormData(billingForm));
 
-  const res = await fetch("/checkout/razorpay/create-order", {
-    method: "POST",
-    credentials: "include",
-    headers: { "Content-Type": "application/json" },
-   body: JSON.stringify({
-  billing,
-  coupon_code: checkoutData.coupon_code
-})
+ const res = await authFetch("/checkout/razorpay/create-order", {
+  method: "POST",
+  body: JSON.stringify({
+    billing,
+    coupon_code: checkoutData.coupon_code
+  })
+});
 
-  });
 
   const data = await res.json();
   if (!data.success) return alert(data.error);
@@ -331,15 +341,14 @@ placeOrderBtn.onclick = async () => {
     order_id: data.razorpayOrderId,
     name: "Your Store",
     handler: async function (response) {
-      await fetch("/checkout/razorpay/verify", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...response,
-          orderId: data.orderId
-        })
-      });
+     await authFetch("/checkout/razorpay/verify", {
+  method: "POST",
+  body: JSON.stringify({
+    ...response,
+    orderId: data.orderId
+  })
+});
+
 
       location.href = `/api/orders/order-success/${data.orderId}`;
     }
