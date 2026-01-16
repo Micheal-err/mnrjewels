@@ -1,0 +1,590 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<style>
+
+/* ================= SIDEBAR ================= */
+.filter-sidebar {
+  background: #F4F6F8;
+  border-radius: 14px;
+  padding: 22px;
+  box-shadow: 0 20px 50px rgba(0,0,0,.08);
+  height: 80vh;
+}
+
+.filter-block { margin-bottom: 22px; }
+
+.filter-block h6 {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  font-size: 1.2rem;
+}
+
+.filter-block p {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 6px 0;
+  font-size: 1rem;
+}
+
+.filter-block input {
+  width: 16px;
+  height: 16px;
+}
+
+.apply-btn, .clear-btn {
+  width: 80%;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.apply-btn {
+  background: #9FA878;
+  color: #fff;
+  border: none;
+}
+
+.clear-btn {
+  background: #9FA878;
+  color: white;
+  margin-top: 10px;
+  border: none;
+}
+
+/* ================= GRID ================= */
+.shop-modern {
+  display: flex;
+  flex-wrap: wrap;
+  margin-left: 0px;
+  margin-right: 0px;
+}
+
+.grid-item {
+  width: 20%;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 991px) {
+  .grid-item { width: 33.333%; }
+}
+
+@media (max-width: 767px) {
+  .grid-item { width: 50%; }
+}
+
+.shop-box {
+  background: #9FA878;
+  border-radius: 14px;
+  padding: 14px;
+  color: white !important;
+}
+
+.shop-image img {
+
+  width: 100%;  
+  height: 336px;
+  border-radius: 10px;
+}
+
+.shop-footer {
+  margin-top: 10px;
+  color: white;
+}
+
+.wishlist-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  border: none;
+  background: #fff;
+  color: #aaa;
+  margin-left: 5px;
+}
+
+.wishlist-btn.active {
+  color: var(--base-color);
+}
+.grid-sizer {
+  width: 0 !important;
+  height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  position: absolute !important;
+  visibility: hidden !important;
+}
+
+.btn:hover{
+  background-color: #fff !important;
+  color: #9FA878 !important;
+}
+
+
+/* ================= MOBILE FILTER DRAWER ================= */
+@media (max-width: 991px) {
+
+  body.filter-open {
+    overflow: hidden;
+  }
+
+  .filter-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.45);
+    z-index: 998;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .3s ease;
+  }
+
+  .filter-overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .filter-sidebar {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    width: 85%;
+    max-width: 320px;
+    height: 100vh;
+    z-index: 999;
+    overflow-y: auto;
+    border-radius: 0;
+    transition: left .35s cubic-bezier(.22,.61,.36,1);
+  }
+
+  .filter-sidebar.show {
+    left: 0;
+  }
+
+  .filter-close {
+    display: block;
+    text-align: right;
+    margin-bottom: 10px;
+  }
+
+}
+
+/* ================= GRID FIX FOR SMALL SCREENS ================= */
+@media (max-width: 575px) {
+  .grid-item {
+    width: 100%;
+  }
+
+  .shop-image img {
+    height: auto;
+  }
+
+  .apply-btn,
+  .clear-btn {
+    width: 100%;
+  }
+}
+@media (max-width: 991px) {
+  .filter-sidebar {
+    padding: 22px 18px;
+  }
+  .shop-modern{
+    justify-content: center;
+    margin-right: 0 !important;
+  }
+  
+}
+@media (max-width: 1440px) {
+.container{
+  margin-left: 0;
+  margin-right: 0;
+}
+.grid-item{
+  width: 25%;
+}
+}
+
+@media (max-width: 1440px) {
+.shop-modern{
+      margin-right: -53px;
+
+}
+.grid-item{
+  width: 30%;
+}
+.filter-sidebar {
+  margin-top: 4.5rem;
+}
+}
+
+@media (max-width: 991px) {
+.shop-modern{
+      margin-right: -53px;
+
+}
+.grid-item{
+  width: 30%;
+}
+.filter-sidebar {
+  margin-top: 0rem;
+}
+}
+
+@media (max-width: 768px) {
+.shop-modern{
+      margin-right: -0px;
+      justify-content: center;
+
+}
+.grid-item{
+  width: 50%;
+}
+}
+@media (max-width: 575px) {
+
+.grid-item{
+  width: 80%;
+}
+
+}
+@media (max-width: 425px) {
+
+.grid-item{
+  width: 90%;
+}
+
+}
+@media (max-width: 375px) {
+
+.grid-item{
+  width: 100%;
+}
+
+}
+
+
+
+</style>
+<div id="filterOverlay" class="filter-overlay"></div>
+
+<div class=" mt-6 bg-base-color overflow-hidden">
+  <div class="row justify-content-center">
+<!-- MOBILE FILTER TOGGLE -->
+<div class="d-lg-none mb-3" style="margin-top: 6rem;">
+  <button id="filterToggle" class="btn bg-base-color text-white w-100">
+    <i class="fa-solid fa-sliders"></i> Filters
+  </button>
+</div>
+
+    <!-- SIDEBAR -->
+    <aside class="col-2 col-xl-2 col-lg-3 filter-sidebar">
+        <div class="filter-close d-lg-none">
+    <button type="button" id="filterClose" class="btn btn-sm">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+  </div>
+      <form id="filterForm">
+
+        <div class="filter-block">
+          <h6>Sort by</h6>
+          <p><input type="radio" name="sort" value="new" checked> New arrivals</p>
+          <p><input type="radio" name="sort" value="high" > Price: High to Low</p>
+          <p><input type="radio" name="sort" value="low" > Price: Low to High</p>
+        </div>
+
+        <div class="filter-block">
+          <h6>Price range</h6>
+          <p><input type="checkbox" name="price" value="0-1000"> 0 – 1,000</p>
+          <p><input type="checkbox" name="price" value="1000-2000"> 1,000 – 2,000</p>
+          <p><input type="checkbox" name="price" value="2000-4000"> 2,000 – 4,000</p>
+          <p><input type="checkbox" name="price" value="4000+"> 4,000+</p>
+        </div>
+
+        <div class="filter-block ">
+          <h6>Finish</h6>
+          <p><input type="checkbox" name="finish" value="silver"> Silver</p>
+          <p><input type="checkbox" name="finish" value="gold"> Gold</p>
+          <p><input type="checkbox" name="finish" value="rose"> Rose Gold</p>
+        </div>
+
+<div class="w-100 d-flex justify-cotnent-center align-items-center flex-column  mt-5  pt-5">
+
+        <button class="apply-btn">Apply</button>
+        <button class="clear-btn" type="button" id="clearFilters">Reset</button>
+</div>
+
+      </form>
+    </aside>
+
+    <!-- PRODUCTS -->
+    <main class="col-10 col-lg-9 col-sm-12">
+
+      <div class="mb-0">
+       <h3 class="mb-0 mt-5 text-white text-capitalize">
+  {{categoryTitle}}
+</h3>
+<span id="productCount">{{totalProducts}} products</span>
+
+      </div>
+
+      <div id="productsContainer">
+
+        <!-- ✅ SSR GRID (USING collections) -->
+        <ul class="shop-modern">
+
+          {{#each collections}}
+            {{#each this}}
+              <li class="grid-item ">
+                <div class="shop-box">
+
+                  <div class="shop-image">
+                    <a href="/product/{{id}}">
+                      <img src="/uploads/{{image1}}" alt="{{name}}">
+                    </a>
+                  </div>
+
+                  <div class="shop-footer">
+                    <a href="/product/{{id}}" class="text-white">{{name}}</a>
+                    <p class="mb-0">₹{{formatPrice price}}</p>
+                  </div>
+
+                  <div class="d-flex gap">
+                    <button class="btn bg-white  text-base-color w-100 add-cart-btn border-radius-10px"
+                            data-id="{{id}}">
+                      ADD TO CART
+                    </button>
+
+                    <button class="wishlist-btn" data-id="{{id}}">
+                      <i class="fa-solid fa-heart"></i>
+                    </button>
+                  </div>
+
+                </div>
+              </li>
+            {{/each}}
+          {{/each}}
+        </ul>
+      </div>
+    </main>
+  </div>
+</div>
+<script>
+(function () {
+  const form = document.getElementById("filterForm");
+  const productsContainer = document.getElementById("productsContainer");
+  const productCount = document.getElementById("productCount");
+  const token = localStorage.getItem("token");
+
+  if (!productsContainer) return;
+
+  /* ================= TOAST ================= */
+  function toast(title, icon = "success") {
+    Swal.fire({
+      toast: true,
+      position: "top-end",
+      timer: 1800,
+      showConfirmButton: false,
+      icon,
+      title
+    });
+  }
+
+  /* ================= SAFE JSON ================= */
+  async function safeJson(res) {
+    const ct = res.headers.get("content-type") || "";
+    if (!res.ok || !ct.includes("application/json")) {
+      throw new Error("Invalid JSON response");
+    }
+    return res.json();
+  }
+
+  /* ================= FILTER ================= */
+  if (form) {
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const fd = new FormData(form);
+      const params = new URLSearchParams();
+
+      for (const [k, v] of fd.entries()) {
+        const clean = v.replace(/[^a-zA-Z0-9,+-]/g, "");
+        params.has(k)
+          ? params.set(k, params.get(k) + "," + clean)
+          : params.set(k, clean);
+      }
+
+      try {
+        const res = await fetch(
+          `${location.pathname}?${params.toString()}&ajax=1`,
+          { headers: { Accept: "application/json" } }
+        );
+
+        const data = await safeJson(res);
+        renderProducts(data.products || []);
+        productCount.textContent = `${data.totalProducts || 0} products`;
+        history.replaceState({}, "", "?" + params.toString());
+      } catch {
+        toast("Filter failed", "error");
+      }
+    });
+
+    document.getElementById("clearFilters")?.addEventListener("click", () => {
+      form.reset();
+      form.dispatchEvent(new Event("submit"));
+    });
+  }
+
+  /* ================= RENDER ================= */
+  function renderProducts(products) {
+    if (!products.length) {
+      productsContainer.innerHTML = `<p class="text-center mt-4">No products found</p>`;
+      return;
+    }
+
+    productsContainer.innerHTML = `
+      <ul class="shop-modern">
+        ${products.map(p => `
+          <li class="grid-item">
+            <div class="shop-box">
+              <div class="shop-image">
+                <a href="/product/${p.id}">
+                  <img src="/uploads/${p.image1}" alt="${p.name}">
+                </a>
+              </div>
+              <div class="shop-footer">
+                <a href="/product/${p.id}" class="text-white">${p.name}</a>
+                <p>₹${Number(p.price).toLocaleString("en-IN")}</p>
+              </div>
+              <div class="d-flex gap">
+                <button class="btn bg-white text-base-color w-100 add-cart-btn"
+                        data-id="${p.id}">ADD TO CART</button>
+                <button class="wishlist-btn" data-id="${p.id}">
+                  <i class="fa-solid fa-heart"></i>
+                </button>
+              </div>
+            </div>
+          </li>
+        `).join("")}
+      </ul>
+    `;
+
+    syncWishlistState();
+  }
+
+  /* ================= WISHLIST SYNC ================= */
+  async function syncWishlistState() {
+    if (!token) return;
+
+    for (const btn of document.querySelectorAll(".wishlist-btn")) {
+      try {
+        const res = await fetch(`/api/wishlist/check/${btn.dataset.id}`, {
+          headers: { Authorization: "Bearer " + token }
+        });
+        const data = await safeJson(res);
+        btn.classList.toggle("active", data.inWishlist);
+      } catch {}
+    }
+  }
+
+  /* ================= WISHLIST TOGGLE ================= */
+  document.addEventListener("click", async (e) => {
+    const btn = e.target.closest(".wishlist-btn");
+    if (!btn) return;
+
+    if (!token) {
+      toast("Login required", "warning");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/wishlist/toggle", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token
+        },
+        body: JSON.stringify({ product_id: btn.dataset.id })
+      });
+
+      const data = await safeJson(res);
+      btn.classList.toggle("active", data.added);
+      toast(data.added ? "Added to wishlist" : "Removed from wishlist");
+    } catch {
+      toast("Wishlist failed", "error");
+    }
+  });
+
+  /* ================= ADD TO CART ================= */
+  document.addEventListener("click", async (e) => {
+    const btn = e.target.closest(".add-cart-btn");
+    if (!btn) return;
+
+    if (!token) {
+      toast("Login required", "warning");
+      return;
+    }
+
+    btn.disabled = true;
+
+    try {
+      const vr = await fetch(`/cart/product/${btn.dataset.id}/variants`);
+      const vdata = await safeJson(vr);
+
+      if (!vdata.variants || vdata.variants.length !== 1) {
+        location.href = `/product/${btn.dataset.id}`;
+        return;
+      }
+
+      const add = await fetch("/cart/add", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token
+        },
+        body: JSON.stringify({
+          variant_id: vdata.variants[0].id,
+          quantity: 1
+        })
+      });
+
+      const data = await safeJson(add);
+      if (!data.success) throw new Error();
+
+      toast("Added to cart");
+    } catch (err) {
+      console.error("ADD TO CART ERROR:", err);
+      toast("Please login again", "warning");
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+})();
+</script>
+<script>
+/* ================= MOBILE FILTER TOGGLE ================= */
+(function () {
+  const toggleBtn = document.getElementById("filterToggle");
+  const closeBtn = document.getElementById("filterClose");
+  const sidebar = document.querySelector(".filter-sidebar");
+  const overlay = document.getElementById("filterOverlay");
+
+  if (!toggleBtn || !sidebar || !overlay) return;
+
+  function openFilter() {
+    sidebar.classList.add("show");
+    overlay.classList.add("show");
+    document.body.classList.add("filter-open");
+  }
+
+  function closeFilter() {
+    sidebar.classList.remove("show");
+    overlay.classList.remove("show");
+    document.body.classList.remove("filter-open");
+  }
+
+  toggleBtn.addEventListener("click", openFilter);
+  closeBtn?.addEventListener("click", closeFilter);
+  overlay.addEventListener("click", closeFilter);
+})();
+</script>

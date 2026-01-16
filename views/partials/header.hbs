@@ -206,6 +206,42 @@ header .push-menu {
   }
 }
 
+.search-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 9999;
+  display: none;
+}
+
+.search-item {
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.search-item:hover {
+  background: #f5f5f5;
+}
+
+.search-item img {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+}
+
+@media (max-width: 1024px) {
+  #navbarNav ul li{
+margin-right: 1.3rem;
+  }
+}
+
 
             </style>
 
@@ -354,7 +390,6 @@ header .push-menu {
                 role="search"
                 method="get"
                 class="search-form text-left"
-                action="search-result.html"
               >
                 <div class="search-form-box">
                   <input
@@ -366,7 +401,7 @@ header .push-menu {
                     type="text"
                     autocomplete="off"
                   />
-                  <button type="submit" class="search-button">
+                  <button type="button" class="search-button">
                     <i
                       class="feather icon-feather-search"
                       aria-hidden="true"
@@ -374,6 +409,7 @@ header .push-menu {
                   </button>
                 </div>
               </form>
+              <div id="searchResults" class="search-results"></div>
             </div>
           </div>
           <div class="widget-text icon alt-font fw-500 d-sm-flex">
@@ -515,7 +551,7 @@ header .push-menu {
           <a href="javascript:void(0);" class="nav-link submenu-toggle" data-submenu="women-necklaces">Necklaces</a>
         </li>
          <li class="nav-item">
-          <a href="men-chains.html" class="nav-link">Shop All</a>
+          <a href="/shop/women" class="nav-link">Shop All</a>
         </li>
       </ul>
     </div>
@@ -525,16 +561,16 @@ header .push-menu {
       <ul class="text-dark-gray menu-item-list alt-font fw-700 ls-minus-1px submenu">
         <li class="nav-item back-button"><a href="javascript:void(0);" class="nav-link">← Back</a></li>
         <li class="nav-item has-submenu">
-          <a href="javascript:void(0);" class="nav-link submenu-toggle" data-submenu="unisex-pendants">Pendants</a>
+          <a href="/shop/unisex/pendants" class="nav-link submenu-toggle" data-submenu="unisex-pendants">Pendants</a>
         </li>
         <li class="nav-item">
-          <a href="unisex-chains.html" class="nav-link">Chains</a>
+          <a href="/shop/unisex/chains" class="nav-link">Chains</a>
         </li>
         <li class="nav-item has-submenu">
-          <a href="javascript:void(0);" class="nav-link submenu-toggle" data-submenu="unisex-earrings">Earrings</a>
+          <a href="/shop/unisex/earrings" class="nav-link submenu-toggle" data-submenu="unisex-earrings">Earrings</a>
         </li>
          <li class="nav-item">
-          <a href="men-chains.html" class="nav-link">Shop All</a>
+          <a href="/shop/unisex" class="nav-link">Shop All</a>
         </li>
       </ul>
     </div>
@@ -550,10 +586,10 @@ header .push-menu {
           <a href="javascript:void(0);" class="nav-link submenu-toggle" data-submenu="for-her">For her</a>
         </li>
         <li class="nav-item">
-          <a href="under-699.html" class="nav-link">Under ₹699</a>
+          <a href="/gifting/under-699" class="nav-link">Under ₹699</a>
         </li>
         <li class="nav-item">
-          <a href="under-1599.html" class="nav-link">Under ₹1599</a>
+          <a href="/gifting/under-1599" class="nav-link">Under ₹1599</a>
         </li>
       </ul>
     </div>
@@ -562,11 +598,11 @@ header .push-menu {
     <div class="hamburger-menu menu-list-wrapper w-90 lg-w-100 lg-no-margin submenu-panel" data-menu="men-rings" style="display:none;">
       <ul class="text-dark-gray menu-item-list alt-font fw-700 ls-minus-1px submenu">
         <li class="nav-item back-button"><a href="javascript:void(0);" class="nav-link">← Back</a></li>
-        <li class="nav-item"><a href="men-rings-bands.html" class="nav-link">Band rings</a></li>
-        <li class="nav-item"><a href="men-rings-spin.html" class="nav-link">Spin rings</a></li>
-        <li class="nav-item"><a href="men-rings-turkish.html" class="nav-link">Turkish rings</a></li>
+        <li class="nav-item"><a href="/shop/men/collection/band" class="nav-link">Band rings</a></li>
+        <li class="nav-item"><a href="/shop/men/collection/spin" class="nav-link">Spin rings</a></li>
+        <li class="nav-item"><a href="/shop/men/collection/turkish" class="nav-link">Turkish rings</a></li>
          <li class="nav-item">
-          <a href="men-chains.html" class="nav-link">Shop All</a>
+          <a href="/shop/men/rings" class="nav-link">Shop All</a>
         </li>
       </ul>
     </div>
@@ -574,20 +610,20 @@ header .push-menu {
     <div class="hamburger-menu menu-list-wrapper w-90 lg-w-100 lg-no-margin submenu-panel" data-menu="men-bracelets" style="display:none;">
       <ul class="text-dark-gray menu-item-list alt-font fw-700 ls-minus-1px submenu">
         <li class="nav-item back-button"><a href="javascript:void(0);" class="nav-link">← Back</a></li>
-        <li class="nav-item"><a href="men-bracelets-everyday.html" class="nav-link">Everyday bracelets</a></li>
-        <li class="nav-item"><a href="men-bracelets-turkish.html" class="nav-link">Turkish bracelets</a></li>
+        <li class="nav-item"><a href="/shop/men/collection/everyday" class="nav-link">Everyday bracelets</a></li>
+        <li class="nav-item"><a href="/shop/men/collection/turkish" class="nav-link">Turkish bracelets</a></li>
          <li class="nav-item">
-          <a href="men-chains.html" class="nav-link">Shop All</a>
+          <a href="/shop/men/bracelets" class="nav-link">Shop All</a>
         </li>
       </ul>
-    </div>
+    </div>  
 
     <div class="hamburger-menu menu-list-wrapper w-90 lg-w-100 lg-no-margin submenu-panel" data-menu="men-pendants" style="display:none;">
       <ul class="text-dark-gray menu-item-list alt-font fw-700 ls-minus-1px submenu">
         <li class="nav-item back-button"><a href="javascript:void(0);" class="nav-link">← Back</a></li>
-        <li class="nav-item"><a href="men-pendants-diamond.html" class="nav-link">Diamond pendants</a></li>
-        <li class="nav-item"><a href="men-pendants-minimal.html" class="nav-link">Minimal pendants</a></li>
-        <li class="nav-item"><a href="men-pendants-evil-eye.html" class="nav-link">Evil Eye pendants</a></li>
+        <li class="nav-item"><a href="/shop/men/collection/diamond-pendants" class="nav-link">Diamond pendants</a></li>  
+               <li class="nav-item"><a href="/shop/unisex/collection/minimal-pendants" class="nav-link">Minimal pendants</a></li>
+        <li class="nav-item"><a href="/shop/unisex/collection/evil-eye-pendants" class="nav-link">Evil Eye pendants</a></li>
          <li class="nav-item">
           <a href="men-chains.html" class="nav-link">Shop All</a>
         </li>
@@ -597,10 +633,10 @@ header .push-menu {
     <div class="hamburger-menu menu-list-wrapper w-90 lg-w-100 lg-no-margin submenu-panel" data-menu="men-earrings" style="display:none;">
       <ul class="text-dark-gray menu-item-list alt-font fw-700 ls-minus-1px submenu">
         <li class="nav-item back-button"><a href="javascript:void(0);" class="nav-link">← Back</a></li>
-        <li class="nav-item"><a href="men-earrings-ball.html" class="nav-link">Ball earrings</a></li>
-        <li class="nav-item"><a href="men-earrings-studs.html" class="nav-link">Studs earrings</a></li>
+        <li class="nav-item"><a href="/shop/unisex/bali" class="nav-link">Bali earrings</a></li>
+        <li class="nav-item"><a href="/shop/unisex/minimal-studs" class="nav-link">Studs earrings</a></li>
          <li class="nav-item">
-          <a href="men-chains.html" class="nav-link">Shop All</a>
+          <a href="/shop/unisex/earrings" class="nav-link">Shop All</a>
         </li>
       </ul>
     </div>
@@ -609,14 +645,14 @@ header .push-menu {
     <div class="hamburger-menu menu-list-wrapper w-90 lg-w-100 lg-no-margin submenu-panel" data-menu="women-rings" style="display:none;">
       <ul class="text-dark-gray menu-item-list alt-font fw-700 ls-minus-1px submenu">
         <li class="nav-item back-button"><a href="javascript:void(0);" class="nav-link">← Back</a></li>
-        <li class="nav-item"><a href="women-rings-statement.html" class="nav-link">Statement rings</a></li> 
-        <li class="nav-item"><a href="women-rings-dual.html" class="nav-link">Dual rings</a></li>
-        <li class="nav-item"><a href="women-rings-spin.html" class="nav-link">Spin rings rings</a></li>
-        <li class="nav-item"><a href="women-rings-diamond.html" class="nav-link">Diamond rings</a></li>
-        <li class="nav-item"><a href="women-rings-band.html" class="nav-link">Band rings rings</a></li>
-        <li class="nav-item"><a href="women-rings-gemstone.html" class="nav-link">Gemstone rings</a></li>
+        <li class="nav-item"><a href="/shop/women/collection/statement-rings" class="nav-link">Statement rings</a></li> 
+        <li class="nav-item"><a href="/shop/women/collection/flip-rings" class="nav-link">Dual rings</a></li>
+        <li class="nav-item"><a href="/shop/women/collection/spin-rings" class="nav-link">Spin rings rings</a></li>
+        <li class="nav-item"><a href="/shop/women/collection/diamond-rings" class="nav-link">Diamond rings</a></li>
+        <li class="nav-item"><a href="/shop/women/collection/band-rings" class="nav-link">Band rings </a></li>
+        <li class="nav-item"><a href="/shop/women/collection/statement-gemstone-rings" class="nav-link">Gemstone rings</a></li>
          <li class="nav-item">
-          <a href="men-chains.html" class="nav-link">Shop All</a>
+          <a href="/shop/women" class="nav-link">Shop All</a>
         </li>
       </ul>
     </div>
@@ -624,12 +660,12 @@ header .push-menu {
     <div class="hamburger-menu menu-list-wrapper w-90 lg-w-100 lg-no-margin submenu-panel" data-menu="women-earrings" style="display:none;">
       <ul class="text-dark-gray menu-item-list alt-font fw-700 ls-minus-1px submenu">
         <li class="nav-item back-button"><a href="javascript:void(0);" class="nav-link">← Back</a></li>
-        <li class="nav-item"><a href="women-earrings-statement.html" class="nav-link">Statement earrings</a></li>
-        <li class="nav-item"><a href="women-earrings-earring-pendant.html" class="nav-link">Earring & Pendant earrings</a></li>
-        <li class="nav-item"><a href="women-earrings-ball.html" class="nav-link">Ball earrings</a></li>
-        <li class="nav-item"><a href="women-earrings-stud.html" class="nav-link">Stud earrings</a></li>
+        <li class="nav-item"><a href="/shop/women/collection/statement-earrings" class="nav-link">Statement earrings</a></li>
+        <li class="nav-item"><a href="/shop/women/collection/earrings-and-pendant-set" class="nav-link">Earring & Pendant earrings</a></li>
+        <li class="nav-item"><a href="/shop/unisex/collection/minimal-bali" class="nav-link">Ball earrings</a></li>
+        <li class="nav-item"><a href="/shop/unisex/collection/minimal-studs" class="nav-link">Stud earrings</a></li>
          <li class="nav-item">
-          <a href="men-chains.html" class="nav-link">Shop All</a>
+          <a href="/shop/women/earrings" class="nav-link">Shop All</a>
         </li>
       </ul>
     </div>
@@ -637,10 +673,10 @@ header .push-menu {
     <div class="hamburger-menu menu-list-wrapper w-90 lg-w-100 lg-no-margin submenu-panel" data-menu="women-bracelets" style="display:none;">
       <ul class="text-dark-gray menu-item-list alt-font fw-700 ls-minus-1px submenu">
         <li class="nav-item back-button"><a href="javascript:void(0);" class="nav-link">← Back</a></li>
-        <li class="nav-item"><a href="women-bracelets-everyday.html" class="nav-link">Everyday bracelets</a></li>
-        <li class="nav-item"><a href="women-bracelets-tennis.html" class="nav-link">Tennis bracelets</a></li>
+        <li class="nav-item"><a href="/shop/women/collection/everyday-braceletes" class="nav-link">Everyday bracelets</a></li>
+        <li class="nav-item"><a href="/shop/women/collection/tennis-braceletes" class="nav-link">Tennis bracelets</a></li>
          <li class="nav-item">
-          <a href="men-chains.html" class="nav-link">Shop All</a>
+          <a href="/shop/women/bracelets" class="nav-link">Shop All</a>
         </li>
       </ul>
     </div>
@@ -648,11 +684,11 @@ header .push-menu {
     <div class="hamburger-menu menu-list-wrapper w-90 lg-w-100 lg-no-margin submenu-panel" data-menu="women-pendants" style="display:none;">
       <ul class="text-dark-gray menu-item-list alt-font fw-700 ls-minus-1px submenu">
         <li class="nav-item back-button"><a href="javascript:void(0);" class="nav-link">← Back</a></li>
-        <li class="nav-item"><a href="women-pendants-earring-pendant.html" class="nav-link">Earring & pendants</a></li>
-        <li class="nav-item"><a href="women-pendants-minimal.html" class="nav-link">Minimal pendants</a></li>
-        <li class="nav-item"><a href="women-pendants-evil-eye.html" class="nav-link">Evil Eye pendants</a></li>
+        <li class="nav-item"><a href="/shop/women" class="nav-link">Earring & pendants</a></li>
+        <li class="nav-item"><a href="/shop/unisex/collection/minimal-pendants" class="nav-link">Minimal pendants</a></li>
+        <li class="nav-item"><a href="/shop/unisex/collection/evil-eye-pendants" class="nav-link">Evil Eye pendants</a></li>
          <li class="nav-item">
-          <a href="men-chains.html" class="nav-link">Shop All</a>
+          <a href="/shop/unisex/pendants" class="nav-link">Shop All</a>
         </li>
       </ul>
     </div>
@@ -671,10 +707,10 @@ header .push-menu {
     <div class="hamburger-menu menu-list-wrapper w-90 lg-w-100 lg-no-margin submenu-panel" data-menu="unisex-pendants" style="display:none;">
       <ul class="text-dark-gray menu-item-list alt-font fw-700 ls-minus-1px submenu">
         <li class="nav-item back-button"><a href="javascript:void(0);" class="nav-link">← Back</a></li>
-        <li class="nav-item"><a href="unisex-pendants-minimal.html" class="nav-link">Minimal pendants</a></li>
-        <li class="nav-item"><a href="unisex-pendants-evil-eye.html" class="nav-link">Evil Eye pendants</a></li>
+               <li class="nav-item"><a href="/shop/unisex/collection/minimal-pendants" class="nav-link">Minimal pendants</a></li>
+        <li class="nav-item"><a href="/shop/unisex/collection/evil-eye-pendants" class="nav-link">Evil Eye pendants</a></li>
          <li class="nav-item">
-          <a href="men-chains.html" class="nav-link">Shop All</a>
+          <a href="/shop/unisex/pendants" class="nav-link">Shop All</a>
         </li>
       </ul>
     </div>
@@ -682,10 +718,10 @@ header .push-menu {
     <div class="hamburger-menu menu-list-wrapper w-90 lg-w-100 lg-no-margin submenu-panel" data-menu="unisex-earrings" style="display:none;">
       <ul class="text-dark-gray menu-item-list alt-font fw-700 ls-minus-1px submenu">
         <li class="nav-item back-button"><a href="javascript:void(0);" class="nav-link">← Back</a></li>
-        <li class="nav-item"><a href="unisex-earrings-balls.html" class="nav-link">Balls earrings</a></li>
-        <li class="nav-item"><a href="unisex-earrings-studs.html" class="nav-link">Studs earrings</a></li>
+        <li class="nav-item"><a href="/shop/unisex/collection/bali" class="nav-link">Balls earrings</a></li>
+        <li class="nav-item"><a href="/shop/unisex/collection/minimal-studs" class="nav-link">Studs earrings</a></li>
          <li class="nav-item">
-          <a href="men-chains.html" class="nav-link">Shop All</a>
+          <a href="/shop/unisex/earrings" class="nav-link">Shop All</a>
         </li>
       </ul>
     </div>
@@ -694,14 +730,14 @@ header .push-menu {
     <div class="hamburger-menu menu-list-wrapper w-90 lg-w-100 lg-no-margin submenu-panel" data-menu="for-him" style="display:none;">
       <ul class="text-dark-gray menu-item-list alt-font fw-700 ls-minus-1px submenu">
         <li class="nav-item back-button"><a href="javascript:void(0);" class="nav-link">← Back</a></li>
-        <li class="nav-item"><a href="gifting-for-him.html" class="nav-link">All gifts for him</a></li>
+        <li class="nav-item"><a href="/gifting/for-him" class="nav-link">All gifts for him</a></li>
       </ul>
     </div>
 
     <div class="hamburger-menu menu-list-wrapper w-90 lg-w-100 lg-no-margin submenu-panel" data-menu="for-her" style="display:none;">
       <ul class="text-dark-gray menu-item-list alt-font fw-700 ls-minus-1px submenu">
         <li class="nav-item back-button"><a href="javascript:void(0);" class="nav-link">← Back</a></li>
-        <li class="nav-item"><a href="gifting-for-her.html" class="nav-link">All gifts for her</a></li>
+        <li class="nav-item"><a href="/gifting/for-her" class="nav-link">All gifts for her</a></li>
       </ul>
     </div>
 
@@ -773,44 +809,77 @@ async function loadCart(){
   const json = await res.json();
   if(!json.success) return;
 
-  const items = json.cart;
+const items = json.cart;
 
   headerCartCount.textContent = items.length ;
   cartItemsContainer.innerHTML = "";
 
   let total = 0;
 
-  items.forEach(item => {
-    total += Number(item.price) * Number(item.quantity);
+ items.forEach(item => {
+  total += Number(item.price) * Number(item.quantity);
 
-    cartItemsContainer.innerHTML += `
-      <div class="cart-item">
-        <img src="/uploads/${item.image1}">
-        
-        <div class="cart-details">
-          <div class="name">${item.name}</div>
-          <div class="price">₹${item.price}</div>
+  cartItemsContainer.insertAdjacentHTML("beforeend", `
+    <div class="cart-item" data-cart-id="${item.cart_id}" data-stock="${item.stock}">
+      <img src="/uploads/${item.image1}">
+      
+      <div class="cart-details">
+        <div class="name">${item.name}</div>
+        <div class="price">₹${item.price}</div>
 
-          <div class="qty-box">
-            <button onclick="updateQty(${item.id}, -1)">-</button>
-            <span>${item.quantity}</span>
-            <button onclick="updateQty(${item.id}, 1)">+</button>
-          </div>
+        <div class="qty-box">
+          <button class="qty-btn minus" onclick="updateQty(${item.cart_id}, -1)">−</button>
+          <span class="qty-value">${item.quantity}</span>
+          <button class="qty-btn plus" onclick="updateQty(${item.cart_id}, 1)">+</button>
         </div>
 
-        <span class="remove-item" onclick="removeCartItem(${item.cart_id})">×</span>
+        <small class="stock-msg" style="display:none;color:#ff4d4d">
+          Max stock reached
+        </small>
       </div>
-    `;
-  });
+
+      <span class="remove-item" onclick="removeCartItem(${item.cart_id})">×</span>
+    </div>
+  `);
+
+  /* ✅ NOW DOM EXISTS — SAFE TO TOUCH */
+  const cartItem = cartItemsContainer.lastElementChild;
+  const plusBtn = cartItem.querySelector(".plus");
+  const stockMsg = cartItem.querySelector(".stock-msg");
+
+  if (item.quantity >= item.stock) {
+    plusBtn.disabled = true;
+    plusBtn.style.opacity = "0.4";
+    stockMsg.style.display = "block";
+  }
+});
 
   cartTotalAmount.textContent = "₹" + total;
 }
 
 /* ----------------------- UPDATE QTY ------------------------- */
-async function updateQty(cartId, change){
+async function updateQty(cartId, change) {
   const token = localStorage.getItem("token");
+  if (!token) return;
 
-  await fetch("/cart/update", {
+  const cartItem = document.querySelector(`[data-cart-id="${cartId}"]`);
+  if (!cartItem) return;
+
+  const stock = Number(cartItem.dataset.stock);
+  const qtyEl = cartItem.querySelector(".qty-value");
+  const currentQty = Number(qtyEl.textContent);
+
+  const newQty = currentQty + change;
+
+  // ⛔ frontend guards
+  if (newQty < 1) return;
+
+  if (newQty > stock) {
+    showToast("Stock limit reached", "error");
+    return;
+  }
+
+  const res = await fetch("/cart/update", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -819,8 +888,17 @@ async function updateQty(cartId, change){
     body: JSON.stringify({ cart_id: cartId, change })
   });
 
+  const json = await res.json();
+
+  if (!json.success) {
+    showToast(json.message || "Update failed", "error");
+    return;
+  }
+
+  // 🔄 refresh cart to stay accurate
   loadCart();
 }
+
 
 /* ----------------------- REMOVE ITEM ------------------------ */
 async function removeCartItem(cartId){
@@ -854,4 +932,104 @@ document.querySelector(".menu-overlay").addEventListener("click", () => {
 
 
 
-            </script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  const searchIcon = document.querySelector(".search-form-icon");
+  const searchWrapper = document.querySelector(".search-form-wrapper");
+  const searchInput = document.querySelector(".search-input");
+  const searchCloseBtn = document.querySelector(".search-close");
+  const searchResults = document.getElementById("searchResults");
+  const searchForm = document.getElementById("search-form");
+
+  if (!searchIcon || !searchWrapper || !searchInput || !searchCloseBtn || !searchResults) {
+    console.error("Search elements missing", {
+      searchIcon,
+      searchWrapper,
+      searchInput,
+      searchCloseBtn,
+      searchResults
+    });
+    return;
+  }
+
+  let debounceTimer;
+
+  /* ---------- OPEN ---------- */
+searchIcon.addEventListener("click", (e) => {
+  e.preventDefault();
+  e.stopImmediatePropagation();
+  searchWrapper.style.display = "block";
+  setTimeout(() => searchInput.focus(), 50);
+}, true);
+
+  /* ---------- CLOSE ---------- */
+  searchCloseBtn.addEventListener("click", closeSearch);
+
+  function closeSearch() {
+    searchWrapper.style.display = "none";
+    searchInput.value = "";
+    hideResults();
+  }
+
+  /* ---------- INPUT ---------- */
+  searchInput.addEventListener("input", () => {
+    const q = searchInput.value.trim();
+    clearTimeout(debounceTimer);
+
+    if (q.length < 2) {
+      hideResults();
+      return;
+    }
+
+    debounceTimer = setTimeout(() => runSearch(q), 250);
+  });
+
+  /* ---------- SEARCH ---------- */
+  async function runSearch(q) {
+    searchResults.style.display = "block";
+    searchResults.innerHTML = `<div class="p-2 text-muted">Searching…</div>`;
+
+    try {
+      const res = await fetch(`/api/products/search?q=${encodeURIComponent(q)}`);
+      const data = await res.json();
+
+      if (!data.success || !data.products.length) {
+        searchResults.innerHTML = `<div class="p-2 text-muted">No products found</div>`;
+        return;
+      }
+
+      searchResults.innerHTML = data.products.map(p => `
+        <div class="search-item" data-id="${p.id}">
+          <img src="/uploads/${p.image1}">
+          <div>
+            <div class="fw-500">${p.name}</div>
+            <div class="fs-13 text-muted">From ₹${p.price}</div>
+          </div>
+        </div>
+      `).join("");
+
+    } catch {
+      searchResults.innerHTML = `<div class="p-2 text-danger">Search failed</div>`;
+    }
+  }
+
+  /* ---------- CLICK RESULT ---------- */
+  searchResults.addEventListener("mousedown", e => {
+    const item = e.target.closest(".search-item");
+    if (!item) return;
+    window.location.href = `/product/${item.dataset.id}`;
+  });
+
+  /* ---------- HIDE ---------- */
+  function hideResults() {
+    searchResults.style.display = "none";
+    searchResults.innerHTML = "";
+  }
+
+  /* ---------- FORM ---------- */
+  searchForm.addEventListener("submit", e => {
+    e.preventDefault(); // ⛔ NEVER reload page
+  });
+
+});
+</script>

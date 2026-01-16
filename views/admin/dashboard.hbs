@@ -451,6 +451,7 @@ async function loadDashboard() {
 ====================================================== */
 function initOrders() {
 
+
   /* ================= HARD GUARD ================= */
   if (!document.getElementById("ordersTableBody")) return;
 
@@ -555,6 +556,14 @@ async function openOrder(id) {
   });
 
   const d = await res.json();
+document.getElementById("orderMeta").innerHTML = `
+  <b>${d.order.order_number}</b>
+  ${d.hasGift ? ' 🎁 <span style="color:#ffb703;font-weight:600">Gift Order</span>' : ''}
+  • ${d.order.customer_name}
+  • ${new Date(d.order.created_at).toLocaleString()}
+`;
+
+
   if (!d || !d.success) return;
 
   /* ================= META ================= */
@@ -572,6 +581,7 @@ async function openOrder(id) {
           <td>${i.product_name}</td>
           <td><b>${i.sku || "—"}</b></td>
           <td>${i.quantity}</td>
+           <td> ${i.is_gift ? 'Yes' : 'No'}</td>
           <td>₹${i.price}</td>
           <td>₹${i.total}</td>
         </tr>
@@ -605,6 +615,24 @@ if (d.order.coupon_code) {
   } else {
     couponBox.style.display = "none";
   }
+const billing = d.billing;
+const billingBox = document.getElementById("billingAddressContent");
+
+if (billing) {
+  billingBox.innerHTML = `
+    <b>Name : ${billing.name || "—"}</b><br>
+   Phone : ${billing.phone || "—"}<br>
+    Address : ${billing.address_line1 || billing.address || ""}<br>
+    ${[
+      billing.city,
+      billing.state,
+      billing.pincode
+    ].filter(Boolean).join(", ")}<br>
+    ${billing.country || "India"}
+  `;
+} else {
+  billingBox.innerHTML = "No billing address available";
+}
 
   /* ================= STATUS TIMELINE ================= */
   document.getElementById("orderTimeline").innerHTML =
@@ -696,9 +724,11 @@ if (d.order.coupon_code) {
     });
 
     if (!res.ok) {
-      showToast("Payment required first", "error");
-      return;
-    }
+  const data = await res.json();
+  showToast(data.message || "Order update failed", "error");
+  return;
+}
+
 
     showToast("Order status updated");
     $("orderModal").style.display = "none";

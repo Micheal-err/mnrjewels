@@ -2,9 +2,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <style>
-  body{
-    background-color: #9FA878;
-  }
+
 /* ================= SIDEBAR ================= */
 .filter-sidebar {
   background: #F4F6F8;
@@ -65,7 +63,7 @@
 }
 
 .grid-item {
-  width: 25%;
+  width: 20%;
   margin-bottom: 1rem;
 }
 
@@ -190,6 +188,78 @@
   .filter-sidebar {
     padding: 22px 18px;
   }
+  .shop-modern{
+    justify-content: center;
+    margin-right: 0 !important;
+  }
+  
+}
+@media (max-width: 1440px) {
+.container{
+  margin-left: 0;
+  margin-right: 0;
+}
+.grid-item{
+  width: 25%;
+}
+}
+
+@media (max-width: 1440px) {
+.shop-modern{
+      margin-right: -53px;
+
+}
+.grid-item{
+  width: 30%;
+}
+.filter-sidebar {
+  margin-top: 4.5rem;
+}
+}
+
+@media (max-width: 991px) {
+.shop-modern{
+      margin-right: -53px;
+
+}
+.grid-item{
+  width: 30%;
+}
+.filter-sidebar {
+  margin-top: 0rem;
+}
+}
+
+@media (max-width: 768px) {
+.shop-modern{
+      margin-right: -0px;
+      justify-content: center;
+
+}
+.grid-item{
+  width: 50%;
+}
+}
+@media (max-width: 575px) {
+
+.grid-item{
+  width: 80%;
+}
+
+}
+@media (max-width: 425px) {
+
+.grid-item{
+  width: 90%;
+}
+
+}
+@media (max-width: 375px) {
+
+.grid-item{
+  width: 100%;
+}
+
 }
 
 
@@ -197,17 +267,17 @@
 </style>
 <div id="filterOverlay" class="filter-overlay"></div>
 
-<div class="container mt-6 bg-base-color">
-  <div class="row">
+<div class="mt-6 bg-base-color overflow-hidden">
+  <div class="row justify-content-center">
 <!-- MOBILE FILTER TOGGLE -->
-<div class="d-lg-none mb-3" style="margin-top: 6rem;">
+<div class="d-lg-none mb-3 " style="margin-top: 6rem;">
   <button id="filterToggle" class="btn bg-base-color text-white w-100">
     <i class="fa-solid fa-sliders"></i> Filters
   </button>
 </div>
 
     <!-- SIDEBAR -->
-    <aside class="col-lg-2 filter-sidebar">
+    <aside class="col-2 col-xl-2 col-lg-3 filter-sidebar">
         <div class="filter-close d-lg-none">
     <button type="button" id="filterClose" class="btn btn-sm">
       <i class="fa-solid fa-xmark"></i>
@@ -247,7 +317,7 @@
     </aside>
 
     <!-- PRODUCTS -->
-    <main class="col-lg-9 ">
+    <main class="col-10 col-lg-9 col-sm-12 ">
 
       <div class="mb-3">
         <span id="productCount">{{totalProducts}} products</span>
@@ -295,6 +365,12 @@
   </div>
 </div>
 <script>
+  function redirectToLogin(delay = 1200) {
+  setTimeout(() => {
+    window.location.href = "/account";
+  }, delay);
+}
+
 (function () {
   const form = document.getElementById("filterForm");
   const productsContainer = document.getElementById("productsContainer");
@@ -417,10 +493,12 @@
     const btn = e.target.closest(".wishlist-btn");
     if (!btn) return;
 
-    if (!token) {
-      toast("Login required", "warning");
-      return;
-    }
+if (!token) {
+  toast("Login required", "warning");
+  redirectToLogin();
+  return;
+}
+
 
     try {
       const res = await fetch("/api/wishlist/toggle", {
@@ -445,10 +523,12 @@
     const btn = e.target.closest(".add-cart-btn");
     if (!btn) return;
 
-    if (!token) {
-      toast("Login required", "warning");
-      return;
-    }
+   if (!token) {
+  toast("Login required", "warning");
+  redirectToLogin();
+  return;
+}
+
 
     btn.disabled = true;
 

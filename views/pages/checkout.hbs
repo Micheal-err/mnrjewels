@@ -45,7 +45,7 @@
       <input name="address_line1" placeholder="Address" required>
       <input name="city" placeholder="City" required>
       <input name="state" placeholder="State" required>
-      <input name="postal_code" placeholder="Pincode" required>
+      <input name="pincode" placeholder="Pincode" required>
       <input name="country" value="India" hidden>
     </form>
 
@@ -59,9 +59,18 @@
   <div class="checkout-step" id="step-3">
     <h2>Payment</h2>
 
-    <label class="pay-option">
-      <input type="radio" checked> Cash on Delivery
-    </label>
+<div class="coupon-input-box">
+  <input
+    type="text"
+    id="manualCoupon"
+    placeholder="Enter coupon code"
+    style="padding:10px;width:200px;text-transform:uppercase"
+  >
+  <button class="btn-secondary" onclick="applyManualCoupon()">
+    Apply
+  </button>
+</div>
+
 
     <div class="coupon-box" id="couponBox" style="display:none;">
       <p><b>Available Coupon</b></p>
@@ -113,6 +122,11 @@
   border:none;
   cursor:pointer;
 }
+.coupon-input-box {
+  display:flex;
+  gap:10px;
+  margin-bottom:12px;
+}
 
 .btn-secondary {
   background:#fff;
@@ -147,6 +161,7 @@
   margin-bottom:10px;
 }
 </style>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 <script>
 let checkoutData = {
@@ -168,13 +183,20 @@ function goStep(n) {
 
 /* ================= LOAD CART ================= */
 async function loadCheckoutCart() {
-  const res = await fetch("/checkout/cart", { credentials:"include" });
+  const res = await fetch("/checkout/cart", {
+    credentials: "include",
+    headers: {
+      "Authorization": "Bearer " + localStorage.getItem("token")
+    }
+  });
+
   const data = await res.json();
 
   if (!data.success || !data.items.length) {
     document.getElementById("emptyCartBox").style.display="block";
     return;
   }
+
 
   // 🔥 NORMALIZE ITEMS FOR BACKEND
   checkoutData.items = data.items.map(i => ({
@@ -235,19 +257,22 @@ async function loadCoupons() {
 }
 
 async function applyCoupon(code) {
+  if (!code) return;
+
   const res = await fetch("/api/coupons/apply", {
-    method:"POST",
-    credentials:"include",
-    headers:{ "Content-Type":"application/json" },
-    body:JSON.stringify({
-      code,
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      code: code.trim().toUpperCase(),
       cartTotal: checkoutData.subtotal
     })
   });
 
   const data = await res.json();
+
   if (!data.success) {
-    alert(data.message);
+    alert(data.message || "Invalid coupon");
     return;
   }
 
@@ -258,9 +283,15 @@ async function applyCoupon(code) {
   finalTotal.innerText = checkoutData.grand_total;
   appliedCode.innerText = data.coupon.code;
 
-  couponBox.style.display="none";
-  appliedCoupon.style.display="block";
+  couponBox.style.display = "none";
+  appliedCoupon.style.display = "block";
 }
+
+function applyManualCoupon() {
+  const code = document.getElementById("manualCoupon").value;
+  applyCoupon(code);
+}
+
 
 function removeCoupon() {
   checkoutData.discount = 0;
@@ -268,47 +299,53 @@ function removeCoupon() {
   checkoutData.coupon_code = null;
 
   finalTotal.innerText = checkoutData.subtotal;
-  appliedCoupon.style.display="none";
+  appliedCoupon.style.display = "none";
+
+  document.getElementById("manualCoupon").value = "";
+
   loadCoupons();
 }
 
 /* ================= PLACE ORDER ================= */
 placeOrderBtn.onclick = async () => {
-  if (placingOrder) return;
-  placingOrder = true;
-
   const billing = Object.fromEntries(new FormData(billingForm));
 
-  // 🔒 FINAL FRONTEND VALIDATION
-  if (!billing.postal_code) {
-    alert("Pincode required");
-    placingOrder = false;
-    return;
-  }
+  const res = await fetch("/checkout/razorpay/create-order", {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+   body: JSON.stringify({
+  billing,
+  coupon_code: checkoutData.coupon_code
+})
 
-  try {
-    const res = await fetch("/api/orders", {
-      method:"POST",
-      credentials:"include",
-      headers:{ "Content-Type":"application/json" },
-      body:JSON.stringify({
-        items: checkoutData.items,
-        billing_address: billing,
-        shipping_address: billing,
-        payment_method: "cod",
-        coupon_code: checkoutData.coupon_code
-      })
-    });
+  });
 
-    const data = await res.json();
-    if (!data.success) throw new Error(data.error);
+  const data = await res.json();
+  if (!data.success) return alert(data.error);
 
-    location.href = `/api/orders/order-success/${data.order_id}`;
-  } catch (err) {
-    alert(err.message || "Order failed");
-  } finally {
-    placingOrder = false;
-  }
+  const options = {
+    key: data.key,
+    amount: data.amount,
+    currency: "INR",
+    order_id: data.razorpayOrderId,
+    name: "Your Store",
+    handler: async function (response) {
+      await fetch("/checkout/razorpay/verify", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...response,
+          orderId: data.orderId
+        })
+      });
+
+      location.href = `/api/orders/order-success/${data.orderId}`;
+    }
+  };
+
+  new Razorpay(options).open();
 };
 
 document.addEventListener("DOMContentLoaded", loadCheckoutCart);

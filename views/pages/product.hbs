@@ -28,8 +28,8 @@
 
       <!-- VARIANTS -->
      <div id="variantContainer"></div>
+<a href="/size-guide" class="text-white fs-15 text-underline">Size Guide</a>
       <div id="stockText" class="stock"></div>
-
       <!-- ACTIONS -->
       <div class="action-row">
         <button id="addToCartBtn" class="btn-primary add-to-cart" disabled >
@@ -209,16 +209,16 @@ For more details, you can read our <a href="" class="text-white text-underline">
 
 .variant {
   padding:6px 14px;
-  border:1px solid #aaa;
+  border:1px solid #fff;
   border-radius:20px;
   cursor:pointer;
   font-size:13px;
 }
 
 .variant.active {
-  background:#000;
+  background:#9FA878;
   color:#fff;
-  border-color:#000;
+  border-color: white;
 }
 
 .action-row {
@@ -273,7 +273,7 @@ For more details, you can read our <a href="" class="text-white text-underline">
 .variant {
   min-width: 40px;
   padding: 8px 14px;
-  border-radius: 20px;
+  border-radius: 50%;
   border: 1px solid #aaa;
   font-size: 13px;
   text-align: center;
@@ -281,11 +281,6 @@ For more details, you can read our <a href="" class="text-white text-underline">
   user-select: none;
 }
 
-.variant.active {
-  background: #000;
-  color: #fff;
-  border-color: #000;
-}
 
 /* LABEL */
 .variant-group label {
@@ -527,6 +522,162 @@ color: #9FA878;
   transition: opacity 0.25s ease, filter 0.25s ease;
 }
 
+/* ===============================
+   RESPONSIVE LAYOUT
+================================ */
+
+/* -------- Tablets (<= 1024px) -------- */
+@media (max-width: 1024px) {
+
+  .product-grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+    padding: 40px 0;
+  }
+
+  .image-section {
+    flex-direction: column-reverse;
+    align-items: center;
+  }
+
+  .thumbs {
+    flex-direction: row;
+    overflow-x: auto;
+    max-width: 100%;
+    padding-bottom: 6px;
+  }
+
+  .thumb {
+    width: 110px;
+    height: 110px;
+    flex-shrink: 0;
+  }
+
+  .main-image img {
+    max-height: 520px;
+    width: 100%;
+    object-fit: contain;
+  }
+
+  .action-row {
+    justify-content: flex-start;
+  }
+
+  .related-grid,
+  .simple-related-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* -------- Mobile (<= 768px) -------- */
+@media (max-width: 768px) {
+
+  .product-wrapper {
+    padding: 0 16px;
+    margin-top: 5rem;
+  }
+
+  .product-grid {
+    padding: 24px 0;
+    gap: 32px;
+  }
+
+  .thumb {
+    width: 90px;
+    height: 90px;
+  }
+
+  .title {
+    font-size: 20px;
+    line-height: 1.3;
+  }
+
+  .price {
+    font-size: 16px;
+  }
+
+  .variant-row {
+    gap: 8px;
+  }
+
+  .variant {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .color-variant {
+    width: 32px;
+    height: 32px;
+  }
+
+  .action-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .add-to-cart {
+    width: 100%;
+    padding: 12px;
+    font-size: 14px;
+  }
+
+  .wishlist-btn {
+    width: 100%;
+    height: 44px;
+  }
+
+  .features {
+    margin-top: 16px;
+  }
+
+  .feature-item {
+    font-size: 13px;
+  }
+
+  .details-header {
+    padding: 16px 0;
+    font-size: 12px;
+  }
+
+  .details-content {
+    font-size: 13px;
+  }
+
+  .related-grid,
+  .simple-related-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+/* -------- Small Phones (<= 480px) -------- */
+@media (max-width: 480px) {
+
+  .thumb {
+    width: 76px;
+    height: 76px;
+  }
+
+  .main-image img {
+    max-height: 420px;
+  }
+
+  .collection {
+    font-size: 10px;
+  }
+
+  .dimension-line {
+    font-size: 12px;
+  }
+
+  .btn-add-cart {
+    font-size: 13px;
+  }
+}
+body.gift-mode .add-to-cart {
+  border: 2px dashed #9FA878;
+}
 
 </style>
 
@@ -540,6 +691,9 @@ color: #9FA878;
 const VARIANTS = {{{json variants}}};
 const PRODUCT_ID = {{product.id}};
 const PRODUCT = {{{json product}}};
+// 🎁 detect gifting intent from URL
+const isGift = new URLSearchParams(window.location.search).get("gift") === "1";
+
 
 const IS_RING =
   PRODUCT.sub_category &&
@@ -554,6 +708,13 @@ const cartBtn = document.getElementById("addToCartBtn");
 const wishlistBtn = document.getElementById("wishlistBtn");
 const variantContainer = document.getElementById("variantContainer");
 
+
+function redirectToAccount(delay = 1200) {
+  setTimeout(() => {
+    window.location.href = "/account";
+  }, delay);
+}
+
 /* ===============================
    FINISH STYLES
 ================================ */
@@ -564,6 +725,10 @@ const FINISH_STYLES = {
   black: { background: "#111" },
   white: { background: "#fff", border: "#ccc" }
 };
+
+if (isGift) {
+  document.body.classList.add("gift-mode");
+}
 
 function formatPrice(value) {
   if (value === null || value === undefined) return "0";
@@ -723,7 +888,7 @@ function applyVariant(variant) {
   // intentional micro-delay (UX polish)
   setTimeout(() => {
     priceEl.textContent = "₹" + formatPrice(variant.price);
-    stockEl.textContent = variant.stock > 0 ? "In stock" : "Out of stock";
+    stockEl.textContent = variant.stock > 0 ? "IN STOCK" : "OUT OF STOCK";
     cartBtn.disabled = variant.stock <= 0;
 
     priceEl.classList.remove("loading");
@@ -789,7 +954,8 @@ cartBtn.onclick = async () => {
       body: JSON.stringify({
         product_id: PRODUCT_ID,
         variant_id: selectedVariant.id,
-        qty: 1
+        qty: 1,
+          is_gift: isGift
       })
     });
 
@@ -806,57 +972,27 @@ cartBtn.onclick = async () => {
       throw new Error(data.message);
     }
   } catch (err) {
+  if (!localStorage.getItem("token")) {
+    Swal.fire({
+      icon: "warning",
+      title: "Login required",
+      timer: 1200,
+      showConfirmButton: false
+    });
+    redirectToAccount();
+  } else {
     Swal.fire({
       icon: "error",
-      title: "Action failed",
-      text: err.message || "Login required"
+      title: "Unable to add to cart",
+      text: err.message || "Please try again"
     });
   }
+}
+
+
 };
 
-/* ===============================
-   WISHLIST
-================================ */
-wishlistBtn.onclick = async () => {
-  try {
-    const res = await fetch("/wishlist/toggle", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("token")
-      },
-      body: JSON.stringify({ product_id: PRODUCT_ID })
-    });
 
-    const data = await res.json();
-
-    if (data.added) {
-      wishlistBtn.classList.add("active");
-      Swal.fire({
-        icon: "success",
-        title: "Added to wishlist",
-        timer: 1200,
-        showConfirmButton: false
-      });
-    } else if (data.removed) {
-      wishlistBtn.classList.remove("active");
-      Swal.fire({
-        icon: "info",
-        title: "Removed from wishlist",
-        timer: 1200,
-        showConfirmButton: false
-      });
-    } else {
-      throw new Error("Login required");
-    }
-  } catch (err) {
-    Swal.fire({
-      icon: "error",
-      title: "Action failed",
-      text: err.message
-    });
-  }
-};
 
 /* ===============================
    INIT
@@ -905,13 +1041,16 @@ wishlistBtn.onclick = async () => {
       });
     }
 
-  } catch (err) {
-    Swal.fire({
-      icon: "error",
-      title: "Action failed",
-      text: err.message
-    });
-  }
+  }catch (err) {
+  Swal.fire({
+    icon: "warning",
+    title: "Login required",
+    timer: 1200,
+    showConfirmButton: false
+  });
+  redirectToAccount();
+}
+
 };
 
 (async () => {
@@ -967,10 +1106,12 @@ document.querySelectorAll(".details-header").forEach(btn => {
     const btn = e.target.closest(".add-cart-btn");
     if (!btn) return;
 
-    if (!token) {
-      toast("Login required", "warning");
-      return;
-    }
+  if (!token) {
+  toast("Login required", "warning");
+  redirectToAccount();
+  return;
+}
+
 
     const productId = btn.dataset.id;
 
@@ -998,7 +1139,8 @@ document.querySelectorAll(".details-header").forEach(btn => {
         },
         body: JSON.stringify({
           variant_id: data.variants[0].id,
-          qty: 1
+          qty: 1,
+            is_gift: isGift
         })
       });
 
@@ -1031,11 +1173,15 @@ async function toggleRelatedWishlist(productId, btn) {
 
     btn.classList.toggle("active");
   } catch (err) {
-    Swal.fire({
-      icon: "error",
-      title: "Login required"
-    });
-  }
+  Swal.fire({
+    icon: "warning",
+    title: "Login required",
+    timer: 1200,
+    showConfirmButton: false
+  });
+  redirectToAccount();
+}
+
 }
 
 </script>

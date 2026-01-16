@@ -224,7 +224,25 @@
 
     </div>
 </section>
+<style>.order-badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
 
+.badge-pending { background:#ffe8a1; color:#000; }
+.badge-confirmed { background:#cfe2ff; color:#000; }
+.badge-processing { background:#e2d9ff; color:#000; }
+.badge-shipped { background:#d1f7e2; color:#000; }
+.badge-delivered { background:#00e48d; color:#000; }
+.badge-cancelled { background:#ff4d4d; color:#fff; }
+
+.pay-paid { color:#00c471; font-weight:600; }
+.pay-unpaid { color:#ff9800; font-weight:600; }
+.pay-refunded { color:#5f9cff; font-weight:600; }
+</style>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="/js/jquery.js"></script>
 
@@ -314,11 +332,13 @@
             password: $("input[name='login_password']").val().trim()
         };
 
-        const res = await fetch("/api/users/login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data)
-        });
+       const res = await fetch("/api/users/login", {
+  method: "POST",
+  credentials: "include", // 🔥 REQUIRED
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(data)
+});
+
 
         const result = await res.json();
 
@@ -343,11 +363,13 @@
 
         const data = Object.fromEntries(new FormData(this).entries());
 
-        const res = await fetch("/api/users/register", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data)
-        });
+   const res = await fetch("/api/users/register", {
+  method: "POST",
+  credentials: "include",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(data)
+});
+
 
         const result = await res.json();
 
@@ -427,51 +449,210 @@
     });
 
     /* LOAD ORDERS */
-    async function loadOrders() {
-        const user = JSON.parse(localStorage.getItem("user") || "{}");
+   /* =======================
+   LOAD ORDERS (FINAL)
+======================= */
+async function loadOrders() {
+  try {
+    const res = await fetch("/api/orders/userorders", {
+  credentials: "include",
+  headers: {
+    "Authorization": "Bearer " + localStorage.getItem("token")
+  }
+});
 
-        try {
-            const res = await fetch(`/api/orders/my-orders/${user.id}`, {
-                headers: { "Authorization": localStorage.getItem("token") }
-            });
 
-            const data = await res.json();
-            const orders = Array.isArray(data) ? data : [];
+    const orders = await res.json();
 
-            if (!orders.length) {
-                $("#ordersList").html("<p class='mb-0 fs-14 text-muted'>No orders found.</p>");
-                return;
-            }
-
-            let html = "";
-            orders.forEach(o => {
-                html += `
-                <div class="border border-color-extra-medium-gray p-3 my-2 border-radius-6px">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                        <span class="fw-500">Order #${o.id}</span>
-                        <span class="badge bg-dark-gray text-base-color fs-11 text-uppercase">${o.status}</span>
-                    </div>
-                    <p class="mb-0 fs-14">Total: ₹${o.total_amount}</p>
-                </div>`;
-            });
-
-            $("#ordersList").html(html);
-
-        } catch (e) {
-            console.error(e);
-            $("#ordersList").html("<p class='mb-0 fs-14 text-danger'>Unable to load orders.</p>");
-        }
+    if (!Array.isArray(orders) || !orders.length) {
+      $("#ordersList").html(
+        "<p class='mb-0 fs-14 text-muted'>No orders found.</p>"
+      );
+      return;
     }
 
-    /* LOGOUT */
-    $("#logoutBtn").click(function () {
-        localStorage.clear();
-        window.location.href = "/account";
-       localStorage.removeItem("token");
-        localStorage.removeItem("user");
+    let html = "";
 
+    orders.forEach(order => {
+     html += `
+<div class="bg-white border-radius-10px p-3 mb-4 box-shadow-extra-small">
+
+  <!-- HEADER -->
+  <div class="d-flex justify-content-between align-items-start mb-2">
+    <div>
+      <div class="fw-600 fs-14">
+        Order ${order.order_number}
+      </div>
+      <div class="fs-12 text-muted">
+        Placed on ${new Date(order.created_at).toLocaleDateString()}
+      </div>
+    </div>
+
+    <div class="text-end">
+      <span class="order-badge badge-${order.status}">
+        ${order.status}
+      </span>
+      <div class="fs-12 mt-1">
+  <span class="pay-${order.payment_status}">
+    ${order.payment_status.toUpperCase()}
+  </span>
+  · ${order.payment_method.toUpperCase()}
+</div>
+
+${
+  order.payment_status === "paid"
+    ? `<div class="fs-12 text-success mt-1">
+         ✔ Payment successful
+       </div>`
+    : ""
+}
+
+${
+  order.payment_status === "refunded"
+    ? `<div class="fs-12 text-primary mt-1">
+         Refund initiated. Amount will reflect in 5–7 days.
+       </div>`
+    : ""
+}
+
+    </div>
+  </div>
+
+  <!-- ITEMS -->
+  <div class="border-top pt-2">
+    ${order.items.map(item => `
+      <div class="d-flex align-items-center mb-3">
+        <img src="/uploads/${item.product_image}"
+             style="width:56px;height:56px;border-radius:8px;object-fit:cover">
+
+        <div class="ms-3 flex-grow-1">
+          <div class="fw-500 fs-14">${item.product_name}</div>
+          ${item.variant ? `<div class="fs-12 text-muted">${item.variant}</div>` : ""}
+          <div class="fs-12 text-muted">
+            Qty: ${item.quantity} × ₹${item.price}
+          </div>
+        </div>
+      </div>
+    `).join("")}
+  </div>
+
+<!-- BILLING DETAILS -->
+${order.billing_address ? `
+<details class="mt-3">
+  <summary class="fs-13 fw-600 text-dark-gray" style="cursor:pointer">
+    Billing Details
+  </summary>
+
+  <div class="fs-13 text-muted mt-2">
+    <b>${order.billing_address.name}</b><br>
+    Phone: ${order.billing_address.phone}<br>
+    Email: ${order.billing_address.email}<br>
+    ${order.billing_address.address_line1},<br>
+    ${order.billing_address.city},
+    ${order.billing_address.state} - ${order.billing_address.pincode}
+  </div>
+</details>
+` : ""}
+
+
+  <!-- FOOTER -->
+  <div class="d-flex justify-content-between align-items-center mt-3 border-top pt-2">
+    <div class="fw-600 fs-15">
+      Total: ₹${order.grand_total}
+    </div>
+
+    <div class="d-flex gap-2">
+      ${
+        order.payment_status === "unpaid"
+          ? `<button
+  class="btn btn-sm btn-dark-gray"
+  onclick="retryPayment(${order.id})">
+  Pay Now
+</button>
+`
+          : ""
+      }
+
+      ${
+  order.can_cancel
+    ? `
+      <div class="text-end">
+        <button
+          class="btn btn-sm btn-outline-dark-gray"
+          onclick="cancelOrder(${order.id})">
+          Cancel
+        </button>
+        <div class="fs-11 text-danger mt-1">
+          Cancel allowed within 3 days of order
+        </div>
+      </div>
+    `
+    : ""
+}
+
+
+    </div>
+  </div>
+
+</div>
+`;
 
     });
+
+    $("#ordersList").html(html);
+
+  } catch (err) {
+    console.error("LOAD ORDERS ERROR:", err);
+    $("#ordersList").html(
+      "<p class='mb-0 fs-14 text-danger'>Unable to load orders.</p>"
+    );
+  }
+}
+/* =======================
+   CANCEL ORDER
+======================= */
+async function cancelOrder(orderId) {
+  const confirm = await Swal.fire({
+    title: "Cancel order?",
+    text: "This action cannot be undone.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Yes, cancel it"
+  });
+
+  if (!confirm.isConfirmed) return;
+
+  try {
+    const res = await fetch(`/api/orders/${orderId}/cancel`, {
+      method: "POST",
+      headers: {
+        "Authorization": "Bearer " + localStorage.getItem("token")
+      }
+    });
+
+    const data = await res.json();
+
+    if (!data.success) {
+      throw new Error(data.error || "Failed");
+    }
+
+    showToast("success", "Order cancelled");
+    loadOrders();
+
+  } catch (err) {
+    showToast("error", err.message || "Unable to cancel order");
+  }
+}
+
+
+    /* LOGOUT */
+   $("#logoutBtn").click(function () {
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
+
+  // optional: clear cookie server-side later
+  window.location.href = "/account";
+});
 
     checkLoginStatus();
 

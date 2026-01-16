@@ -1,15 +1,16 @@
 require("dotenv").config();
+
 const express = require("express");
-const passport = require("./config/passport");
-const session = require("express-session");
 const path = require("path");
 const cookieParser = require("cookie-parser");
+const cors = require("cors");
+const passport = require("./config/passport");
 const { engine } = require("express-handlebars");
 
 const app = express();
 
 /* ===============================
-   HANDLEBARS (CORRECT WAY)
+   HANDLEBARS
 ================================ */
 app.engine(
   "hbs",
@@ -20,81 +21,82 @@ app.engine(
     partialsDir: path.join(__dirname, "views/partials"),
     helpers: {
       json: (context) => JSON.stringify(context),
-
       formatPrice: (value) => {
         if (value === null || value === undefined) return "0";
-
-        const cleaned = value.toString().replace(/[^\d.]/g, "");
-        const number = parseFloat(cleaned);
-
-        if (isNaN(number)) return "0";
-
-        return number.toLocaleString("en-IN");
+        const num = parseFloat(value.toString().replace(/[^\d.]/g, ""));
+        return isNaN(num) ? "0" : num.toLocaleString("en-IN");
       }
     }
   })
 );
 
-
 app.set("view engine", "hbs");
 app.set("views", path.join(__dirname, "views"));
 
 /* ===============================
-   MIDDLEWARE
+   CORE MIDDLEWARE
 ================================ */
+app.use(cors({
+  origin: true,        // allows localhost + IP + domain
+  credentials: true    // REQUIRED for cookies
+}));
+
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET || "some_session_secret",
-    resave: false,
-    saveUninitialized: false
-  })
-);
-
+/* ===============================
+   PASSPORT (NO SESSIONS)
+   Only for OAuth callbacks
+================================ */
 app.use(passport.initialize());
-app.use(passport.session());
 
 /* ===============================
    STATIC FILES
 ================================ */
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
+
 /* ===============================
-   ROUTES (CORRECT ORDER)
+   ROUTES (ORDER MATTERS)
 ================================ */
 
-// 🔐 ADMIN FIRST
+// 🔐 ADMIN
 app.use("/admin", require("./routes/adminRoutes"));
 
-// 🌐 PUBLIC PAGES AFTER
-app.use("/", require("./routes/pageRoutes"));
+// 🌐 AUTH
+app.use("/auth", require("./routes/authRoutes"));
+app.use("/auth", require("./routes/authSocialRoutes"));
 
+// 🌐 API
 app.use("/api/products", require("./routes/productRoutes"));
 app.use("/api/product-variants", require("./routes/productVariantRoutes"));
 app.use("/api/orders", require("./routes/orderRoutes"));
 app.use("/api/users", require("./routes/userRoutes"));
-app.use("/auth", require("./routes/authRoutes"));
-app.use("/auth", require("./routes/authSocialRoutes"));
-app.use("/contact", require("./routes/contactRoutes"));
 app.use("/api/reviews", require("./routes/reviewRoutes"));
-app.use("/cart", require("./routes/cartRoutes"));
 app.use("/api/wishlist", require("./routes/wishlistRoutes"));
 app.use("/api/coupons", require("./routes/couponsRoutes"));
-app.use("/checkout", require("./routes/checkoutRoutes"));  
+
+// 🛒 CART + CHECKOUT
+app.use("/cart", require("./routes/cartRoutes"));
+app.use("/checkout", require("./routes/checkoutRoutes"));
+
+// 🌐 PUBLIC PAGES (LAST)
+// 🎁 GIFTS (CLEAN & ISOLATED)
+app.use("/gifting", require("./routes/giftRoutes"));
+app.use("/", require("./routes/pageRoutes"));
+
 /* ===============================
    404
 ================================ */
 app.use((req, res) => {
-  res.status(404).send("Not found");
+  res.status(404).send("Not Found");
 });
 
 /* ===============================
    START SERVER
 ================================ */
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on ${PORT}`);
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`✅ Server running on port ${PORT}`);
 });

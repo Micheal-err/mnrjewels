@@ -114,7 +114,11 @@ img {
 .mfp-bg{
   height: 100% !important;
 }
-
+@media (max-width: 1024px) {
+.break-sm-none{
+  display: none;
+}
+}
 </style>
 
 <!-- ================= HERO SLIDER ================= -->
@@ -155,7 +159,7 @@ img {
         </div>
         <div class="swiper-slide">
           <div class="shop-card"><img src="images/home-shop-men-rings.webp"></div>
-          <p class="shop-title"><a href="/shop/men/bracelets" class="text-white">Bracelet</a></p>
+          <p class="shop-title"><a href="/shop/men/bracelets" class="text-white">Bracelets</a></p>
         </div>
         <div class="swiper-slide">
           <div class="shop-card"><img src="images/home-shop-men-chains.webp"></div>
@@ -190,7 +194,7 @@ img {
         </div>
         <div class="swiper-slide">
           <div class="shop-card"><img src="images/home-shop-women-bracelet.webp"></div>
-          <p class="shop-title"><a href="/shop/women/bracelets" class="text-white">Bracelet</a></p>
+          <p class="shop-title"><a href="/shop/women/bracelets" class="text-white">Bracelets</a></p>
         </div>
         <div class="swiper-slide">
           <div class="shop-card"><img src="images/home-shop-women-necklace.webp"></div>
@@ -209,12 +213,12 @@ img {
 
  <section class="gift-section position-relative pt-0 sm-pt-50px pb-0  p-0">
     <div class="container overlap-gap-section">
-        <div class="row align-items-center mb-6 " style="justify-content: space-between; ">
+        <div class="row align-items-center  " style="justify-content: space-between; ">
 
             <!-- RIGHT SIDE: Buttons + Heading -->
             <div class="col-lg-5 text-center " style="display: flex; flex-direction: column; ">
                 <h3 class="text-dark-gray fw-500 text-uppercase mb-7  text-start font-stylish-2 " style="font-size: 2.3rem;">
-                    A gift that says more<br/> than words....
+                    A gift that says more<br class="break-sm-none"/> than words....
                 </h3>
 
                 <div class="d-flex flex-column align-items-center mb-7 mt-7">
@@ -287,20 +291,16 @@ img {
 
                 <div class="journal-content">
                   <span class="journal-meta">
-                    <a href="#" class="text-base-color">Jewellery</a>
-                    <span>18 August 2023</span>
+                    <span  class="text-base-color">About</span>
+                    <span>| 18 August 2023</span>
                   </span>
 
-                  <h4 class="journal-title">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit
-                  </h4>
+                  <h4 class="journal-title">About us blog</h4>
 
-                  <p>
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                    Vitae explicabo praesentium quam.
+                  <p>25 years ago, Rathod Jewellers embarked on a journey to establish trust and a name in the world of fine jewellery; they celebrated local artistry that spoke luxury...
                   </p>
 
-                  <a href="#" class="journal-btn text-base-color">Read more</a>
+                  <a href="/blogs/about-us-blog" class="journal-btn text-base-color" id="whiteHover">Read more</a>
                 </div>
               </article>
         </div>
@@ -312,20 +312,21 @@ img {
 
                 <div class="journal-content">
                   <span class="journal-meta">
-                    <a href="#" class="text-base-color">Jewellery</a>
-                    <span>18 August 2023</span>
+                    <span  class="text-base-color">Jewellery</span>
+                    <span>| 18 August 2023</span>
                   </span>
 
                   <h4 class="journal-title">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit
+                  How to Layer Silver Chains the Right Way
+
                   </h4>
 
                   <p>
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                    Vitae explicabo praesentium quam.
+                  Minimal, modern, durable, and incredibly versatile, silver chains are an essential in everyone's accessory stack. With their timeless charm, silver chains are not only...
+
                   </p>
 
-                  <a href="#" class="journal-btn text-base-color">Read more</a>
+                  <a href="/blogs/how-to-layer-silver-chains-the-right-way" class="journal-btn text-base-color " id="whiteHover">Read more</a>
                 </div>
               </article>
         </div>
@@ -337,20 +338,19 @@ img {
 
                 <div class="journal-content">
                   <span class="journal-meta">
-                    <a href="#" class="text-base-color">Jewellery</a>
-                    <span>18 August 2023</span>
+                    <span class="text-base-color" id="whiteHover">Gifts</span>
+                    <span>| 18 August 2023</span>
                   </span>
 
                   <h4 class="journal-title">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit
+                   Affordable Silver Gifts Under ₹1499 for Every Occasion
                   </h4>
 
                   <p>
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                    Vitae explicabo praesentium quam.
+                   Selecting that perfect gift, whether for yourself or a loved one, is a slow intricate process of love. It requires that you know who you are shopping for, but it does not have to be tough.
                   </p>
 
-                  <a href="#" class="journal-btn text-base-color">Read more</a>
+                  <a href="/blogs/affordable-silver-gifts-under-1499-for-every-occasion" class="journal-btn text-base-color " id="whiteHover">Read more</a>
                 </div>
               </article>
         </div>
@@ -460,7 +460,7 @@ img {
                         <div class="row position-relative box-shadow-quadruple-large">
                             <div class="col-lg-6 cover-background md-h-400px xs-h-300px" style="background-image:url('/images/slider-1.webp');"></div>
                             <div class="col-lg-6 newsletter-popup p-8 pt-10 pb-10 lg-p-5 md-p-6 xs-p-8 position-relative">
-                                <h4 class="d-inline-block alt-font ls-minus-1px fw-600 text-dark-gray mb-15px">Welcome to M&R Jewels</h4>
+                                <h4 class="d-block alt-font ls-minus-1px fw-600 text-dark-gray mb-15px lg-fs-24 text-center ">Welcome to M&R Jewels</h4>
                                 <p class="text-center mt-0 mb-0">Your first order, made even better.</p>
                                 <p class="text-center mt-0 mb-4">Sign up to enjoy 10% off now!</p>
                                 <div class="d-inline-block w-100 newsletter-style-05 position-relative mb-20px mt-6">

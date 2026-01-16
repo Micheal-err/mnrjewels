@@ -3,73 +3,88 @@ const router = express.Router();
 const db = require("../config/db");
 const authMiddleware = require("../middleware/authMiddleware");
 
-/**
- * ===============================
- * ➕ ADD TO CART (VARIANT-BASED)
- * ===============================
- */
-
-// routes/productRoutes.js
-// ===============================
-// 🔎 GET PRODUCT VARIANTS (API)
-// ===============================
+/* ===============================
+   🔎 GET PRODUCT VARIANTS
+================================ */
 router.get("/product/:id/variants", async (req, res) => {
   try {
-    const productId = req.params.id;
-
     const [variants] = await db.query(
-      `SELECT id, price, finish, length_size, width, thickness
+      `SELECT id, price, finish, length_size, width, thickness, stock
        FROM product_variants
        WHERE product_id = ?`,
-      [productId]
+      [req.params.id]
     );
 
-    res.json({
-      success: true,
-      variants
-    });
-
+    res.json({ success: true, variants });
   } catch (err) {
     console.error("GET VARIANTS ERROR:", err);
-    res.status(500).json({
-      success: false,
-      variants: []
-    });
+    res.status(500).json({ success: false, variants: [] });
   }
 });
 
-
+/* ===============================
+   ➕ ADD TO CART (SAFE)
+================================ */
 router.post("/add", authMiddleware, async (req, res) => {
   try {
-    const { variant_id, quantity = 1 } = req.body;
+    const { variant_id, quantity = 1, is_gift = false } = req.body;
+const giftFlag = is_gift ? 1 : 0;
+
     const user_id = req.user.id;
 
-    if (!variant_id) {
-      return res.status(400).json({
-        success: false,
-        message: "variant_id is required"
-      });
+    if (!variant_id || quantity < 1) {
+      return res.json({ success: false, message: "Invalid request" });
     }
 
-    // check if variant already in cart
-    const [rows] = await db.query(
-      "SELECT id FROM cart_items WHERE user_id=? AND variant_id=?",
+    // 🔎 variant stock
+    const [[variant]] = await db.query(
+      `SELECT stock FROM product_variants WHERE id=?`,
+      [variant_id]
+    );
+
+    if (!variant) {
+      return res.json({ success: false, message: "Variant not found" });
+    }
+
+    // 🔎 already in cart?
+    const [[existing]] = await db.query(
+      `SELECT id, quantity FROM cart_items
+       WHERE user_id=? AND variant_id=?`,
       [user_id, variant_id]
     );
 
-    if (rows.length > 0) {
-      // update qty
+    if (existing) {
+      const newQty = existing.quantity + quantity;
+
+      if (newQty > variant.stock) {
+        return res.json({
+          success: false,
+          message: "Stock limit reached"
+        });
+      }
+
       await db.query(
-        "UPDATE cart_items SET quantity = quantity + ? WHERE id = ?",
-        [quantity, rows[0].id]
+        `UPDATE cart_items SET quantity=? WHERE id=?`,
+        [newQty, existing.id]
       );
-    } else {
-      // insert
-      await db.query(
-        "INSERT INTO cart_items (user_id, variant_id, quantity) VALUES (?, ?, ?)",
-        [user_id, variant_id, quantity]
-      );
+
+      return res.json({ success: true, merged: true });
     }
+
+    // ❌ adding more than stock
+    if (quantity > variant.stock) {
+      return res.json({
+        success: false,
+        message: "Insufficient stock"
+      });
+    }
+
+ await db.query(
+  `INSERT INTO cart_items (user_id, variant_id, quantity, is_gift)
+   VALUES (?, ?, ?, ?)`,
+  [user_id, variant_id, quantity, giftFlag]
+);
+
 
     res.json({ success: true });
 
@@ -79,32 +94,30 @@ router.post("/add", authMiddleware, async (req, res) => {
   }
 });
 
-/**
- * ===============================
- * 🛒 GET USER CART (VARIANT AWARE)
- * ===============================
- */
+/* ===============================
+   🛒 GET USER CART
+================================ */
 router.get("/", authMiddleware, async (req, res) => {
   try {
     const user_id = req.user.id;
 
     const [rows] = await db.query(`
-      SELECT
-        ci.id AS cart_id,
-        ci.quantity,
+  SELECT
+  ci.id AS cart_id,
+  ci.quantity,
+  ci.is_gift,
 
         v.id AS variant_id,
-        v.sku,
         v.price,
+        v.stock,
+        v.finish,
         v.length_size,
         v.width,
         v.thickness,
-        v.finish,
 
         p.id AS product_id,
         p.name,
         p.image1
-
       FROM cart_items ci
       JOIN product_variants v ON v.id = ci.variant_id
       JOIN products p ON p.id = v.product_id
@@ -115,55 +128,81 @@ router.get("/", authMiddleware, async (req, res) => {
 
   } catch (err) {
     console.error("GET CART ERROR:", err);
+    res.status(500).json({ success: false, cart: [] });
+  }
+});
+
+/* ===============================
+   ➕➖ UPDATE QUANTITY (SAFE)
+================================ */
+router.post("/update", authMiddleware, async (req, res) => {
+  try {
+    const { cart_id, change } = req.body;
+    const user_id = req.user.id;
+
+    // 🔎 cart item + stock
+    const [[item]] = await db.query(`
+      SELECT ci.quantity, v.stock
+      FROM cart_items ci
+      JOIN product_variants v ON v.id = ci.variant_id
+      WHERE ci.id=? AND ci.user_id=?
+    `, [cart_id, user_id]);
+
+    if (!item) {
+      return res.json({ success: false });
+    }
+
+    const newQty = item.quantity + change;
+
+    if (newQty < 1) {
+      return res.json({ success: false });
+    }
+
+    if (newQty > item.stock) {
+      return res.json({
+        success: false,
+        message: "Stock limit reached"
+      });
+    }
+
+await db.query(
+  `UPDATE cart_items 
+   SET quantity = ?
+   WHERE id = ?`,
+  [newQty, cart_id]
+);
+
+
+
+    res.json({ success: true });
+
+  } catch (err) {
+    console.error("UPDATE CART ERROR:", err);
     res.status(500).json({ success: false });
   }
 });
 
-/**
- * ===============================
- * ❌ REMOVE CART ITEM
- * ===============================
- */
+/* ===============================
+   ❌ REMOVE ITEM
+================================ */
 router.post("/remove", authMiddleware, async (req, res) => {
   try {
     const { cart_id } = req.body;
     const user_id = req.user.id;
 
     const [result] = await db.query(
-      "DELETE FROM cart_items WHERE id=? AND user_id=?",
+      `DELETE FROM cart_items WHERE id=? AND user_id=?`,
       [cart_id, user_id]
     );
 
-    if (result.affectedRows === 0) {
-      return res.json({ success: false, message: "Item not found" });
+    if (!result.affectedRows) {
+      return res.json({ success: false });
     }
 
     res.json({ success: true });
 
   } catch (err) {
     console.error("REMOVE CART ERROR:", err);
-    res.status(500).json({ success: false });
-  }
-});
-
-/**
- * ===============================
- * ➕➖ UPDATE QUANTITY
- * ===============================
- */
-router.post("/update", authMiddleware, async (req, res) => {
-  try {
-    const { cart_id, change } = req.body;
-
-    await db.query(
-      "UPDATE cart_items SET quantity = quantity + ? WHERE id = ?",
-      [change, cart_id]
-    );
-
-    res.json({ success: true });
-
-  } catch (err) {
-    console.error("UPDATE CART ERROR:", err);
     res.status(500).json({ success: false });
   }
 });

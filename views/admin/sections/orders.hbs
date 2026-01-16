@@ -59,6 +59,7 @@
           <th>Product</th>
           <th>SKU</th>
           <th>Qty</th>
+          <th>Gift</th>
           <th>Price</th>
           <th>Total</th>
         </tr>
@@ -104,6 +105,21 @@
         <b>Grand Total:</b> ₹<span id="orderGrandTotal">0</span>
       </p>
     </div>
+<!-- ================= BILLING ADDRESS ================= -->
+<h4 style="margin-top:20px">Billing Address</h4>
+
+<div
+  id="billingAddressBox"
+  style="
+    padding:14px;
+    background:#141414;
+    border-radius:12px;
+    font-size:14px;
+    line-height:1.6;
+  "
+>
+  <div id="billingAddressContent">Loading address…</div>
+</div>
 
     <!-- ================= STATUS TIMELINE ================= -->
     <h4 style="margin-top:20px">Status Timeline</h4>
@@ -194,6 +210,28 @@ async function openOrder(orderId) {
     ${o.email ?? "—"} •
     ${new Date(o.created_at).toLocaleString()}
   `;
+/* ================= BILLING ADDRESS ================= */
+const billingBox = document.getElementById("billingAddressContent");
+
+if (
+  d.order.billing_address ||
+  d.order.billing_city ||
+  d.order.billing_pincode
+) {
+  billingBox.innerHTML = `
+    <b>${d.order.billing_name || d.order.customer_name || "—"}</b><br>
+    ${d.order.billing_phone || "—"}<br>
+    ${d.order.billing_address || ""}<br>
+    ${[
+      d.order.billing_city,
+      d.order.billing_state,
+      d.order.billing_pincode
+    ].filter(Boolean).join(", ")}<br>
+    ${d.order.billing_country || "India"}
+  `;
+} else {
+  billingBox.innerHTML = "No billing address available";
+}
 
   // ================= ITEMS =================
   if (!d.items.length) {
@@ -202,7 +240,19 @@ async function openOrder(orderId) {
   } else {
     $("orderItemsBody").innerHTML = d.items.map(i => `
       <tr>
-        <td>${i.product_name}</td>
+        <td>
+  ${i.product_name}
+  ${i.is_gift ? `<span style="
+    margin-left:6px;
+    padding:2px 8px;
+    font-size:11px;
+    border-radius:999px;
+    background:#ffb703;
+    color:#000;
+    font-weight:700;
+  ">GIFT</span>` : ""}
+</td>
+
         <td><b>${i.sku ?? "—"}</b></td>
         <td>${i.quantity}</td>
         <td>₹${i.price}</td>

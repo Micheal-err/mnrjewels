@@ -55,53 +55,52 @@ exports.loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    if (!email?.trim() || !password?.trim()) {
+    if (!email || !password) {
       return res.status(400).json({ success: false, message: "Email & password required" });
     }
 
     const [users] = await db.query("SELECT * FROM users WHERE email = ?", [email]);
-    if (users.length === 0)
+    if (!users.length)
       return res.status(400).json({ success: false, message: "Invalid email" });
 
     const user = users[0];
     const match = await bcrypt.compare(password, user.password);
-
     if (!match)
       return res.status(400).json({ success: false, message: "Incorrect password" });
 
-    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+    const token = jwt.sign(
+      { id: user.id, admin: user.is_admin },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
 
-    res.json({
+    // ✅ SET COOKIE
+    res.cookie("token", token, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: false, // MUST be false for local IP testing
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    });
+
+    // ✅ SEND RESPONSE ONCE
+    return res.json({
       success: true,
-      message: "Login successful",
-      token,
+      token, // frontend can store it
       user: {
         id: user.id,
         first_name: user.first_name,
         last_name: user.last_name,
         email: user.email,
         admin: user.is_admin === 1
-
       }
     });
-res.cookie("token", token, {
-  httpOnly: true,
-  sameSite: "lax",
-  maxAge: 7 * 24 * 60 * 60 * 1000
-});
-
-res.json({
-  success: true,
-  token, // frontend saves to localStorage
-  user
-});
-
 
   } catch (err) {
     console.error("LOGIN ERROR:", err);
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
+
 
 /* ============================================================
    GET ALL USERS

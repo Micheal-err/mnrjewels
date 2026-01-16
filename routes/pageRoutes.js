@@ -164,7 +164,7 @@ router.get("/wishlist", (req, res) =>
 // ===============================
 // 🛒 CHECKOUT PAGE
 // ===============================
-router.get("/checkout", authMiddleware, async (req, res) => {
+router.get("/checkout", async (req, res) => {
   res.render("pages/checkout", {
     title: "Checkout"
   });
@@ -206,6 +206,26 @@ router.get("/about", (req, res) => {
     title: "About Us | M&R Jewels"
   });
 });
+router.get("/size-guide", (req, res) => {
+  res.render("pages/sizeGuide", {
+    title: "Rings Size Guide | M&R Jewels"
+  });
+});
+router.get("/blogs/how-to-layer-silver-chains-the-right-way", (req, res) => {
+  res.render("pages/how-to-layer-silver-chains-the-right-way", {
+    title: "Rings Size Guide | M&R Jewels"
+  });
+});
+router.get("/blogs/affordable-silver-gifts-under-1499-for-every-occasion", (req, res) => {
+  res.render("pages/affordable-silver-gifts-under-1499-for-every-occasion", {
+    title: "Rings Size Guide | M&R Jewels"
+  });
+});
+router.get("/blogs/about-us-blog", (req, res) => {
+  res.render("pages/about-us-blog", {
+    title: "Rings Size Guide | M&R Jewels"
+  });
+});
 
 router.get("/login", (req, res) => {
   return res.redirect("/account");
@@ -214,6 +234,9 @@ router.get("/login", (req, res) => {
 router.get("/signup", (req, res) => {
   return res.redirect("/account");
 });
+
+
+
 
 /* =========================
    SHOP ALL BY CATEGORY
@@ -510,6 +533,92 @@ router.get("/shop", async (req, res) => {
     console.error("SHOP PAGE ERROR:", err);
     res.render("pages/category", {
       categoryTitle: "Shop",
+      collections: {},
+      totalProducts: 0
+    });
+  }
+});
+
+
+router.get("/shop/:category/collection/:collection", async (req, res) => {
+  try {
+    const { category, collection } = req.params;
+    const { sort, price, finish } = req.query;
+
+    const isAjax =
+      req.xhr ||
+      req.headers.accept?.includes("application/json") ||
+      req.query.ajax === "1";
+
+    let where = [
+      "LOWER(p.category) = ?",
+      "LOWER(REPLACE(p.collection_name, ' ', '-')) = ?"
+    ];
+    let params = [category.toLowerCase(), collection.toLowerCase()];
+
+    if (price) {
+      const ranges = price.split(",");
+      const cond = [];
+
+      ranges.forEach(r => {
+        if (r.includes("+")) {
+          cond.push("v.price >= ?");
+          params.push(Number(r.replace("+", "")));
+        } else {
+          const [min, max] = r.split("-").map(Number);
+          cond.push("v.price BETWEEN ? AND ?");
+          params.push(min, max);
+        }
+      });
+
+      where.push(`(${cond.join(" OR ")})`);
+    }
+
+    if (finish) {
+      const finishes = finish.split(",");
+      where.push(
+        `LOWER(v.finish) IN (${finishes.map(() => "?").join(",")})`
+      );
+      params.push(...finishes.map(f => f.toLowerCase()));
+    }
+
+    let orderBy = "p.id DESC";
+    if (sort === "low") orderBy = "price ASC";
+    if (sort === "high") orderBy = "price DESC";
+
+    const [rows] = await db.query(
+      `
+      SELECT 
+        p.id,
+        p.name,
+        p.image1,
+        MIN(v.price) AS price
+      FROM products p
+      JOIN product_variants v ON v.product_id = p.id
+      WHERE ${where.join(" AND ")}
+      GROUP BY p.id
+      ORDER BY ${orderBy}
+      `,
+      params
+    );
+
+    if (isAjax) {
+      return res.json({
+        products: rows,
+        totalProducts: rows.length
+      });
+    }
+
+    res.render("pages/collection", {
+      categoryTitle: `${category} / ${collection}`,
+      collections: { [collection]: rows },
+      totalProducts: rows.length
+    });
+
+  } catch (err) {
+    console.error("COLLECTION PAGE ERROR:", err);
+    res.render("pages/collection", {
+      categoryTitle: "Collection",
       collections: {},
       totalProducts: 0
     });

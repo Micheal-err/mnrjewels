@@ -41,32 +41,26 @@ router.get("/view/messages", adminAuth, (req, res) => {
 
 router.get("/dashboard/stats", adminAuth, async (req, res) => {
   try {
-    const [[orders]] = await db.query(
-      `SELECT COUNT(*) total FROM orders`
-    );
+    const [[stats]] = await db.query(`
+      SELECT
+        (SELECT COUNT(*) FROM orders) AS totalOrders,
+        (SELECT COUNT(*) FROM users) AS totalUsers,
+        (SELECT COUNT(*) FROM orders WHERE status='pending') AS pendingOrders,
+        (
+          SELECT IFNULL(SUM(grand_total), 0)
+          FROM orders
+          WHERE payment_status='paid'
+            AND status!='cancelled'
+        ) AS totalRevenue
+    `);
 
-    const [[revenue]] = await db.query(
-      `SELECT IFNULL(SUM(grand_total), 0) total FROM orders WHERE payment_status='paid'`
-    );
-
-    const [[users]] = await db.query(
-      `SELECT COUNT(*) total FROM users`
-    );
-
-    const [[pending]] = await db.query(
-      `SELECT COUNT(*) total FROM orders WHERE status='pending'`
-    );
-
-    res.json({
-      totalOrders: orders.total,
-      totalRevenue: revenue.total,
-      totalUsers: users.total,
-      pendingOrders: pending.total
-    });
-  } catch {
+    res.json(stats);
+  } catch (err) {
+    console.error("DASHBOARD STATS ERROR:", err);
     res.status(500).json({});
   }
 });
+
 
 router.get("/dashboard/out-of-stock", adminAuth, async (req, res) => {
   try {
@@ -718,22 +712,16 @@ router.get("/orders/:id", adminAuth, async (req, res) => {
   const orderId = req.params.id;
 
   try {
+    /* ================= ORDER ================= */
     const [[order]] = await db.query(`
       SELECT
         o.id,
         COALESCE(o.order_number, CONCAT('ORD-', o.id)) AS order_number,
-
-        COALESCE(
-          CONCAT(u.first_name, ' ', u.last_name),
-          'Guest'
-        ) AS customer_name,
-
+        COALESCE(CONCAT(u.first_name,' ',u.last_name),'Guest') AS customer_name,
         u.email,
-
-        COALESCE(o.subtotal, 0)    AS subtotal,
-        COALESCE(o.discount, 0)    AS discount,
-        COALESCE(o.grand_total, 0) AS grand_total,
-
+        o.subtotal,
+        o.discount,
+        o.grand_total,
         o.coupon_code,
         o.status,
         o.payment_status,
@@ -747,13 +735,14 @@ router.get("/orders/:id", adminAuth, async (req, res) => {
       return res.status(404).json({ success: false });
     }
 
-    /* 📦 ITEMS — SKU FROM VARIANT (CORRECT) */
+    /* ================= ITEMS ================= */
     const [items] = await db.query(`
       SELECT
-        p.name            AS product_name,
-        pv.sku            AS sku,
+        p.name AS product_name,
+        pv.sku,
         oi.quantity,
         oi.price,
+        oi.is_gift,
         (oi.price * oi.quantity) AS total
       FROM order_items oi
       JOIN products p ON p.id = oi.product_id
@@ -761,7 +750,18 @@ router.get("/orders/:id", adminAuth, async (req, res) => {
       WHERE oi.order_id = ?
     `, [orderId]);
 
-    /* 🕒 STATUS TIMELINE */
+    const hasGift = items.some(i => i.is_gift === 1);
+
+    /* ================= BILLING ADDRESS ================= */
+  const [[billing]] = await db.query(`
+  SELECT *
+  FROM order_addresses
+  WHERE order_id = ? AND type = 'billing'
+  LIMIT 1
+`, [orderId]);
+
+
+    /* ================= STATUS HISTORY ================= */
     const [statusHistory] = await db.query(`
       SELECT status, comment, created_at
       FROM order_status_history
@@ -772,7 +772,9 @@ router.get("/orders/:id", adminAuth, async (req, res) => {
     res.json({
       success: true,
       order,
+      billing,        // 👈 IMPORTANT
       items,
+      hasGift,
       statusHistory
     });
 
@@ -781,7 +783,6 @@ router.get("/orders/:id", adminAuth, async (req, res) => {
     res.status(500).json({ success: false });
   }
 });
-
 
 
 /**
@@ -801,15 +802,25 @@ router.post("/orders/:id/status", adminAuth, async (req, res) => {
       return res.status(404).json({ success: false });
     }
 
-    const requiresPaid = ["confirmed", "processing", "shipped", "delivered"];
+    // ⛔ Payment lock ONLY for forward statuses
+    const paymentLockedStatuses = [
+      "confirmed",
+      "processing",
+      "shipped",
+      "delivered"
+    ];
 
-    if (requiresPaid.includes(status) && order.payment_status !== "paid") {
+    if (
+      paymentLockedStatuses.includes(status) &&
+      order.payment_status !== "paid"
+    ) {
       return res.status(400).json({
         success: false,
-        message: "Payment must be PAID before updating this status"
+        message: "Payment must be PAID before moving order forward"
       });
     }
 
+    // ✅ CANCELLED is ALWAYS allowed
     await db.query(
       `UPDATE orders SET status=?, updated_at=NOW() WHERE id=?`,
       [status, orderId]
@@ -840,64 +851,69 @@ router.post("/orders/:id/cancel", adminAuth, async (req, res) => {
   try {
     await conn.beginTransaction();
 
-    // 1️⃣ Prevent double cancel
-    const [[order]] = await conn.query(
-      `SELECT status FROM orders WHERE id=? FOR UPDATE`,
-      [orderId]
-    );
+    // 🔒 Lock order
+    const [[order]] = await conn.query(`
+      SELECT status, payment_status
+      FROM orders
+      WHERE id=?
+      FOR UPDATE
+    `, [orderId]);
 
-    if (!order) {
-      await conn.rollback();
-      return res.status(404).json({ success: false });
-    }
+    if (!order) throw new Error("Order not found");
 
     if (order.status === "cancelled") {
       await conn.rollback();
       return res.json({ success: true });
     }
 
-    // 2️⃣ Get ordered items
-    const [items] = await conn.query(`
-      SELECT variant_id, quantity
-      FROM order_items
-      WHERE order_id=?
-    `, [orderId]);
+    // 🔁 Restore stock ONLY if payment was done
+    if (order.payment_status === "paid") {
+      const [items] = await conn.query(`
+        SELECT variant_id, quantity
+        FROM order_items
+        WHERE order_id=?
+      `, [orderId]);
 
-    // 3️⃣ RESTOCK variants
-    for (const item of items) {
-      await conn.query(`
-        UPDATE product_variants
-        SET stock = stock + ?
-        WHERE id = ?
-      `, [item.quantity, item.variant_id]);
+      for (const i of items) {
+        await conn.query(`
+          UPDATE product_variants
+          SET stock = stock + ?
+          WHERE id = ?
+        `, [i.quantity, i.variant_id]);
+      }
     }
 
-    // 4️⃣ Update order status
+    // ❌ Cancel order
     await conn.query(`
       UPDATE orders
-      SET status='cancelled', updated_at=NOW()
+      SET status='cancelled',
+          payment_status = CASE
+            WHEN payment_status='paid' THEN 'refunded'
+            ELSE payment_status
+          END,
+          updated_at=NOW()
       WHERE id=?
     `, [orderId]);
 
-    // 5️⃣ Status history
+    // 🧾 History
     await conn.query(`
       INSERT INTO order_status_history
-      (order_id, status, changed_by)
-      VALUES (?, 'cancelled', 'admin')
+      (order_id, status, changed_by, comment)
+      VALUES (?, 'cancelled', 'admin', 'Cancelled by admin')
     `, [orderId]);
 
     await conn.commit();
-
     res.json({ success: true });
 
   } catch (err) {
     await conn.rollback();
-    console.error("Cancel + Restock error:", err);
-    res.status(500).json({ success: false });
+    console.error("CANCEL ORDER ERROR:", err);
+    res.status(400).json({ success: false, message: err.message });
   } finally {
     conn.release();
   }
 });
+
 
 
 /**
@@ -908,10 +924,25 @@ router.post("/orders/:id/payment", adminAuth, async (req, res) => {
   const orderId = req.params.id;
 
   try {
-    await db.query(
-      `UPDATE orders SET payment_status=?, updated_at=NOW() WHERE id=?`,
-      [payment_status, orderId]
+    const [[order]] = await db.query(
+      `SELECT payment_status FROM orders WHERE id=?`,
+      [orderId]
     );
+
+    if (!order) return res.status(404).json({ success: false });
+
+    if (order.payment_status !== "paid" && payment_status === "paid") {
+      return res.status(400).json({
+        success: false,
+        message: "Payment can only be marked PAID via gateway"
+      });
+    }
+
+    await db.query(`
+      UPDATE orders
+      SET payment_status=?, updated_at=NOW()
+      WHERE id=?
+    `, [payment_status, orderId]);
 
     await db.query(`
       INSERT INTO order_payment_history

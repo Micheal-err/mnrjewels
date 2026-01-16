@@ -1164,3 +1164,6 @@ color: #9FA878;
 a:hover{
 color: #fff;
 }
+#whiteHover:hover{
+    color: #9FA878 !important;
+}
