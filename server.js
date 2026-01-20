@@ -8,10 +8,17 @@ const session = require("express-session");
 const passport = require("./config/passport");
 const { engine } = require("express-handlebars");
 
+/* ===============================
+   FAIL FAST — REQUIRED
+================================ */
+if (!process.env.SESSION_SECRET) {
+  throw new Error("SESSION_SECRET is not defined");
+}
+
 const app = express();
 
 /* ===============================
-   TRUST PROXY (REQUIRED ON RENDER)
+   TRUST PROXY (RENDER HTTPS)
 ================================ */
 app.set("trust proxy", 1);
 
@@ -42,20 +49,16 @@ app.set("views", path.join(__dirname, "views"));
 /* ===============================
    CORE MIDDLEWARE
 ================================ */
+
+/*
+✔ SSR-safe
+✔ Cookie-safe
+✔ Works on Render
+✔ No CORS blocking
+*/
 app.use(
   cors({
-    origin: (origin, callback) => {
-      const allowedOrigins = [
-        "https://your-site.onrender.com",
-        "https://your-domain.com"
-      ];
-
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("CORS blocked"));
-      }
-    },
+    origin: true,
     credentials: true
   })
 );
@@ -95,10 +98,8 @@ app.use(passport.session());
 app.use(express.static(path.join(__dirname, "public")));
 
 /*
-⚠️ IMPORTANT:
-Render filesystem is ephemeral.
-Only keep this if files are static/seeded.
-For uploads → use Cloudinary / S3
+⚠️ Render filesystem is ephemeral
+Use Cloudinary/S3 for uploads
 */
 app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
 
