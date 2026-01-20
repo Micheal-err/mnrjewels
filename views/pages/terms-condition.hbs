@@ -2,11 +2,10 @@
   <div class="container">
 
     <!-- HEADER -->
-    <div class="terms-header text-center">
-      <div class="col-12 col-md-12 text-center d-flex justify-content-center align-items-center flex-column ">
-                        <h2 class="alt-font ls-minus-1px text-dark-gray text-center primary-text  text-white mb-0" >Terms & Conditions</h2>
-                      <p class="terms-subtitle">(please read these terms carefolly before using our website)</p>
-                    </div>
+    <div class="row mb-0">
+      <div class="heading">
+        <h3 class="text-uppercase mb-1 text-center" style="font-size: 2rem; "><a  class="text-white border-bottom"> Terms & Conditions</a></h3>
+      </div>
     </div>
 
     <!-- CONTENT -->
@@ -61,7 +60,7 @@
 
       <h3 class="primary-text">Acceptable Website Use</h3>
 
-      <h4 class="primary-text">(A) Security Roles</h4>
+      <h3 class="primary-text">(A) Security Roles</h4>
       <ol>
         <li>Accessing data not intended for the visitor.</li>
         <li>Attempting to probe or breach system security.</li>
@@ -75,7 +74,7 @@
         law enforcement authorities.
       </p>
 
-      <h4 class="primary-text">(B) General Roles</h4>
+      <h3 class="primary-text">(B) General Roles</h4>
       <ol>
         <li>Illegal or criminal material.</li>
         <li>Copyright or trademark infringement.</li>
@@ -95,7 +94,7 @@
       </p>
 
       <p>
-        mnrjewels.com may modify these Terms & Conditions at any time without
+        mnrjewels.in may modify these Terms & Conditions at any time without
         prior notice. Continued use of the website constitutes acceptance of
         the revised terms.
       </p>
@@ -111,6 +110,12 @@
 ================================ */
 
 
+
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
 .terms-header {
   margin-bottom: 20px !important;
 }
@@ -135,35 +140,43 @@
 
 .terms-content h3 {
   margin-top: 40px;
-  margin-bottom: 15px;
-  font-size: 27px !important;
-  letter-spacing: 1px;
+  margin-bottom: 0px;
+  font-size: 16px !important;
   text-transform: uppercase;
+  font-weight: 600;
+  font-family: 'Times New Roman', Times, serif;
+  display: inline-block;
+  padding-bottom: 0rem;
+  text-decoration: underline;
+ 
 }
 
 .terms-content h4 {
   margin-top: 25px;
-  margin-bottom: 10px;
+  margin-bottom: 0px;
   font-size: 20px !important;
   font-weight: 600;
   letter-spacing: normal !important;
 }
 
 .terms-content p {
-  margin-bottom: 15px;
-  opacity: 0.95;
+  margin-bottom: 5px;
+  font-size: 15px;
+  font-family: 'Times New Roman', Times, serif;
   
 }
 
 .terms-content ol {
-  padding-left: 20px;
-  margin-bottom: 20px;
+  margin-bottom: 5px;
+  font-size: 15px;
+  font-family: 'Times New Roman', Times, serif;
 }
 
 .terms-content li {
-  margin-bottom: 8px;
+   margin-bottom: 5px;
+  font-size: 15px;
+  font-family: 'Times New Roman', Times, serif;
 }
-
 /* ===============================
    RESPONSIVE
 ================================ */
@@ -177,4 +190,15 @@
     font-size: 14px;
   }
 }
+@media (max-width: 991px) {
+ .terms-page{
+  margin-top: 10rem !important;
+ }
+}
+@media (max-width: 575px) {
+ .heading h3{
+  font-size: 1.7rem !important;
+ }
+}
+
 </style>

@@ -18,7 +18,7 @@
                             <label class="fw-500 fs-14">Password *</label>
                             <input class="mb-15px form-control" type="password" name="login_password" required placeholder="Enter password">
 
-                            <button class="btn btn-medium btn-dark-gray w-100 mb-10px" type="submit">
+                            <button class="btn btn-medium btn-dark-gray w-100 mb-10px" id="whiteHover" type="submit">
                                 Login
                             </button>
                         </form>
@@ -37,10 +37,6 @@
                             <a href="/auth/google" class="btn btn-small bg-white border border-color-extra-medium-gray d-flex align-items-center justify-content-center">
                                 <i class="fa-brands fa-google me-10px text-base-color"></i>
                                 <span class="alt-font fs-14 text-base-color">Continue with Google</span>
-                            </a>
-                            <a href="/auth/facebook" class="btn btn-small bg-white border border-color-extra-medium-gray d-flex align-items-center justify-content-center">
-                                <i class="fa-brands fa-facebook-f me-10px text-base-color"></i>
-                                <span class="alt-font fs-14 text-base-color">Continue with Facebook</span>
                             </a>
                         </div>
                     </div>
@@ -84,7 +80,7 @@
                                 </label>
                             </div>
 
-                            <button class="btn text-white border-white w-100 p-1 mb-15px bg-base-color" type="submit">
+                            <button class="btn text-white border-white w-100 p-1 mb-15px bg-base-color" id="whiteHover" type="submit">
                                 Create account
                             </button>
                         </form>
@@ -101,10 +97,6 @@
                             <a href="/auth/google" class="btn btn-small bg-white border border-color-extra-medium-gray d-flex align-items-center justify-content-center">
                                 <i class="fa-brands fa-google me-10px text-base-color"></i>
                                 <span class="alt-font fs-14 text-base-color">Google</span>
-                            </a>
-                            <a href="/auth/facebook" class="btn btn-small bg-white border border-color-extra-medium-gray d-flex align-items-center justify-content-center">
-                                <i class="fa-brands fa-facebook-f me-10px text-base-color"></i>
-                                <span class="alt-font fs-14 text-base-color">Facebook</span>
                             </a>
                         </div>
                     </div>
@@ -304,7 +296,7 @@
         const provider = user.provider || "local";
 
         /* ================= ADMIN CHECK ================= */
-        if (Number(user.is_admin) === 1) {
+        if (Number(user.admin) === 1) {
             $("#adminPanelBtnWrapper").removeClass("d-none");
             $("#ordersSection").addClass("d-none");
             $("#passwordSection").addClass("d-none");

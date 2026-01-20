@@ -31,10 +31,11 @@ router.get("/google/callback",
             first_name: user.first_name,
             last_name: user.last_name,
             email: user.email,
+             admin: user.is_admin , 
             provider: "google",
         })).toString("base64");
 
-        res.redirect(`/account/social-login-success?token=${token}&user=${userPayload}`);
+        res.redirect(`/account?token=${token}&user=${userPayload}`);
     }
 );
 router.get("/check", (req, res) => {

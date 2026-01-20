@@ -13,7 +13,11 @@
 
   <!-- STEP 1 -->
   <div class="checkout-step active" id="step-1">
-    <h2>Confirm Your Order</h2>
+   <div class="row mb-3">
+      <div class="">
+        <h3 class="text-uppercase mb-1 text-left" style="font-size: 1.9rem; "><a  class="text-base-color border-bottom"> Confirm your order</a></h3>
+      </div>
+    </div>
 
     <table class="checkout-table" id="cartTable">
       <thead>
@@ -36,7 +40,11 @@
 
   <!-- STEP 2 -->
   <div class="checkout-step" id="step-2">
-    <h2>Billing Details</h2>
+    <div class="row mb-3">
+      <div class="">
+        <h3 class="text-uppercase mb-1 text-left" style="font-size: 1.9rem; "><a  class="text-base-color border-bottom"> BIllilng Details</a></h3>
+      </div>
+    </div>
 
     <form id="billingForm">
       <input name="name" placeholder="Full Name" required>
@@ -57,7 +65,11 @@
 
   <!-- STEP 3 -->
   <div class="checkout-step" id="step-3">
-    <h2>Payment</h2>
+      <div class="row mb-3">
+      <div class="">
+        <h3 class="text-uppercase mb-1 text-left" style="font-size: 1.9rem; "><a  class="text-base-color border-bottom"> Payment</a></h3>
+      </div>
+    </div>
 
 <div class="coupon-input-box">
   <input
@@ -78,8 +90,8 @@
     </div>
 
     <div class="applied-coupon" id="appliedCoupon" style="display:none;">
-      Coupon <b id="appliedCode"></b> applied
-      <span onclick="removeCoupon()" style="cursor:pointer;color:red;">✕</span>
+      Coupon <b id="appliedCode" class="text-underline"></b> applied
+      <span onclick="removeCoupon()" style="cursor:pointer;color:red; border-bottom: 1px solid #9FA878;">remove coupon</span>
     </div>
 
     <div class="checkout-summary">

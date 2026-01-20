@@ -36,6 +36,10 @@
             <i data-feather="message-square"></i>
         </a>
 
+<!-- Newsletter -->
+<a href="#" data-page="newsletter" title="Newsletter">
+  <i data-feather="mail"></i>
+</a>
 
 
     </div>
@@ -96,10 +100,10 @@
 
             <h3 class="section-title">Most Carted Products</h3>
           <ul id="mostCartedList" class="low-stock-list"></ul>
-
+<div id="mostCartedPagination" class="pagination"></div>
         <h3 class="section-title">Most Wishlisted Products</h3>
         <ul id="mostWishlistedList" class="low-stock-list"></ul>
-
+<div id="mostWishlistedPagination" class="pagination"></div>
 
             <!-- RECENT ORDERS -->
             <h3 class="section-title">Recent Orders</h3>
@@ -116,7 +120,7 @@
                     <tr><td colspan="4">Loading...</td></tr>
                 </tbody>
             </table>
-
+<div id="recentOrdersPagination" class="pagination"></div>
             <!-- RECENT USERS -->
             <h3 class="section-title">Recent Users</h3>
             <table class="admin-table" id="recentUsersTable">
@@ -131,6 +135,7 @@
                     <tr><td colspan="3">Loading...</td></tr>
                 </tbody>
             </table>
+            <div id="recentUsersPagination" class="pagination"></div>
         </div>
 
     </div>
@@ -268,6 +273,30 @@
   color: #fff;
 }
 
+.pagination {
+  display: flex;
+  gap: 8px;
+  margin: 10px 0 30px;
+}
+
+.pagination button {
+  background: #1f1f1f;
+  border: 1px solid rgba(255,255,255,0.15);
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.pagination button:hover {
+  background: #2a2a2a;
+}
+
+.pagination button.active {
+  background: #00c471;
+  color: #000;
+  font-weight: 600;
+}
 
 </style>
 
@@ -284,7 +313,6 @@
 
 (function () {
   const DASHBOARD_HTML = document.getElementById("dashboardView").outerHTML;
-
 
   /* ================= GLOBAL STATE ================= */
   const Admin = {
@@ -341,23 +369,37 @@
   /* ================= DASHBOARD ================= */
 async function loadDashboard() {
 
-  // ⛔ HARD GUARD — DASHBOARD MUST EXIST
-  if (!document.getElementById("dashboardView")) {
-    return;
-  }
+  if (!document.getElementById("dashboardView")) return;
 
   Admin.currentSection = "dashboard";
+  const DASHBOARD_PER_PAGE = 3;
 
-  /* ---------- SAFE SETTER ---------- */
   const setText = (id, value) => {
-    const node = el(id);
-    if (node) node.textContent = value;
+    const n = document.getElementById(id);
+    if (n) n.textContent = value;
   };
 
   const setHTML = (id, html) => {
-    const node = el(id);
-    if (node) node.innerHTML = html;
+    const n = document.getElementById(id);
+    if (n) n.innerHTML = html;
   };
+
+  function renderPagination(id, total, page, onChange) {
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    el.innerHTML = "";
+    const pages = Math.ceil(total / DASHBOARD_PER_PAGE);
+    if (pages <= 1) return;
+
+    for (let i = 1; i <= pages; i++) {
+      const b = document.createElement("button");
+      b.textContent = i;
+      b.className = i === page ? "active" : "";
+      b.onclick = () => onChange(i);
+      el.appendChild(b);
+    }
+  }
 
   /* ---------- STATS ---------- */
   const stats = await apiGet("/admin/dashboard/stats") || {};
@@ -382,65 +424,132 @@ async function loadDashboard() {
 
   /* ---------- MOST CARTED ---------- */
   const mostCarted = await apiGet("/admin/dashboard/most-carted") || [];
-  setHTML("mostCartedList",
-    mostCarted.length
-      ? mostCarted.map(p => `
-        <li style="display:flex;gap:10px;align-items:center">
-          <img src="/uploads/${p.image1 || "placeholder.png"}"
-               style="width:40px;height:40px;border-radius:6px">
-          <span>${safeHTML(p.name)}</span>
-          <b style="margin-left:auto;color:#00e48d">${p.total_added}</b>
-        </li>
-      `).join("")
-      : `<li>No cart activity</li>`
-  );
+  let cartedPage = 1;
+
+  function renderMostCarted() {
+    const start = (cartedPage - 1) * DASHBOARD_PER_PAGE;
+    const slice = mostCarted.slice(start, start + DASHBOARD_PER_PAGE);
+
+    setHTML("mostCartedList",
+      slice.length
+        ? slice.map(p => `
+          <li style="display:flex;gap:10px;align-items:center">
+            <img src="/uploads/${p.image1 || "placeholder.png"}"
+                 style="width:40px;height:40px;border-radius:6px">
+            <span>${safeHTML(p.name)}</span>
+            <b style="margin-left:auto;color:#00e48d">${p.total_added}</b>
+          </li>
+        `).join("")
+        : `<li>No cart activity</li>`
+    );
+
+    renderPagination(
+      "mostCartedPagination",
+      mostCarted.length,
+      cartedPage,
+      p => { cartedPage = p; renderMostCarted(); }
+    );
+  }
+
+  renderMostCarted();
 
   /* ---------- MOST WISHLISTED ---------- */
   const mostWishlisted = await apiGet("/admin/dashboard/most-wishlisted") || [];
-  setHTML("mostWishlistedList",
-    mostWishlisted.length
-      ? mostWishlisted.map(p => `
-        <li style="display:flex;gap:10px;align-items:center">
-          <img src="/uploads/${p.image1 || "placeholder.png"}"
-               style="width:40px;height:40px;border-radius:6px">
-          <span>${safeHTML(p.name)}</span>
-          <b style="margin-left:auto;color:#ff5fa2">${p.total_added}</b>
-        </li>
-      `).join("")
-      : `<li>No wishlist activity</li>`
-  );
+  let wishPage = 1;
+
+  function renderMostWishlisted() {
+    const start = (wishPage - 1) * DASHBOARD_PER_PAGE;
+    const slice = mostWishlisted.slice(start, start + DASHBOARD_PER_PAGE);
+
+    setHTML("mostWishlistedList",
+      slice.length
+        ? slice.map(p => `
+          <li style="display:flex;gap:10px;align-items:center">
+            <img src="/uploads/${p.image1 || "placeholder.png"}"
+                 style="width:40px;height:40px;border-radius:6px">
+            <span>${safeHTML(p.name)}</span>
+            <b style="margin-left:auto;color:#ff5fa2">${p.total_added}</b>
+          </li>
+        `).join("")
+        : `<li>No wishlist activity</li>`
+    );
+
+    renderPagination(
+      "mostWishlistedPagination",
+      mostWishlisted.length,
+      wishPage,
+      p => { wishPage = p; renderMostWishlisted(); }
+    );
+  }
+
+  renderMostWishlisted();
 
   /* ---------- RECENT ORDERS ---------- */
   const recentOrders = await apiGet("/admin/dashboard/recent-orders") || [];
-  setHTML("recentOrdersBody",
-    recentOrders.length
-      ? recentOrders.map(o => `
-        <tr>
-          <td>#${o.id}</td>
-          <td>${safeHTML(o.first_name || "Guest")} ${safeHTML(o.last_name || "")}</td>
-          <td>₹${o.grand_total}</td>
-          <td>${safeHTML(o.status)}</td>
-        </tr>
-      `).join("")
-      : `<tr><td colspan="4">No recent orders</td></tr>`
-  );
+  let orderPage = 1;
+
+  function renderRecentOrders() {
+    const start = (orderPage - 1) * DASHBOARD_PER_PAGE;
+    const slice = recentOrders.slice(start, start + DASHBOARD_PER_PAGE);
+
+    setHTML("recentOrdersBody",
+      slice.length
+        ? slice.map(o => `
+          <tr>
+            <td>#${o.id}</td>
+            <td>${safeHTML(o.first_name || "Guest")} ${safeHTML(o.last_name || "")}</td>
+            <td>₹${o.grand_total}</td>
+            <td>${safeHTML(o.status)}</td>
+          </tr>
+        `).join("")
+        : `<tr><td colspan="4">No recent orders</td></tr>`
+    );
+
+    renderPagination(
+      "recentOrdersPagination",
+      recentOrders.length,
+      orderPage,
+      p => { orderPage = p; renderRecentOrders(); }
+    );
+  }
+
+  renderRecentOrders();
 
   /* ---------- RECENT USERS ---------- */
   const recentUsers = await apiGet("/admin/dashboard/recent-users") || [];
-  setHTML("recentUsersBody",
-    recentUsers.length
-      ? recentUsers.map(u => `
-        <tr>
-          <td>${u.id}</td>
-          <td>${safeHTML(u.first_name)} ${safeHTML(u.last_name)}</td>
-          <td>${safeHTML(u.email)}</td>
-        </tr>
-      `).join("")
-      : `<tr><td colspan="3">No recent users</td></tr>`
-  );
+  let userPage = 1;
+
+  function renderRecentUsers() {
+    const start = (userPage - 1) * DASHBOARD_PER_PAGE;
+    const slice = recentUsers.slice(start, start + DASHBOARD_PER_PAGE);
+
+    setHTML("recentUsersBody",
+      slice.length
+        ? slice.map(u => `
+          <tr>
+            <td>${u.id}</td>
+            <td>${safeHTML(u.first_name)} ${safeHTML(u.last_name)}</td>
+            <td>${safeHTML(u.email)}</td>
+          </tr>
+        `).join("")
+        : `<tr><td colspan="3">No recent users</td></tr>`
+    );
+
+    renderPagination(
+      "recentUsersPagination",
+      recentUsers.length,
+      userPage,
+      p => { userPage = p; renderRecentUsers(); }
+    );
+  }
+
+  renderRecentUsers();
+console.log("Recent Orders Count:", recentOrders.length);
+console.log("Recent Users Count:", recentUsers.length);
 
   feather.replace();
 }
+
 
 
 /* ======================================================
@@ -740,6 +849,90 @@ if (billing) {
 }
 
 
+function initNewsletter() {
+
+  const token = localStorage.getItem("token");
+  if (!token) return;
+
+  const body = document.getElementById("newsletterTableBody");
+  const search = document.getElementById("newsletterSearchInput");
+  const pagination = document.getElementById("newsletterPagination");
+
+  if (!body || !search || !pagination) return;
+
+  let subscribers = [];
+  let page = 1;
+  const perPage = 10;
+
+  async function load() {
+    const res = await fetch("/admin/newsletter", {
+      headers: { Authorization: "Bearer " + token }
+    });
+    const data = await res.json();
+    subscribers = data.subscribers || [];
+    render();
+  }
+
+  function render() {
+    const q = search.value.toLowerCase();
+    const filtered = subscribers.filter(s =>
+      s.email.toLowerCase().includes(q)
+    );
+
+    const start = (page - 1) * perPage;
+    const slice = filtered.slice(start, start + perPage);
+
+    body.innerHTML = slice.length
+      ? slice.map(s => `
+        <tr>
+          <td>${s.id}</td>
+          <td>${s.email}</td>
+          <td>${new Date(s.subscribed_at).toLocaleString()}</td>
+          <td>
+            <button class="delete-btn" data-id="${s.id}">Delete</button>
+          </td>
+        </tr>
+      `).join("")
+      : `<tr><td colspan="4">No subscribers</td></tr>`;
+
+    renderPagination(filtered.length);
+  }
+
+  function renderPagination(total) {
+    pagination.innerHTML = "";
+    const pages = Math.ceil(total / perPage);
+    for (let i = 1; i <= pages; i++) {
+      const btn = document.createElement("button");
+      btn.textContent = i;
+      btn.onclick = () => {
+        page = i;
+        render();
+      };
+      pagination.appendChild(btn);
+    }
+  }
+
+  body.addEventListener("click", async e => {
+    const del = e.target.closest(".delete-btn");
+    if (!del) return;
+    if (!confirm("Delete this subscriber?")) return;
+
+    await fetch(`/admin/newsletter/${del.dataset.id}/delete`, {
+      method: "POST",
+      headers: { Authorization: "Bearer " + token }
+    });
+
+    subscribers = subscribers.filter(s => s.id != del.dataset.id);
+    render();
+  });
+
+  search.oninput = () => {
+    page = 1;
+    render();
+  };
+
+  load();
+}
 
 
 /* ======================================================
@@ -1677,6 +1870,8 @@ if (section === "dashboard") {
     if (section === "reviews") initReviews();
     if (section === "messages") initMessages();
       if (section === "allProducts") initProducts();
+      if (section === "newsletter") initNewsletter(); // ✅ ADD THIS
+
 
     feather.replace();
   });

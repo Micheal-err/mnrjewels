@@ -226,6 +226,11 @@ router.get("/blogs/about-us-blog", (req, res) => {
     title: "Rings Size Guide | M&R Jewels"
   });
 });
+router.get("/mnr-journal", (req, res) => {
+  res.render("pages/mnr-journal", {
+    title: "M&R Journal | M&R Jewels"
+  });
+});
 
 router.get("/login", (req, res) => {
   return res.redirect("/account");
@@ -238,6 +243,7 @@ router.get("/signup", (req, res) => {
 
 
 
+
 /* =========================
    SHOP ALL BY CATEGORY
    /shop/men
@@ -246,7 +252,11 @@ router.get("/signup", (req, res) => {
 ========================= */
 router.get("/shop/:category", async (req, res) => {
   const category = req.params.category.toLowerCase();
-  const isAjax = req.xhr;
+ const isAjax =
+  req.xhr ||
+  req.headers.accept?.includes("application/json") ||
+  req.query.ajax === "1";
+
 
   const { sort, price, finish } = req.query;
 
@@ -315,7 +325,10 @@ router.get("/shop/:category", async (req, res) => {
    /shop/all
 ========================= */
 router.get("/shop-all", async (req, res) => {
-  const isAjax = req.xhr;
+ const isAjax =
+  req.xhr ||
+  req.headers.accept?.includes("application/json") ||
+  req.query.ajax === "1";
 
   const [rows] = await db.query(`
     SELECT 
@@ -626,51 +639,6 @@ router.get("/shop/:category/collection/:collection", async (req, res) => {
 });
 
 
-/* =========================
-   AUTH (GOOGLE CALLBACK)
-========================= */
-router.get(
-  "/auth/google/callback",
-  passport.authenticate("google", { failureRedirect: "/account" }),
-  async (req, res) => {
-    try {
-      const user = req.user;
-
-      const token = jwt.sign(
-        {
-          id: user.id,
-          email: user.email,
-          is_admin: user.is_admin,
-          provider: "google"
-        },
-        process.env.JWT_SECRET,
-        { expiresIn: "7d" }
-      );
-
-      res.cookie("token", token, {
-        httpOnly: true,
-        sameSite: "lax",
-        maxAge: 7 * 24 * 60 * 60 * 1000
-      });
-
-      const payload = Buffer.from(
-        JSON.stringify({
-          id: user.id,
-          first_name: user.first_name,
-          last_name: user.last_name,
-          email: user.email,
-          is_admin: user.is_admin,
-          provider: "google"
-        })
-      ).toString("base64");
-
-      res.redirect(`/account?token=${token}&user=${payload}`);
-    } catch (err) {
-      console.error("GOOGLE CALLBACK ERROR:", err);
-      res.redirect("/account");
-    }
-  }
-);
 
 
 

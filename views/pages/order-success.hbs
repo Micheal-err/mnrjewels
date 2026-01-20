@@ -3,10 +3,15 @@
   <div class="success-card">
 
     <!-- SUCCESS ICON -->
-    <div class="success-icon">✔</div>
+    
 
     <!-- HEADER -->
-    <h1 class="fs-30">Order Placed Successfully</h1>
+<h1 class="fs-30 d-flex justify-content-center align-items-center gap-3">
+  <span class="success-icon inline">✔</span>
+  <span>Order Placed Successfully</span>
+</h1>
+
+
     <p class="sub">
       Thank you <b>{{address.name}}</b>!<br>
       Your order
@@ -21,11 +26,15 @@
     </p>
 
     <!-- ORDER + BILLING -->
-    <div class="success-grid">
+    <div class="success-grid mt-5">
 
       <!-- ORDER DETAILS -->
       <div class="info-box">
-        <h3>Order Details</h3>
+ <div class="row mb-3">
+      <div class="">
+        <h3 class="text-uppercase mb-1 text-left" style="font-size: 1.9rem; "><a  class="text-white border-bottom"> Order Details</a></h3>
+      </div>
+    </div>
 
         <p class="text-white">
           <b>Order ID:</b>
@@ -60,7 +69,11 @@
 
       <!-- BILLING DETAILS -->
       <div class="info-box text-white">
-        <h3>Billing Details</h3>
+        <div class="row mb-3">
+      <div class="">
+        <h3 class="text-uppercase mb-1 text-left" style="font-size: 1.9rem; "><a  class="text-white border-bottom"> BIllilng Details</a></h3>
+      </div>
+    </div>
 
         {{#if address}}
           <p>{{address.name}}</p>
@@ -79,13 +92,16 @@
     </div>
 
     <!-- ORDERED ITEMS -->
-    <h3 class="mt">Ordered Items</h3>
+  <div class="row mb-3 " style="margin-top: 3rem  !important;">
+      <div class="">
+        <h3 class="text-uppercase mb-1 text-left" style="font-size: 1.9rem; "><a  class="text-base-color border-bottom"> Ordered Items</a></h3>
+      </div>
+    </div>
 
     <table class="items-table text-base-color">
       <thead>
         <tr>
           <th>Product</th>
-          <th>SKU</th>
           <th>Qty</th>
           <th>Price</th>
           <th>Total</th>
@@ -96,7 +112,6 @@
         {{#each items}}
         <tr>
           <td>{{product_name}}</td>
-          <td>{{sku}}</td>
           <td>{{quantity}}</td>
           <td>₹{{formatPrice price}}</td>
           <td>₹{{formatPrice total}}</td>
@@ -116,6 +131,9 @@
 </section>
 
 <style>
+  html,body{
+    overflow-x: hidden;
+  }
 .success-wrapper {
   min-height: 100vh;
   display: flex;
@@ -134,17 +152,24 @@
   text-align: center;
   color: #9fa878;
 }
-
-.success-icon {
-  width: 72px;
-  height: 72px;
+/* ===== SUCCESS ICON (INLINE HEADER) ===== */
+.success-icon.inline {
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   background: #9fa878;
   color: #fff;
-  font-size: 36px;
-  display: flex;
+  font-size: 18px;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.success-icon.large {
+  width: 72px;
+  height: 72px;
+  font-size: 36px;
   margin: 0 auto 16px;
 }
 
@@ -209,6 +234,7 @@
   border-radius: 10px;
   text-decoration: none;
   font-weight: 600;
+  font-size: 15px;
 }
 
 .btn-secondary {
@@ -217,5 +243,24 @@
   padding: 12px 22px;
   border-radius: 10px;
   text-decoration: none;
+  font-size: 15px;
+}
+
+p{
+  font-size: 13px !important;
+  margin-bottom: 0rem;
+}
+@media (max-width: 991px) {
+  .success-wrapper {
+    margin-top: 10rem !important;
+  }
+}
+@media (max-width: 575px) {
+  .success-wrapper {
+    margin-top: 10rem !important;
+  }
+  .success-card{
+    padding: 20px;
+  }
 }
 </style>
