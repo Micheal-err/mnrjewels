@@ -1,5 +1,4 @@
-
-<section class="checkout-wrapper" id="checkoutpage">
+<section class="checkout-wrapper">
 
   <div class="checkout-steps">
     <span class="step active">Cart</span>
@@ -95,22 +94,9 @@
       <span onclick="removeCoupon()" style="cursor:pointer;color:red; border-bottom: 1px solid #9FA878;">remove coupon</span>
     </div>
 
-   <div class="payment-breakdown">
-  <div class="">
-    <span>Cart Total - ₹<span id="bdSubtotal">0</span></span>
-  </div>
-
-  <div class=" discount-row" id="bdDiscountRow" style="display:none;">
-    <span>Coupon Savings - ₹<span id="bdDiscount">0</span></span>
-  </div>
-
-  <hr>
-
-  <div class=" total">
-    <span>Amount Payable - ₹<span id="bdPayable">0</span></span>
-  </div>
-</div>
-
+    <div class="checkout-summary">
+      <p><b>Total Payable:</b> ₹<span id="finalTotal">0</span></p>
+    </div>
 
     <div class="checkout-footer">
       <button class="btn-secondary" onclick="goStep(2)">← Back</button>
@@ -187,96 +173,47 @@
   margin-bottom:10px;
 }
 
-/* FIX CONTENT HIDING BEHIND FIXED NAVBAR */
-#checkoutpage {
-  padding-top: 120px; /* desktop default */
-}
-
-@media (max-width: 992px) {
-  #checkoutpage {
-    padding-top: 100px;
-  }
-}
-
-@media (max-width: 575px) {
-  #checkoutpage {
-    padding-top: 85px;
-  }
-}
-/* RESPONSIVE TABLE */
-.checkout-table {
-  display: block;
-  width: 100%;
-  overflow-x: auto;
-  white-space: nowrap;
-}
-@media (max-width: 575px) {
-
-  /* Global text */
+/* ================= RESPONSIVE FIXES ================= */
+@media (max-width: 768px) {
   .checkout-wrapper {
-    font-size: 15px;
+    margin-top: 90px; /* adjust if navbar is taller */
+    padding: 0 14px;
   }
 
-  /* Headings */
-  .checkout-wrapper h3 {
-    font-size: 1.4rem !important;
+  .checkout-steps {
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 14px;
   }
 
-  /* Table text */
   .checkout-table th,
   .checkout-table td {
     padding: 8px;
     font-size: 14px;
   }
 
-  /* Buttons */
-  .btn-primary,
-  .btn-secondary {
-    padding: 10px 14px;
-    font-size: 14px;
+  .checkout-footer {
+    flex-direction: column;
+    gap: 12px;
   }
 
-  /* Coupon input */
-  .coupon-input-box input {
+  .btn-primary,
+  .btn-secondary {
     width: 100%;
-    font-size: 14px;
+    text-align: center;
   }
 
   .coupon-input-box {
     flex-direction: column;
   }
 
-  /* Checkout footer stack */
-  .checkout-footer {
-    flex-direction: column;
-    gap: 12px;
+  .coupon-input-box input,
+  .coupon-input-box button {
+    width: 100%;
   }
-}
-@media (max-width: 575px) {
-  .checkout-steps {
-    gap: 10px;
-    font-size: 14px;
-    flex-wrap: wrap;
-  }
-}
-
-
-
-
-
-.payment-breakdown .discount-row {
-  color: #2e7d32;
-  font-weight: 600;
-}
-
-.payment-breakdown .total {
-  font-size: 1.1rem;
-  font-weight: 700;
 }
 
 </style>
-
-
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 <script>
@@ -338,8 +275,6 @@ async function loadCheckoutCart() {
 
   checkoutData.subtotal = Number(data.subtotal);
   checkoutData.grand_total = checkoutData.subtotal;
-bdSubtotal.innerText = checkoutData.subtotal;
-bdPayable.innerText = checkoutData.subtotal;
 
   checkoutCartBody.innerHTML = data.items.map(i=>`
     <tr>
@@ -390,13 +325,14 @@ async function loadCoupons() {
 async function applyCoupon(code) {
   if (!code) return;
 
-  const res = await authFetch("/api/coupons/apply", {
-    method: "POST",
-    body: JSON.stringify({
-      code: code.trim().toUpperCase(),
-      cartTotal: checkoutData.subtotal
-    })
-  });
+ const res = await authFetch("/api/coupons/apply", {
+  method: "POST",
+  body: JSON.stringify({
+    code: code.trim().toUpperCase(),
+    cartTotal: checkoutData.subtotal
+  })
+});
+
 
   const data = await res.json();
 
@@ -409,14 +345,8 @@ async function applyCoupon(code) {
   checkoutData.grand_total = Number(data.coupon.finalAmount);
   checkoutData.coupon_code = data.coupon.code;
 
-  bdSubtotal.innerText = checkoutData.subtotal;
-  bdDiscount.innerText = checkoutData.discount;
-  bdPayable.innerText = checkoutData.grand_total;
-
-  bdDiscountRow.style.display = "flex";
-
   finalTotal.innerText = checkoutData.grand_total;
-  appliedCode.innerText = checkoutData.coupon.code;
+  appliedCode.innerText = data.coupon.code;
 
   couponBox.style.display = "none";
   appliedCoupon.style.display = "block";
@@ -435,11 +365,6 @@ function removeCoupon() {
 
   finalTotal.innerText = checkoutData.subtotal;
   appliedCoupon.style.display = "none";
-bdDiscountRow.style.display = "none";
-bdDiscount.innerText = 0;
-
-bdSubtotal.innerText = checkoutData.subtotal;
-bdPayable.innerText = checkoutData.subtotal;
 
   document.getElementById("manualCoupon").value = "";
 
