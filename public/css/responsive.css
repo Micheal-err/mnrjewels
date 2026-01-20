@@ -20324,7 +20324,7 @@
     padding: 0 20px 0 20px;
   }
   .search-form-wrapper .search-form {
-    height: 450px !important;
+    height: 120px !important;
   }
   .menu-list-wrapper {
     height: calc(100vh - 120px);
@@ -20343,7 +20343,7 @@
     padding: 7px 0px;
   }
   .search-form-wrapper .search-form {
-    height: 380px !important;
+    height: 100px !important;
   }
   .search-form-wrapper .search-form h6 {
     font-size: 18px;
