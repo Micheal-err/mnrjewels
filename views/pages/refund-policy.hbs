@@ -2,14 +2,9 @@
   <div class="container">
 
     <!-- HEADER -->
-    <div class="terms-header text-center">
-      <div class="col-12 col-md-12 text-center d-flex justify-content-center align-items-center flex-column">
-        <h2 class="alt-font ls-minus-1px text-dark-gray text-center primary-text text-white mb-0">
-          Return & Exchange Policy
-        </h2>
-        <p class="terms-subtitle">
-          (please read the return conditions carefully before placing an order)
-        </p>
+     <div class="row mb-0">
+      <div class="heading">
+        <h3 class="text-uppercase mb-1 text-center" style="font-size: 2rem; "><a  class="text-white border-bottom"> Return & Exchange policy</a></h3>
       </div>
     </div>
 
@@ -91,6 +86,12 @@
 ================================ */
 
 
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
 .terms-header {
   margin-bottom: 20px !important;
 }
@@ -115,35 +116,43 @@
 
 .terms-content h3 {
   margin-top: 40px;
-  margin-bottom: 15px;
-  font-size: 27px !important;
-  letter-spacing: 1px;
+  margin-bottom: 0px;
+  font-size: 16px !important;
   text-transform: uppercase;
+  font-weight: 600;
+  font-family: 'Times New Roman', Times, serif;
+  display: inline-block;
+  padding-bottom: 0rem;
+  text-decoration: underline;
+ 
 }
 
 .terms-content h4 {
   margin-top: 25px;
-  margin-bottom: 10px;
+  margin-bottom: 0px;
   font-size: 20px !important;
   font-weight: 600;
   letter-spacing: normal !important;
 }
 
 .terms-content p {
-  margin-bottom: 15px;
-  opacity: 0.95;
+  margin-bottom: 5px;
+  font-size: 15px;
+  font-family: 'Times New Roman', Times, serif;
   
 }
 
 .terms-content ol {
-  padding-left: 20px;
-  margin-bottom: 20px;
+  margin-bottom: 5px;
+  font-size: 15px;
+  font-family: 'Times New Roman', Times, serif;
 }
 
 .terms-content li {
-  margin-bottom: 8px;
+   margin-bottom: 5px;
+  font-size: 15px;
+  font-family: 'Times New Roman', Times, serif;
 }
-
 /* ===============================
    RESPONSIVE
 ================================ */
@@ -157,4 +166,15 @@
     font-size: 14px;
   }
 }
+@media (max-width: 991px) {
+ .terms-page{
+  margin-top: 10rem !important;
+ }
+}
+@media (max-width: 575px) {
+ .heading h3{
+  font-size: 1.7rem !important;
+ }
+}
+
 </style>

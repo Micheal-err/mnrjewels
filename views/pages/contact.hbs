@@ -1,13 +1,18 @@
 <div id="toast" class="toast" style="display:none; "></div>
 
 <!-- CONTACT SECTION -->
-<section class="bg-base-color contact-section-fix position-relative z-index-1 pb-0" >
+<section class="bg-base-color contact-section-fix z-index-1 pb-7 mt-5" >
 
-  <div class="container" style="margin-bottom: 8rem;">
-    <div class="row d-flex justify-content-center align-items-center">
-     <div class="col-xl-5 col-lg-5 mb-5 mb-lg-0">
+  <div class="container" id="inner-contanct">
+    <div class="row mb-3">
+      <div class="">
+        <h3 class="text-uppercase mb-1 text-center" style="font-size: 2rem; "><a  class="text-white border-bottom"> Contact Us</a></h3>
+      </div>
+    </div>
+
+    <div class="row d-flex justify-content-between align-items-center flex-row-reverse">
+     <div class="col-xl-5 col-lg-5  mb-lg-0">
     <div class="contact-info-box">
-      <h3 class="contact-info-title">Message us at</h3>
 
       <div class="contact-info-item">
         <span>For customer queries</span>
@@ -36,7 +41,7 @@
       <div class="col-xl-6 col-lg-6">
       
 
-        <div class="contact-form-style-03 bg-chablis-red p-13 position-relative overflow-hidden">
+        <div class="contact-form-style-03 bg-chablis-red p-13 pt-4 pb-4 position-relative overflow-hidden">
           <i class="bi bi-chat-text fs-140 text-cinderella-red position-absolute top-minus-30px right-minus-40px"></i>
 
     
@@ -44,21 +49,21 @@
           <form id="contactForm" novalidate>
             <div class="position-relative form-group mb-20px">
               <span class="form-icon text-dark-gray"><i class="bi bi-emoji-smile"></i></span>
-              <input class="ps-0 fs-17 form-control" type="text" name="name" placeholder="Your name*" />
+              <input class="ps-0 fs-17 form-control " style="border-bottom: 1px solid #9FA878 ;" type="text" name="name" placeholder="Your name*" />
             </div>
 
             <div class="position-relative form-group mb-20px">
               <span class="form-icon text-dark-gray"><i class="bi bi-envelope"></i></span>
-              <input class="ps-0 fs-17 form-control" type="email" name="email" placeholder="Your email address*" />
+              <input class="ps-0 fs-17 form-control " style="border-bottom: 1px solid #9FA878 ;" type="email" name="email" placeholder="Your email address*" />
             </div>
 
             <div class="position-relative form-group mb-20px">
               <span class="form-icon text-dark-gray"><i class="bi bi-telephone"></i></span>
-              <input class="ps-0 fs-17 form-control" type="tel" name="phone" placeholder="Your phone" />
+              <input class="ps-0 fs-17 form-control " style="border-bottom: 1px solid #9FA878 ;" type="tel" name="phone" placeholder="Your phone" />
             </div>
 
             <div class="position-relative form-group form-textarea mt-15px mb-0">
-              <textarea class="ps-0 fs-17 form-control" name="comment" placeholder="Your message" rows="4"></textarea>
+              <textarea class="ps-0 fs-17 form-control " style="border-bottom: 1px solid #9FA878 ;" name="comment" placeholder="Your message" rows="4"></textarea>
               <span class="form-icon text-dark-gray">
                 <i class="bi bi-chat-square-dots"></i>
               </span>
@@ -79,6 +84,12 @@
 <style>
   
 
+
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
 /* ===============================
    CONTACT SECTION FIX
 ================================ */
@@ -96,6 +107,8 @@
   border-radius: 10px !important;
   padding: 48px !important;
   position: relative;
+  padding-top: 1.5rem !important;
+  padding-bottom: 1.5rem !important;
 }
 
 /* REMOVE DECORATIVE ICON OVERLAP */
@@ -213,8 +226,27 @@
     padding-right: 0;
     text-align: center;
   }
+  .contact-section-fix{
+    margin-top: 12rem !important;
+    padding-bottom: 0rem !important;
+  }
+}
+@media (min-width: 991px) {
+
+  .contact-section-fix{
+    padding-bottom: 8rem !important;
+  }
+  #inner-contanct{
+    margin-bottom: 10rem !important;
+  }
 }
 
+form input::placeholder {
+font-weight: 600;
+}
+form  textarea::placeholder {
+font-weight: 600;
+}
 
 </style>
 

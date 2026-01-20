@@ -23,6 +23,9 @@ img {
 
 @media (max-width: 991px) {
   #heroSlider { min-height: 70vh; }
+ .subscribe-popup .mfp-close:before {
+  color: white !important;
+ }
 }
 @media (max-width: 575px) {
   #heroSlider { min-height: 60vh; }
@@ -32,6 +35,7 @@ img {
 .shop-section {
   padding: 80px 0;
   background: #9FA878;
+  padding-top: -2rem !important;
 }
 
 .shop-section h3,
@@ -101,7 +105,13 @@ img {
   font-size: 20px;
   line-height: 1.4;
 }
-
+#stylish-line{
+ rotate: -10deg; 
+ margin-top: -2rem;
+}
+#stylish-line-first{
+ margin-top: -2rem;
+}
 @media (max-width: 768px) {
   .journal-image { height: 220px; }
   .journal-title { font-size: 18px; }
@@ -119,157 +129,774 @@ img {
   display: none;
 }
 }
+
+
+/* ===============================
+   SHOP SECTION – GLOBAL
+================================ */
+.shop-section {
+  width: 100%;
+  overflow: hidden;
+}
+
+.shop-section h3 {
+  font-size: 24px;
+  letter-spacing: 1px;
+}
+
+.shop-section p {
+  font-size: 14px;
+  opacity: 0.85;
+}
+
+/* ===============================
+   SWIPER CORE FIX
+================================ */
+.shop-swiper {
+  width: 100%;
+  padding-bottom: 10px;
+}
+
+.shop-swiper .swiper-wrapper {
+  align-items: stretch;
+}
+
+.shop-swiper .swiper-slide {
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ===============================
+   CARD & IMAGE CONTROL
+================================ */
+.shop-card {
+  width: 100%;
+  max-width: 100%;
+  aspect-ratio: 3 / 4;     /* PERFECT JEWELRY RATIO */
+  border-radius: 14px;
+  overflow: hidden;
+  position: relative;
+  background: #fff;
+}
+
+.shop-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;      /* NO STRETCHING */
+  display: block;
+  transition: transform 0.4s ease;
+}
+
+/* Hover only on desktop */
+@media (hover: hover) {
+  .shop-card:hover img {
+    transform: scale(1.05);
+  }
+}
+
+/* ===============================
+   TITLES
+================================ */
+.shop-title {
+  margin-top: 10px;
+  font-size: 14px;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.shop-title a {
+  text-decoration: none;
+  color: #fff;
+}
+
+
+/* ===============================
+   SHOP SECTION – BASE
+================================ */
+.shop-section {
+  width: 100%;
+  overflow: hidden;
+}
+
+.shop-section h3 {
+  font-size: 24px;
+  letter-spacing: 1px;
+}
+
+.shop-section p {
+  font-size: 14px;
+  opacity: 0.85;
+}
+
+/* ===============================
+   SWIPER FIX (CRITICAL)
+================================ */
+.shop-swiper {
+  width: 100%;
+}
+
+.shop-swiper .swiper-wrapper {
+  align-items: stretch;
+}
+
+.shop-swiper .swiper-slide {
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ===============================
+   CARD & IMAGE
+================================ */
+.shop-card {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.shop-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ===============================
+   TITLE
+================================ */
+.shop-title {
+  margin-top: 10px;
+  font-size: 14px;
+  text-align: center;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* ================= SHOP SECTION ================= */
+.shop-section {
+  padding: 80px 0;
+  background: #9FA878;
+  overflow: hidden;
+  padding-top: -4rem !important;
+}
+
+.shop-section h3,
+.shop-section p {
+  color: #fff;
+}
+
+/* ================= SWIPER ================= */
+.shop-swiper {
+  width: 100%;
+  overflow: visible; /* IMPORTANT */
+}
+
+.shop-swiper .swiper-wrapper {
+  align-items: stretch;
+}
+
+/* ================= SLIDE ================= */
+.shop-swiper .swiper-slide {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ================= FIXED CARD SIZE ================= */
+.shop-card {
+  width: 260px;              /* FIXED WIDTH */
+  height: 360px;             /* FIXED HEIGHT */
+  border-radius: 16px;
+  overflow: hidden;
+  background: #fff;
+}
+
+/* Prevent scaling on large screens */
+@media (min-width: 1200px) {
+  .shop-card {
+    width: 260px;
+    height: 360px;
+  }
+}
+
+/* Tablet */
+@media (max-width: 991px) {
+  .shop-card {
+    width: 240px;
+    height: 330px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 575px) {
+  .shop-card {
+    width: 100%;
+    max-width: 280px;
+    height: 360px;
+  }
+}
+
+/* ================= IMAGE ================= */
+.shop-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ================= TITLE ================= */
+.shop-title {
+  margin-top: 14px;
+  font-size: 15px;
+  text-align: center;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.shop-title a {
+  color: #fff;
+  text-decoration: none;
+}
+  .shop-section h3,
+  .shop-section p {
+    text-align: center !important;
+  }
+/* ================= MOBILE TEXT ALIGN ================= */
+@media (max-width: 767px) {
+  .shop-section h3,
+  .shop-section p {
+    text-align: center !important;
+  }
+}
+
+/* ================= SHOP NAV ================= */
+.shop-nav {
+  display: flex;
+  justify-content: center;  
+  gap: 20px;
+  margin-top: 10px;
+}
+
+.shop-nav button {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.6);
+  background: transparent;
+  color: #fff;
+  font-size: 22px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.shop-nav button:hover {
+  background: #fff;
+  color: #000;
+}
+
+/* Hidden by default – JS will enable */
+.shop-nav {
+  display: none;
+}
+
+/* ================= GIFTING FEATURE GRID ================= */
+
+/* ================= GIFT SECTION ================= */
+
+.gift-section {
+  overflow: hidden;
+}
+
+/* ================= FEATURE GRID ================= */
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* ================= FEATURE BOX ================= */
+
+.feature-box-gift {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;      /* square on desktop */
+  border-radius: 16px;
+  overflow: hidden;
+
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* ================= FEATURE TEXT ================= */
+
+.feature-box-gift .feature-text {
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #fff;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-align: center;
+
+}
+
+/* ================= TABLET ================= */
+
+@media (max-width: 991px) {
+  .feature-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .feature-box-gift {
+    aspect-ratio: 4 / 4;
+    height: 200px !important;
+  }
+
+  .feature-box-gift .feature-text {
+    font-size: 16px;
+  }
+  #gifitng-container{
+  flex-direction: column;
+}
+}
+@media (max-width: 768px) {
+#gifitng-container{
+  flex-direction: column;
+}
+}
+
+/* ================= MOBILE ================= */
+
+@media (max-width: 575px) {
+  .feature-grid {
+    grid-template-columns: 1fr 1fr;
+    row-gap: 1rem !important;
+    column-gap: 1rem !important;
+  }
+
+  .feature-box-gift {
+    aspect-ratio:  5/5;
+  }
+
+  .feature-box-gift .feature-text {
+    font-size: 15px;
+  }
+}
+.break-mobile{
+  display: none;
+}
+@media (max-width: 575px) {
+.break-mobile{
+  display: block;
+}
+#gifitng-container{
+  justify-content: space-between !important;
+}
+}
+
+/* ================= MEDIUM SCREENS – SCALE UP GIFT GRID ================= */
+
+@media (max-width: 991px) and (min-width: 576px) {
+
+  .gift-section .feature-grid {
+    max-width: 520px;          /* MAKE GRID BIGGER */
+    margin: 0 auto;            /* CENTER IT */
+    gap: 16px;
+  }
+
+  .gift-section .feature-box-gift {
+    aspect-ratio:  5/5;       /* TALLER = BIGGER */
+  }
+
+  .gift-section .feature-box-gift .feature-text {
+    font-size: 17px;
+  }
+}
+@media (max-width: 991px) and (min-width: 576px) {
+  .gift-section .feature-grid {
+    max-width: 700px;
+  }
+
+  .gift-section .feature-box-gift {
+    aspect-ratio: 5 / 5;
+  }
+  .feature-box-gift {
+    aspect-ratio: 4 / 7;
+    height: 250px !important;
+  }
+}
+
+/* ================= BOXY SCROLL FEEL ================= */
+
+.shop-swiper {
+  padding-bottom: 10px;
+}
+
+.shop-swiper .swiper-slide {
+  width: auto;                 /* REQUIRED for slidesPerView:auto */
+}
+
+/* Optional snap-like feel */
+.shop-swiper .swiper-wrapper {
+  scroll-behavior: smooth;
+}
+
+.shop-swiper {
+  cursor: grab;
+}
+
+.shop-swiper:active {
+  cursor: grabbing;
+}
+
+.shop-swiper .swiper-wrapper {
+  transition-timing-function: linear !important;
+}
+.shop-marquee {
+  overflow: hidden;
+  width: 100%;
+}
+
+.shop-track {
+  display: flex;
+  gap: 24px;
+  width: max-content;
+  animation: marquee 35s linear infinite;
+}
+
+.shop-marquee:hover .shop-track {
+  animation-play-state: running; /* never pause */
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0); 
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* card size */
+.shop-card {
+  width: 260px;
+  height: 360px;
+  flex-shrink: 0;
+}
+.shop-track {
+  display: flex;
+  gap: 24px;
+  width: max-content;
+  animation: marquee 30s linear infinite;
+  will-change: transform;
+}
+
+@keyframes marquee {
+  from {
+    transform: translate3d(0,0,0);
+  }
+  to {
+    transform: translate3d(-50%,0,0);
+  }
+}
+
+/* ================= PROMISE SECTION RESPONSIVE FIX ================= */
+
+/* Mobile + Tablet → 2 items per row */
+@media (max-width: 991px) {
+
+  #down-section .row {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  #down-section .row > .col {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+
+  /* Remove borders that look wrong in 2-col layout */
+  #down-section .border-end {
+    border-right: none !important;
+  }
+
+  #down-section .feature-box {
+    text-align: center;
+  }
+}
+
+/* Desktop (lg+) → keep 3 per row */
+@media (min-width: 992px) {
+  #down-section .row > .col {
+    flex: 0 0 33.3333%;
+    max-width: 33.3333%;
+  }
+}
+
+@media (max-width: 525px) {
+.feature-box-icon {
+  height: 60px !important;
+  width: 60px !important;
+}
+
+.feature-box-icon img{
+  height: 55px !important;
+  width: 55px !important;
+}
+
+.icon-with-text-style{
+  margin-bottom: 0 !important;
+}
+.feature-box-content span{
+font-size: 10px;
+}
+#down-section{
+  margin-top: 2rem;
+}
+#down-section .feature-box{
+  height: 140px;
+}
+.shop-section .swiper-slide{
+  width: 290px !important;
+}
+#shop-section{
+  margin-top: -5rem !important;
+}
+
+}
+.swiper-pagination-bullet-active
+
+ {
+background: white !important;
+ }
+ .shop-swiper .swiper-wrapper {
+  transition-timing-function: linear !important;
+}
+
+.shop-swiper .swiper-slide {
+  width: 320px; /* or whatever your card width is */
+}
+
+
+
+
 </style>
 
 <!-- ================= HERO SLIDER ================= -->
-<section class="bg-dark-gray pb-0">
-  <div id="heroSlider" class="swiper">
+<section class="bg-dark-gray pb-0" style="height: 90% !important;">
+  <div id="heroSlider" class="swiper" style="height: 90% !important;">
     <div class="swiper-wrapper">
       <div class="swiper-slide">
-        <div class="cover-background" style="background-image:url('/images/slider-1.webp'); height:100%"></div>
+        <div class="cover-background" style="background-image:url('/images/slider-1.webp'); height: 90%"></div>
       </div>
       <div class="swiper-slide">
-        <div class="cover-background" style="background-image:url('/images/slider-2.webp'); height:100%"></div>
+        <div class="cover-background" style="background-image:url('/images/slider-2.webp'); height: 90%"></div>
       </div>
       <div class="swiper-slide">
-        <div class="cover-background" style="background-image:url('/images/slider-3.webp'); height:100%"></div>
+        <div class="cover-background" style="background-image:url('/images/slider-3.webp'); height: 90%"></div>
       </div>
     </div>
-    <div class="swiper-pagination"></div>
+    <div class="swiper-pagination" style="transform: translateY(-700%)"></div>
   </div>
 </section>
 
 <!-- ================= SHOP MEN ================= -->
-<section class="shop-section pb-0">
+<section class="shop-section pb-0 pt-8 " id="shop-section">
   <div class="container">
     <div class="row mb-1 justify-content-between ">
-      <div class="col-lg-6">
-        <h3 class="text-uppercase">Shop Men</h3>
+      <div class="">
+        <h3 class="text-uppercase mb-0 " style="font-size: 2rem;"><a href="/shop/men" class="text-white border-bottom">Shop Men</a></h3>
+        <p class="text-end">designed for M&R MAN - strength in every detail</p>
       </div>
-      <div class="col-lg-6">
-        <p class="text-end">Power in everyday pieces</p>
+    
+    </div>
+
+         <div class="swiper shop-swiper overflow-hidden " data-slider-options='{ "slidesPerView": 1, "spaceBetween": 20, "loop": true,"speed": 5000, "autoplay": { "delay": 1500, "disableOnInteraction": false }, "navigation": { "nextEl": ".slider-one-slide-next-1", "prevEl": ".slider-one-slide-prev-1" }, "pagination": { "el": ".slider-four-slide-pagination-1", "clickable": true, "dynamicBullets": false }, "keyboard": { "enabled": true, "onlyInViewport": true }, "breakpoints": { "1400": { "slidesPerView": 4 }, "1024": { "slidesPerView": 3 }, "768": { "slidesPerView": 2 }, "576": { "slidesPerView": 1 }, "320": { "slidesPerView": 1 } }, "effect": "slide" } '>
+      <div class="swiper-wrapper ">
+        
+        <div class="swiper-slide ">
+          <a href="/shop/men/rings" class="text-white ">
+          <div class="shop-card"><img src="images/home-shop-men-rings.webp"></div>
+          <p class="shop-title text-underline">Rings</p>
+          </a>
+        </div>
+        <div class="swiper-slide ">
+          <a href="/shop/men/bracelets" class="text-white ">
+          <div class="shop-card"><img src="images/home-shop-men-rings.webp"></div>
+          <p class="shop-title text-underline">Bracelets</p>
+          </a>
+        </div>
+        <div class="swiper-slide ">
+          <a href="/shop/unisex/chains" class="text-white ">
+          <div class="shop-card"><img src="images/home-shop-men-chains.webp"></div>
+          <p class="shop-title text-underline">Chains</p>
+          </a>
+        </div>
+        <div class="swiper-slide ">
+          <a href="/shop/men/pendants" class="text-white ">
+          <div class="shop-card"><img src="images/home-shop-men-chains.webp"></div>
+          <p class="shop-title text-underline">Pendants</p>
+          </a>
+        </div>
+        <div class="swiper-slide ">
+          <a href="/shop/unisex/earrings" class="text-white ">
+          <div class="shop-card"><img src="images/home-shop-men-chains.webp"></div>
+          <p class="shop-title text-underline">Earrings</p>
+          </a>
+        </div>
       </div>
     </div>
 
-    <div class="swiper shop-swiper">
-      <div class="swiper-wrapper">
-        <div class="swiper-slide">
-          <div class="shop-card"><img src="images/home-shop-men-rings.webp"></div>
-          <p class="shop-title"><a href="/shop/men/rings" class="text-white">Rings</a></p>
-        </div>
-        <div class="swiper-slide">
-          <div class="shop-card"><img src="images/home-shop-men-rings.webp"></div>
-          <p class="shop-title"><a href="/shop/men/bracelets" class="text-white">Bracelets</a></p>
-        </div>
-        <div class="swiper-slide">
-          <div class="shop-card"><img src="images/home-shop-men-chains.webp"></div>
-          <p class="shop-title"><a href="/shop/men/chains" class="text-white">Chains</a></p>
-        </div>
-        <div class="swiper-slide">
-          <div class="shop-card"><img src="images/home-shop-men-chains.webp"></div>
-          <p class="shop-title"><a href="/shop/men/pendants" class="text-white">Pendants</a></p>
-        </div>
-      </div>
-    </div>
+
   </div>
 </section>
 
 <!-- ================= SHOP WOMEN ================= -->
-<section class="shop-section pt-4">
+<section class="shop-section pt-2 pb-2">
   <div class="container">
-    <div class="row mb-1">
-      <div class="col-lg-6">
-        <h3 class="text-uppercase">Shop Women</h3>
+    <div class="row mb-3">
+      <div class="">
+        <h3 class="text-uppercase mb-1 " style="font-size: 2rem;"><a href="/shop/women" class="text-white border-bottom"> SHOP Women</a></h3>
+        <p class="text-end sm-text-center pt-0 mt-0 lh-1 mt-2 ">exquisite designs for M&R WOMAN celebrating <br class="break-mobile"/>confidence, elegance, and timeless femininity</p>
       </div>
-      <div class="col-lg-6">
-        <p class="text-end sm-text-center">Exquisite designs celebrating confidence, elegance, and timeless femininity</p>
-      </div>
+      
     </div>
 
-    <div class="swiper shop-swiper">
+       <div class="swiper shop-swiper overflow-hidden " data-slider-options='{ "slidesPerView": 1, "spaceBetween": 20, "loop": true,"speed": 5000, "autoplay": { "delay": 1500, "disableOnInteraction": false }, "navigation": { "nextEl": ".slider-one-slide-next-1", "prevEl": ".slider-one-slide-prev-1" }, "pagination": { "el": ".slider-four-slide-pagination-1", "clickable": true, "dynamicBullets": false }, "keyboard": { "enabled": true, "onlyInViewport": true }, "breakpoints": { "1400": { "slidesPerView": 4 }, "1024": { "slidesPerView": 3 }, "768": { "slidesPerView": 2 }, "576": { "slidesPerView": 1 }, "320": { "slidesPerView": 1 } }, "effect": "slide" } '>
       <div class="swiper-wrapper">
-        <div class="swiper-slide">
+        <div class="swiper-slide " >
+          <a href="/shop/women/rings" class="text-white ">
           <div class="shop-card"><img src="images/home-shop-women-rings.webp"></div>
-          <p class="shop-title"><a href="/shop/women/rings" class="text-white">Rings</a></p>
+          <p class="shop-title text-underline">Rings</p>
+          </a>
         </div>
         <div class="swiper-slide">
+          <a href="/shop/women/bracelets" class="text-white ">
           <div class="shop-card"><img src="images/home-shop-women-bracelet.webp"></div>
-          <p class="shop-title"><a href="/shop/women/bracelets" class="text-white">Bracelets</a></p>
+          <p class="shop-title text-underline">Bracelets</p>
+          </a>
         </div>
         <div class="swiper-slide">
+          <a href="/shop/women/necklace" class="text-white ">
           <div class="shop-card"><img src="images/home-shop-women-necklace.webp"></div>
-          <p class="shop-title"><a href="/shop/women/necklace" class="text-white">Necklace</a></p>
+          <p class="shop-title text-underline">Necklaces</p>
+          </a>
         </div>
         <div class="swiper-slide">
+          <a href="/shop/unisex/earrings" class="text-white ">
           <div class="shop-card"><img src="images/home-shop-women-earrings.webp"></div>
-          <p class="shop-title"><a href="/shop/women/earrings" class="text-white">Earrings</a></p>
+          <p class="shop-title text-underline">Earrings</p>
+          </a>
+        </div>
+        <div class="swiper-slide">
+          <a href="/shop/unisex/pendants" class="text-white ">
+          <div class="shop-card"><img src="images/home-shop-women-earrings.webp"></div>
+          <p class="shop-title text-underline">Pendants</p>
+          </a>
+        </div>
+        <div class="swiper-slide">
+          <a href="/shop/women/chians" class="text-white ">
+          <div class="shop-card"><img src="images/home-shop-women-earrings.webp"></div>
+          <p class="shop-title text-underline">Chains</p>
+          </a>
         </div>
       </div>
     </div>
+ 
+
   </div>
 </section>
 
 
 
- <section class="gift-section position-relative pt-0 sm-pt-50px pb-0  p-0">
-    <div class="container overlap-gap-section">
-        <div class="row align-items-center  " style="justify-content: space-between; ">
+ <section class="gift-section position-relative m-4 p-1 border-radius-10px">
+    <div class="container overlap-gap-section  ">
+<div class="row justify-content-center">
+  <div class="col-lg-12 bg-base-color pt-3 pb-5 border-radius-10px">
+    <div class="row align-items-center">
 
+<div  class="bg-base-color d-flex justify-content-center align-items-center col-lg-12 pt-2 pb-4 " id="gifitng-container" style="padding-right: 2rem;">
             <!-- RIGHT SIDE: Buttons + Heading -->
-            <div class="col-lg-5 text-center " style="display: flex; flex-direction: column; ">
-                <h3 class="text-dark-gray fw-500 text-uppercase mb-7  text-start font-stylish-2 " style="font-size: 2.3rem;">
-                    A gift that says more<br class="break-sm-none"/> than words....
+            <div class="col-lg-5 col-sm-12 sm-w-100 text-center " style="display: flex; flex-direction: column; margin-left: 1rem;">
+                <h3 class="text-white fw-500 text-uppercase mb-7 pt-7  text-start font-stylish-2 fs-24">
+                    A gift that says <br class="break-mobile"/>more<br class="break-sm-none"/> than <br class="break-mobile"/>words....
                 </h3>
 
                 <div class="d-flex flex-column align-items-center mb-7 mt-7">
-                    <a href="about.html" class="alt-font btn btn-small btn-box-shadow btn-dark-gray btn-round-edge left-icon add-to-cart " style="border: 1px solid #9FA878; color: white !important;" >
+                    <a href="about.html" class="alt-font btn btn-small btn-box-shadow btn-white btn-round-edge left-icon add-to-cart " style="border: 1px solid #9FA878; color: #9FA878 !important;" >
                                 <span>
-                                    <span class="btn-double-text text-white primary-font" data-text="For protection" >For protection</span> 
+                                    <span class="btn-double-text text-base-color primary-font" data-text="For protection" >For protection</span> 
                                     <span></span>
                                 </span>
                             </a>
-                    <a href="about.html" class="mt-5 alt-font btn btn-small btn-box-shadow btn-dark-gray btn-round-edge left-icon add-to-cart" style="border: 1px solid #9FA878; color: white !important;" >
+                    <a href="about.html" class="mt-5 alt-font btn btn-small btn-box-shadow btn-white btn-round-edge left-icon add-to-cart" style="border: 1px solid #9FA878; color: #9FA878 !important;" >
                                 <span>
-                                    <span class="btn-double-text text-white primary-font" data-text="For protection" >For everyday gifting</span> 
+                                    <span class="btn-double-text text-base-color primary-font" data-text="For protection" >For everyday gifting</span> 
                                     <span></span>
                                 </span>
                             </a>
-                    <a href="about.html" class="mt-5 alt-font btn btn-small btn-box-shadow btn-dark-gray btn-round-edge left-icon add-to-cart" style="border: 1px solid #9FA878; color: white !important;" >
+                    <a href="about.html" class="mt-5 alt-font btn btn-small btn-box-shadow btn-white btn-round-edge left-icon add-to-cart" style="border: 1px solid #9FA878; color: #9FA878 !important;" >
                                 <span>
-                                    <span class="btn-double-text text-white primary-font" data-text="For protection" >For party gifting</span> 
+                                    <span class="btn-double-text text-base-color primary-font" data-text="For protection" >For party gifting</span> 
                                     <span></span>
                                 </span>
                             </a>
                 </div>
                 
 
-                <h3 class="text-dark-gray fw-200 ls-1px lh-50  fs-30 text-alt-font mt-8 text-center  font-stylish">
-                    <span style="font-size: 2.5rem !important;">make them smile</span> <br/><span style="font-size: 2.7rem !important;">the moment they open it.</span>
-                </h3>
-            </div>
-
-            <!-- LEFT SIDE: Feature Image Grid -->
-            <div class="col-lg-7 md-mb-50px p-0">
-                <div class="feature-grid gap-0">
-                    <div class="feature-box feature-box-gift bg-1 d-flex justify-content-center align-items-center m-1">
-                        <p class="feature-text text-center">For him</p>
-                    </div>
-
-                    <div class="feature-box feature-box-gift bg-2 d-flex justify-content-center align-items-center m-1">
-                        <p class="feature-text text-center">For her</p>
-                    </div>
-
-                    <div class="feature-box feature-box-gift bg-3 d-flex justify-content-center align-items-center m-1">
-                        <p class="feature-text text-center">From 499/-</p>
-                    </div>
-
-                    <div class="feature-box feature-box-gift bg-4 d-flex justify-content-center align-items-center m-1">
-                        <p class="feature-text text-center">Under 1599/-</p>
-                    </div>
+                <div>
+                  <img src="/images/stylish-text-img.png"/>
                 </div>
             </div>
 
+            <!-- LEFT SIDE: Feature Image Grid -->
+            <div class="col-lg-6 mt-6 " >
+                <div class="feature-grid gap-0">
+
+                    <div class="feature-box feature-box-gift bg-1 d-flex justify-content-center align-items-center m-1">
+                    <a href="/gifting/for-him">
+                        <p class="feature-text text-center">For him</p>
+                    </a>
+                    </div>
+
+                    <div class="feature-box feature-box-gift bg-2 d-flex justify-content-center align-items-center m-1">
+                    <a href="/gifting/for-her">
+                        <p class="feature-text text-center">For her</p>
+                    </a>
+                    </div>
+
+                    <div class="feature-box feature-box-gift bg-3 d-flex justify-content-center align-items-center m-1">
+                    <a href="/gifting/under-699">
+                        <p class="feature-text text-center">From 699/-</p>
+                    </a>
+                    </div>
+
+                    <div class="feature-box feature-box-gift bg-4 d-flex justify-content-center align-items-center m-1">
+                    <a href="/gifting/under-1599">
+                        <p class="feature-text text-center">Under 1599/-</p>
+                    </a>
+                    </div>
+                </div>
+            </div>
+</div>
         </div>
+    </div>
+    </div>
     </div>
 </section>
 
@@ -277,11 +904,11 @@ img {
 
 
 <!-- ================= JOURNAL ================= -->
-<section class="journal-section">
+<section class="journal-section pt-3 pb-3">
   <div class="container">
-    <h3 class="text-white mb-5">M&R Journal</h3>
+    <h3 class="text-white mb-5 text-center text-uppercase " style="font-size: 2rem;"><a href="/mnr-journal" class="text-white border-bottom ">M&R Journal</a></h3>
 
-    <div class="swiper journalSwiper">
+     <div class="swiper shop-swiper overflow-hidden journal-swiper" data-slider-options='{ "slidesPerView": 1, "spaceBetween": 20, "loop": true,"speed": 5000, "autoplay": { "delay": 1500, "disableOnInteraction": false }, "navigation": { "nextEl": ".slider-one-slide-next-1", "prevEl": ".slider-one-slide-prev-1" }, "pagination": { "el": ".slider-four-slide-pagination-1", "clickable": true, "dynamicBullets": false }, "keyboard": { "enabled": true, "onlyInViewport": true }, "breakpoints": { "1400": { "slidesPerView": 2 }, "1024": { "slidesPerView": 2 }, "768": { "slidesPerView": 1 }, "576": { "slidesPerView": 1 }, "320": { "slidesPerView": 1 } }, "effect": "slide" } '>
       <div class="swiper-wrapper h-auto">
         <div class="swiper-slide h-50" >
            <article class="journal-card">
@@ -290,17 +917,16 @@ img {
                 </div>
 
                 <div class="journal-content">
-                  <span class="journal-meta">
-                    <span  class="text-base-color">About</span>
-                    <span>| 18 August 2023</span>
+
+                  <h4 class="journal-title text-underline text-uppercase fs-15 fw-600 mb-0 ls-1px" style="font-size: 16px;" >About us </h4>
+                  <span class="journal-meta mb-4">
+                    <span class="fs-14">6 February 2026</span>
                   </span>
 
-                  <h4 class="journal-title">About us blog</h4>
-
-                  <p>25 years ago, Rathod Jewellers embarked on a journey to establish trust and a name in the world of fine jewellery; they celebrated local artistry that spoke luxury...
+                  <p class="fs-15 mt-3">25 years ago, Rathod Jewellers embarked on a journey to establish trust and a name in the world of fine jewellery; they celebrated local artistry that spoke luxury...
                   </p>
 
-                  <a href="/blogs/about-us-blog" class="journal-btn text-base-color" id="whiteHover">Read more</a>
+                  <a href="/blogs/about-us-blog" class="journal-btn text-base-color text-underline fs-15 fw-600" id="whiteHover">Read more</a>
                 </div>
               </article>
         </div>
@@ -311,22 +937,20 @@ img {
                 </div>
 
                 <div class="journal-content">
-                  <span class="journal-meta">
-                    <span  class="text-base-color">Jewellery</span>
-                    <span>| 18 August 2023</span>
+
+                  <h4 class="journal-title text-underline text-uppercase  fw-600 mb-0 ls-1px" style="font-size: 16px;" >
+                  How to Layer Silver Chains the Right Way</h4>
+
+                  <span class="journal-meta mb-4">
+                    <span class="fs-14">6 February 2026</span>
                   </span>
 
-                  <h4 class="journal-title">
-                  How to Layer Silver Chains the Right Way
-
-                  </h4>
-
-                  <p>
+                  <p class="fs-15 mt-3">
                   Minimal, modern, durable, and incredibly versatile, silver chains are an essential in everyone's accessory stack. With their timeless charm, silver chains are not only...
 
                   </p>
 
-                  <a href="/blogs/how-to-layer-silver-chains-the-right-way" class="journal-btn text-base-color " id="whiteHover">Read more</a>
+                  <a href="/blogs/how-to-layer-silver-chains-the-right-way" class="journal-btn text-base-color  text-underline fs-15 fw-600" id="whiteHover">Read more</a>
                 </div>
               </article>
         </div>
@@ -337,20 +961,17 @@ img {
                 </div>
 
                 <div class="journal-content">
-                  <span class="journal-meta">
-                    <span class="text-base-color" id="whiteHover">Gifts</span>
-                    <span>| 18 August 2023</span>
+
+                  <h4 class="journal-title text-underline text-uppercase  fw-600 mb-0 ls-1px" style="font-size: 16px;" >Affordable Silver Gifts Under ₹1499 for Every Ocassion</h4>
+                  <span class="journal-meta mb-4">
+                    <span class="fs-14">6 February 2026</span>
                   </span>
 
-                  <h4 class="journal-title">
-                   Affordable Silver Gifts Under ₹1499 for Every Occasion
-                  </h4>
-
-                  <p>
-                   Selecting that perfect gift, whether for yourself or a loved one, is a slow intricate process of love. It requires that you know who you are shopping for, but it does not have to be tough.
+                  <p class="fs-15 mt-3">
+                 Selecting the perfect gift in silver is a slow and intricate process of love. It is a common belief that gifting silver to your loved one comes...
                   </p>
 
-                  <a href="/blogs/affordable-silver-gifts-under-1499-for-every-occasion" class="journal-btn text-base-color " id="whiteHover">Read more</a>
+                  <a href="/blogs/affordable-silver-gifts-under-1499-for-every-occasion" class="journal-btn text-base-color  text-underline fs-15 fw-600" id="whiteHover">Read more</a>
                 </div>
               </article>
         </div>
@@ -360,115 +981,111 @@ img {
 </section>
 
    <!-- start section -->
-        <section id="down-section" class="position-relative pt-4 pb-0 sm-pb-50px">
+        <section id="down-section" class="position-relative pt-4 pb-0 ">
             <div class="container">
-                
-                    <div class="row justify-content-center">
-                     <div class="col-10 col-md-11 text-center d-flex justify-content-between align-items-center ">
-                        <h2 class="alt-font ls-minus-1px text-dark-gray  primary-text  text-center w-100" >Our promise to you </h2>
-                    </div>
-                </div>
+                  <h3 class="text-base-color mb-5 text-center text-uppercase " style="font-size: 2rem; "  id="whiteHover"><a href="/about" class="text-base-color  border-base-color" style="border-bottom: 1px solid#9FA878;" id="whiteHover">Our promise to you</a></h3>
+<div class="d-flex  flex-column ">
 
                 <div class="row row-cols-1 row-cols-lg-3 row-cols-sm-2 align-items-center justify-content-center mb-5 md-mb-9" data-anime='{ "el": "childs", "translateY": [30, 0], "opacity": [0,1], "duration": 600, "delay": 0, "staggervalue": 150, "easing": "easeOutQuad" }'>
                     <!-- start features box item -->  
-                    <div class="col icon-with-text-style-10 md-mb-50px sm-mb-30px border-end border-color-extra-medium-gray">
+                    <div class="col icon-with-text-style-10 md-mb-50px mb-30px sm-mb-0 border-end border-color-extra-medium-gray">
                         <div class="feature-box">
                             <div class="feature-box-icon feature-box-icon-rounded w-80px h-80px rounded-circle mb-25px p-1">
                                 <img src="/images/silver.png" class="h-80px" alt="">
                             </div>
                             <div class="feature-box-content last-paragraph-no-margin">
-                                <span class="d-inline-block primary-font fw-500 text-dark-gray mb-5px fs-19">925 sterling silver</span>
+                                <span class="d-inline-block primary-font fw-600 text-dark-gray mb-5px fs-15 text-uppercase">925 sterling silver</span>
                             </div>
                         </div>
                     </div>
                     <!-- end features box item -->
                     <!-- start features box item -->
-                    <div class="col icon-with-text-style-10 md-mb-50px sm-mb-30px
+                    <div class="col icon-with-text-style-10 md-mb-50px mb-30px sm-mb-0
                      border-end md-border-end-0 border-color-extra-medium-gray">
                         <div class="feature-box">
                             <div class="feature-box-icon feature-box-icon-rounded w-80px h-80px rounded-circle mb-25px p-1">
                                 <img src="/images/hypoallergenic.png" class="h-80px" alt="">
                             </div>
                             <div class="feature-box-content last-paragraph-no-margin">
-                                <span class="d-inline-block primary-font fw-500 text-dark-gray mb-5px fs-19">Hypoallergenic </span>
+                                <span class="d-inline-block primary-font fw-600 text-dark-gray mb-5px fs-15 text-uppercase">Hypoallergenic </span>
                             </div>
                         </div>
                     </div>
                     <!-- end features box item -->
                     <!-- start features box item -->
-                    <div class="col icon-with-text-style-10 sm-mb-30px border-color-extra-medium-gray">
+                    <div class="col icon-with-text-style-10 mb-30px border-color-extra-medium-gray sm-mb-0">
                         <div class="feature-box">
                             <div class="feature-box-icon feature-box-icon-rounded w-80px h-80px rounded-circle mb-25px p-1">
                                 <img src="/images/warrenty'.png" class="h-80px" alt="">
                             </div>
                             <div class="feature-box-content last-paragraph-no-margin">
-                                <span class="d-inline-block primary-font fw-500 text-dark-gray mb-5px fs-19">6 month warranty </span>
+                                <span class="d-inline-block primary-font fw-600 text-dark-gray mb-5px fs-15 text-uppercase">6 month warranty </span>
                             </div>
                         </div>
                     </div>
-                    </div>
-                    <!-- end features box item -->
-                <div class="row row-cols-1 row-cols-lg-3 row-cols-sm-2 align-items-center justify-content-center mb-5 md-mb-9" data-anime='{ "el": "childs", "translateY": [30, 0], "opacity": [0,1], "duration": 600, "delay": 0, "staggervalue": 150, "easing": "easeOutQuad" }'>
-                         <!-- start features box item -->  
-                    <div class="col icon-with-text-style-10 md-mb-50px sm-mb-30px border-end border-color-extra-medium-gray">
+                           <!-- start features box item -->  
+                    <div class="col icon-with-text-style-10 md-mb-50px mb-30px border-end border-color-extra-medium-gray sm-mb-0">
                         <div class="feature-box">
                             <div class="feature-box-icon feature-box-icon-rounded w-80px h-80px rounded-circle mb-25px p-1">
                                 <img src="/images/safe-for-sensitive-skin.png" class="h-80px" alt="">
                             </div>
                             <div class="feature-box-content last-paragraph-no-margin">
-                                <span class="d-inline-block primary-font fw-500 text-dark-gray mb-5px fs-19">Safe for sensitive skin</span>
+                                <span class="d-inline-block primary-font fw-600 text-dark-gray mb-5px fs-15 text-uppercase">Safe for sensitive skin</span>
                             </div>
                         </div>
                     </div>
                     <!-- end features box item -->
                     <!-- start features box item -->
-                    <div class="col icon-with-text-style-10 md-mb-50px sm-mb-30px border-end md-border-end-0 border-color-extra-medium-gray">
+                    <div class="col icon-with-text-style-10 md-mb-50px mb-30px border-end md-border-end-0 border-color-extra-medium-gray sm-mb-0">
                         <div class="feature-box">
                             <div class="feature-box-icon feature-box-icon-rounded w-80px h-80px rounded-circle mb-25px p-1">
                                 <img src="/images/certified.png" class="h-80px" alt="">
                             </div>
                             <div class="feature-box-content last-paragraph-no-margin">
-                                <span class="d-inline-block primary-font fw-500 text-dark-gray mb-5px fs-19">Certified authenticity </span>
+                                <span class="d-inline-block primary-font fw-600 text-dark-gray mb-5px fs-15 text-uppercase">Certified authenticity </span>
                             </div>
                         </div>
                     </div>
                     <!-- end features box item -->
                     <!-- start features box item -->
-                    <div class="col icon-with-text-style-10 sm-mb-30px border-color-extra-medium-gray">
+                    <div class="col icon-with-text-style-10 mb-30px border-color-extra-medium-gray sm-mb-0">
                         <div class="feature-box">
                             <div class="feature-box-icon feature-box-icon-rounded w-80px h-80px rounded-circle mb-25px p-1">
                                 <img src="/images/timeless-investment.png" class="h-80px" alt="">
                             </div>
                             <div class="feature-box-content last-paragraph-no-margin">
-                                <span class="d-inline-block primary-font fw-500 text-dark-gray mb-5px fs-19">Timeless investment
+                                <span class="d-inline-block primary-font fw-600 text-dark-gray mb-5px fs-15 text-uppercase">Timeless investment
                 </span>
                             </div>
                         </div>
                     </div>
                     <!-- end features box item -->
-                </div>
+                    </div>
+                    <!-- end features box item -->
+              
+</div>
+
                 </div>
             </div>
         </section>
         <!-- end section -->
        
            <!-- start subscription popup -->
-        <div id="subscribe-popup" class="mfp-hide subscribe-popup">
-            <div class="container">
-                <div class="row justify-content-center">
-                    <div class="col-xl-10 col-md-10 bg-white">
+        <div id="subscribe-popup" class="mfp-hide subscribe-popup border-radius-10px">
+            <div class="container border-radius-10px">
+                <div class="row justify-content-center border-radius-10px">
+                    <div class="col-xl-10 col-md-10 bg-white border-radius-10px">
                         <div class="row position-relative box-shadow-quadruple-large">
-                            <div class="col-lg-6 cover-background md-h-400px xs-h-300px" style="background-image:url('/images/slider-1.webp');"></div>
-                            <div class="col-lg-6 newsletter-popup p-8 pt-10 pb-10 lg-p-5 md-p-6 xs-p-8 position-relative">
+                            <div class="col-lg-6 cover-background md-h-400px xs-h-300px border-radius-10px" style="background-image:url('/images/slider-1.webp');"></div>
+                            <div class="col-lg-6 newsletter-popup p-8 pt-10 pb-1 lg-p-5 md-p-6 xs-p-8 xs-pb-1 position-relative">
                                 <h4 class="d-block alt-font ls-minus-1px fw-600 text-dark-gray mb-15px lg-fs-24 text-center ">Welcome to M&R Jewels</h4>
                                 <p class="text-center mt-0 mb-0">Your first order, made even better.</p>
                                 <p class="text-center mt-0 mb-4">Sign up to enjoy 10% off now!</p>
                                 <div class="d-inline-block w-100 newsletter-style-05 position-relative mb-20px mt-6">
-                                    <form action="email-templates/subscribe-newsletter.php" method="post">
+                                    <form id="newsletterForm">
                                         <input class="input-medium w-100 border-radius-4px form-control required mb-15px" type="email" name="email" placeholder="Enter your email address" />
-                                        <input type="hidden" name="redirect" value="">
-                                        <button type="submit" class="btn btn-medium btn-round-edge btn-dark-gray btn-box-shadow w-100 submit">Subscribe now!</button>
-                                        <div class="form-results border-radius-4px mt-10px lh-normal pt-10px pb-10px ps-15px pe-15px fs-16 w-100 text-center position-absolute z-index-1 d-none"></div>
+                                        <button type="submit"   id="newsletterBtn" class="btn btn-medium btn-round-edge btn-dark-gray btn-box-shadow w-100 submit">Subscribe now</button>
+                                        <div id="newsletterResult" class="form-results mt-10px text-center d-none"></div>
                                     </form>
                                 </div>
                                 
@@ -492,26 +1109,128 @@ new Swiper("#heroSlider", {
   loop: true,
   effect: "fade",
   autoplay: { delay: 5000 },
-  pagination: { el: ".swiper-pagination", clickable: true }
+  pagination: {
+    el: ".swiper-pagination",
+    clickable: true
+  }
 });
 
-document.querySelectorAll(".shop-swiper").forEach(swiper => {
-  new Swiper(swiper, {
-    spaceBetween: 30,
-    loop: false,
-    breakpoints: {
-      0: { slidesPerView: 1 },
-      768: { slidesPerView: 2 },
-      1200: { slidesPerView: 4 }
+
+/* JOURNAL */
+const journalSwiper = new Swiper(".journalSwiper", {
+  slidesPerView: 1,
+  spaceBetween: 24,
+  loop: true,
+  loopAdditionalSlides: 4,
+  speed: 6000,
+
+  autoplay: {
+    delay: 0,
+    disableOnInteraction: false
+  },
+
+  freeMode: {
+    enabled: true,
+    momentum: false
+  },
+
+  grabCursor: true,
+  allowTouchMove: true,
+
+  breakpoints: {
+    992: {
+      slidesPerView: 2
+    }
+  }
+});
+
+/* FORCE AUTOPLAY TO NEVER STOP */
+journalSwiper.on("touchEnd", () => {
+  journalSwiper.autoplay.start();
+});
+
+
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  document.querySelectorAll(".shop-swiper").forEach((el) => {
+
+    const swiper = new Swiper(el, {
+      slidesPerView: "auto",
+      spaceBetween: 20,
+      loop: true,
+      loopAdditionalSlides: 12,
+      speed: 6000,
+
+      autoplay: {
+        delay: 0,
+        disableOnInteraction: false
+      },
+
+      freeMode: {
+        enabled: false   // IMPORTANT
+      },
+
+      grabCursor: false,
+      allowTouchMove: true,
+      observer: true,
+      observeParents: true
+    });
+
+    // force autoplay continuity
+    swiper.on("touchEnd", () => {
+      swiper.autoplay.start();
+    });
+
+  });
+
+});
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  const btn = document.getElementById("newsletterBtn");
+  const form = document.getElementById("newsletterForm");
+  const resultBox = document.getElementById("newsletterResult");
+
+  btn.addEventListener("click", async function (e) {
+    e.preventDefault();
+
+    console.log("CLICK HANDLER RUNNING");
+
+    const email = form.email.value.trim();
+    if (!email) return;
+
+    btn.disabled = true;
+    btn.textContent = "Subscribing...";
+
+    try {
+      const res = await fetch("/newsletter/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email })
+      });
+
+      const data = await res.json();
+
+      resultBox.classList.remove("d-none");
+      resultBox.textContent = data.message;
+      resultBox.style.backgroundColor =
+        data.success ? "#e6fffa" : "#ffe6e6";
+
+      if (data.success) form.reset();
+
+    } catch (err) {
+      console.error(err);
+      resultBox.textContent = "Something went wrong";
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "Subscribe now!";
     }
   });
-});
 
-new Swiper(".journalSwiper", {
-  spaceBetween: 30,
-  breakpoints: {
-    0: { slidesPerView: 1 },
-    992: { slidesPerView: 2 }
-  }
 });
 </script>

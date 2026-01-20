@@ -21,6 +21,10 @@
   font-size: 1.2rem;
 }
 
+input[type="radio"] {
+  accent-color: #9FA878 !important; /* any color */
+}
+
 .filter-block p {
   display: flex;
   align-items: center;
@@ -353,7 +357,6 @@
 
   const form = document.getElementById("filterForm");
   const container = document.getElementById("productsContainer");
-  const productCount = document.getElementById("productCount");
   const token = localStorage.getItem("token");
 
   if (!form || !container) return;
@@ -378,7 +381,6 @@
     const data = await res.json();
 
     renderProducts(data.products || []);
-    productCount.textContent = `${data.totalProducts || 0} products`;
     history.replaceState({}, "", "?" + params.toString());
   });
 

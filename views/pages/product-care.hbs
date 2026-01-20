@@ -2,34 +2,29 @@
   <div class="container">
 
     <!-- HEADER -->
-    <div class="terms-header text-center">
-      <div class="col-12 col-md-12 text-center d-flex justify-content-center align-items-center flex-column">
-        <h2 class="alt-font ls-minus-1px text-dark-gray text-center primary-text text-white mb-0">
-          Product Care & Jewellery Care
-        </h2>
-        <p class="terms-subtitle">
-          (follow these care guidelines to maintain quality and longevity)
-        </p>
+     <div class="row mb-0">
+    <div class="heading">
+        <h3 class="text-uppercase mb-1 text-center" style="font-size: 2rem; "><a  class="text-white border-bottom"> Product Care</a></h3>
       </div>
     </div>
 
     <!-- CONTENT -->
     <div class="terms-content alt-font">
 
-      <h3 class="primary-text">General Care</h3>
+      <h3 class="primary-text-product-care">General Care</h3>
       <p>
         All products by <strong>M&R Jewels</strong> are of assured quality and
-        purity. Our jewellery is crafted using guaranteed
+        purity. Our jewellery is crafted using guaranteed<br class="mobile-break"/>
         <strong>925 Sterling Silver</strong>.
       </p>
 
-      <p>
+      <p >
         In case of any damage or concern related to the product, please inform
         us at the earliest so that our team can assist you as effectively as
         possible.
       </p>
 
-      <h3 class="primary-text">Jewellery Care – Do’s</h3>
+      <h3 class="primary-text-product-care">Jewellery Care – Do’s</h3>
       <ol>
         <li>Wear jewellery after completing your makeup routine.</li>
         <li>Thoroughly dry your jewellery if it comes in contact with water or other liquids.</li>
@@ -44,7 +39,7 @@
         </li>
       </ol>
 
-      <h3 class="primary-text">Jewellery Care – Don’ts</h3>
+      <h3 class="primary-text-product-care">Jewellery Care – Don’ts</h3>
       <ol>
         <li>
           Do not apply makeup, perfume, hair sprays, sanitizers, or chemicals
@@ -60,7 +55,7 @@
         </li>
       </ol>
 
-      <h3 class="primary-text">Gemstone Care</h3>
+      <h3 class="primary-text-product-care">Gemstone Care</h3>
       <p>
         Gemstones are delicate and require extra care to preserve their quality
         over time.
@@ -76,7 +71,7 @@
         brush from time to time.
       </p>
 
-      <p>
+      <p >
         Avoid storing gemstones in close contact with one another to prevent
         scratching and surface damage.
       </p>
@@ -93,6 +88,12 @@
 ================================ */
 
 
+
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
 .terms-header {
   margin-bottom: 20px !important;
 }
@@ -117,39 +118,49 @@
 
 .terms-content h3 {
   margin-top: 40px;
-  margin-bottom: 15px;
-  font-size: 27px !important;
-  letter-spacing: 1px;
+  margin-bottom: 0px;
+  font-size: 16px !important;
   text-transform: uppercase;
+  font-weight: 600;
+  font-family: 'Times New Roman', Times, serif;
+  display: inline-block;
+  padding-bottom: 0rem;
+  text-decoration: underline;
+ 
 }
 
 .terms-content h4 {
   margin-top: 25px;
-  margin-bottom: 10px;
+  margin-bottom: 0px;
   font-size: 20px !important;
   font-weight: 600;
   letter-spacing: normal !important;
 }
 
 .terms-content p {
-  margin-bottom: 15px;
-  opacity: 0.95;
+  margin-bottom: 5px;
+  font-size: 15px;
+  font-family: 'Times New Roman', Times, serif;
   
 }
 
 .terms-content ol {
-  padding-left: 20px;
-  margin-bottom: 20px;
+  margin-bottom: 5px;
+  font-size: 15px;
+  font-family: 'Times New Roman', Times, serif;
 }
 
 .terms-content li {
-  margin-bottom: 8px;
+   margin-bottom: 5px;
+  font-size: 15px;
+  font-family: 'Times New Roman', Times, serif;
 }
-
 /* ===============================
    RESPONSIVE
 ================================ */
-
+.mobile-break{
+  display: none;
+}
 @media (max-width: 768px) {
   .terms-title {
     font-size: 26px;
@@ -159,4 +170,23 @@
     font-size: 14px;
   }
 }
+@media (max-width: 991px) {
+ .terms-page{
+  margin-top: 10rem !important;
+ }
+}
+@media (max-width: 575px) {
+ .heading h3{
+  font-size: 1.7rem !important;
+ }
+
+ .mobile-break{
+  display: block;
+ }
+ .smallerOne{
+  font-size: 13px !important;
+  font-weight: 600;
+ }
+}
+
 </style>

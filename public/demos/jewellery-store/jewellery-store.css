@@ -38,7 +38,6 @@ a:hover {
 
 .primary-text{
     font-size: 32px;
-    letter-spacing: -2px !important;
     text-transform: uppercase;
        font-family: var(--primary-font);
        font-weight: 500;
@@ -720,7 +719,8 @@ footer .social-icon-style-09 ul li a span {
 /* EACH CARD */
 .feature-box-gift {
     position: relative;
-    height: 400px;
+    height: 300px;
+    width: 300px;
     /* border-radius: 14px; */
     overflow: hidden;
     background-size: cover;
@@ -1167,3 +1167,5 @@ color: #fff;
 #whiteHover:hover{
     color: #9FA878 !important;
 }
+
+

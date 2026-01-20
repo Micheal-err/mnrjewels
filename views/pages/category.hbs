@@ -2,6 +2,9 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <style>
+  html, body{
+    overflow-x: hidden;
+  }
 
 /* ================= SIDEBAR ================= */
 .filter-sidebar {
@@ -9,7 +12,7 @@
   border-radius: 14px;
   padding: 22px;
   box-shadow: 0 20px 50px rgba(0,0,0,.08);
-  height: 80vh;
+  height:fit-content;
 }
 
 .filter-block { margin-bottom: 22px; }
@@ -85,7 +88,7 @@
 .shop-image img {
 
   width: 100%;  
-  height: 336px;
+  height: 280px;
   border-radius: 10px;
 }
 
@@ -210,11 +213,19 @@
 
 }
 .grid-item{
-  width: 30%;
+  width: 25%;
 }
-.filter-sidebar {
-  margin-top: 4.5rem;
+
 }
+@media (max-width: 1200px) {
+.shop-modern{
+      margin-right: -53px;
+
+}
+.grid-item{
+  width: 28%;
+}
+
 }
 
 @media (max-width: 991px) {
@@ -223,11 +234,16 @@
 
 }
 .grid-item{
-  width: 30%;
+  width: 27%;
 }
 .filter-sidebar {
   margin-top: 0rem;
 }
+
+.shop-breadcrumb {
+ margin-top: 7rem !important;
+}
+
 }
 
 @media (max-width: 768px) {
@@ -237,22 +253,36 @@
 
 }
 .grid-item{
-  width: 50%;
+  width: 30%;
+}
+}
+@media (max-width: 680px) {
+.shop-modern{
+      margin-right: -0px;
+      justify-content: center;
+
+}
+.grid-item{
+  width: 38%;
 }
 }
 @media (max-width: 575px) {
 
 .grid-item{
-  width: 80%;
+  width: 50%;
 }
-
+.shop-image img{
+  height: 250px !important;
+}
 }
 @media (max-width: 425px) {
 
 .grid-item{
-  width: 90%;
+  width: 80%;
 }
-
+.shop-breadcrumb {
+ margin-top: 8rem !important;
+}
 }
 @media (max-width: 375px) {
 
@@ -262,15 +292,76 @@
 
 }
 
+.shop-breadcrumb {
+  font-size: 0.95rem;
+}
 
+.shop-breadcrumb .breadcrumb {
+  background: transparent;
+  padding: 0;
+}
+
+.shop-breadcrumb .breadcrumb-item a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.shop-breadcrumb .breadcrumb-item a:hover {
+  text-decoration: underline;
+}
+
+.shop-breadcrumb .breadcrumb-item.active {
+  color: #fff;
+  font-weight: 600;
+}
+
+.add-cart-btn{
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 15px !important;
+}
+
+.pagination {
+  gap: 6px;
+}
+
+.pagination li {
+  list-style: none;
+}
+
+.pagination button {
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  background: #fff;
+  color: #9FA878;
+  font-weight: 600;
+  border: 1px solid white;
+}
+
+.pagination button.active {
+  background: #9FA878;
+  color: #fff;
+}
+.shop-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+  content: "/";
+  color: #fff;          /* white slash */
+  padding: 0 8px;
+  font-weight: 400;
+}
 
 </style>
+<div class="mt-0">
 <div id="filterOverlay" class="filter-overlay"></div>
 
-<div class="mt-6 bg-base-color overflow-hidden">
-  <div class="row justify-content-center">
+
+<div class="mt-8 bg-base-color overflow-hidden d-flex flex-column justify-space-between">
+  <nav class="shop-breadcrumb mb-2 mt-3 d-block ps-4" aria-label="breadcrumb">
+  <ol id="breadcrumbList" class="breadcrumb mb-0"></ol>
+</nav>
+  <div class="row justify-content-center" >
 <!-- MOBILE FILTER TOGGLE -->
-<div class="d-lg-none mb-3 " style="margin-top: 6rem;">
+<div class="d-lg-none mb-3 " >
   <button id="filterToggle" class="btn bg-base-color text-white w-100">
     <i class="fa-solid fa-sliders"></i> Filters
   </button>
@@ -319,10 +410,6 @@
     <!-- PRODUCTS -->
     <main class="col-10 col-lg-9 col-sm-12 ">
 
-      <div class="mb-3">
-        <span id="productCount">{{totalProducts}} products</span>
-      </div>
-
       <div id="productsContainer">
 
         <!-- ✅ SSR GRID (USING collections) -->
@@ -340,8 +427,8 @@
                   </div>
 
                   <div class="shop-footer">
-                    <a href="/product/{{id}}" class="text-white">{{name}}</a>
-                    <p class="mb-0">₹{{formatPrice price}}</p>
+                    <a href="/product/{{id}}" class="text-white fs-15">{{name}}</a>
+                    <p class="mb-0 fs-15">₹{{formatPrice price}}</p>
                   </div>
 
                   <div class="d-flex gap">
@@ -360,9 +447,15 @@
             {{/each}}
           {{/each}}
         </ul>
+ 
+
       </div>
+             <div class="d-flex justify-content-center mt-4">
+  <ul id="pagination" class="pagination"></ul>
+</div>
     </main>
   </div>
+</div>
 </div>
 <script>
   function redirectToLogin(delay = 1200) {
@@ -374,7 +467,6 @@
 (function () {
   const form = document.getElementById("filterForm");
   const productsContainer = document.getElementById("productsContainer");
-  const productCount = document.getElementById("productCount");
   const token = localStorage.getItem("token");
 
   if (!productsContainer) return;
@@ -422,9 +514,10 @@
         );
 
         const data = await safeJson(res);
-        renderProducts(data.products || []);
-        productCount.textContent = `${data.totalProducts || 0} products`;
-        history.replaceState({}, "", "?" + params.toString());
+       renderProducts(data.products || []);
+toast("Filters applied"); // 👈 add this
+history.replaceState({}, "", "?" + params.toString());
+
       } catch {
         toast("Filter failed", "error");
       }
@@ -454,11 +547,11 @@
                 </a>
               </div>
               <div class="shop-footer">
-                <a href="/product/${p.id}" class="text-white">${p.name}</a>
-                <p>₹${Number(p.price).toLocaleString("en-IN")}</p>
+                <a href="/product/${p.id}" class="text-white fs-15">${p.name}</a>
+                <p class="mb-0 fs-15">₹${Number(p.price).toLocaleString("en-IN")}</p>
               </div>
               <div class="d-flex gap">
-                <button class="btn bg-white text-base-color w-100 add-cart-btn"
+                <button class="btn bg-white text-base-color w-100 add-cart-btn border-radius-10px"
                         data-id="${p.id}">ADD TO CART</button>
                 <button class="wishlist-btn" data-id="${p.id}">
                   <i class="fa-solid fa-heart"></i>
@@ -469,7 +562,7 @@
         `).join("")}
       </ul>
     `;
-
+paginate(document.querySelectorAll(".grid-item"));
     syncWishlistState();
   }
 
@@ -532,37 +625,56 @@ if (!token) {
 
     btn.disabled = true;
 
-    try {
-      const vr = await fetch(`/cart/product/${btn.dataset.id}/variants`);
-      const vdata = await safeJson(vr);
+  try {
+  const vr = await fetch(`/cart/product/${btn.dataset.id}/variants`);
+  const vdata = await safeJson(vr);
 
-      if (!vdata.variants || vdata.variants.length !== 1) {
-        location.href = `/product/${btn.dataset.id}`;
-        return;
-      }
+  if (vdata.outOfStock || !vdata.variants || !vdata.variants.length) {
+    toast("Out of stock", "warning");
+    return;
+  }
 
-      const add = await fetch("/cart/add", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + token
-        },
-        body: JSON.stringify({
-          variant_id: vdata.variants[0].id,
-          quantity: 1
-        })
-      });
+  if (vdata.variants.length !== 1) {
+    location.href = `/product/${btn.dataset.id}`;
+    return;
+  }
 
-      const data = await safeJson(add);
-      if (!data.success) throw new Error();
+  const add = await fetch("/cart/add", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + token
+    },
+    body: JSON.stringify({
+      variant_id: vdata.variants[0].id,
+      quantity: 1
+    })
+  });
 
-      toast("Added to cart");
-    } catch (err) {
-      console.error("ADD TO CART ERROR:", err);
-      toast("Please login again", "warning");
-    } finally {
-      btn.disabled = false;
+  const data = await safeJson(add);
+
+  if (!data.success) {
+    if (data.reason === "OUT_OF_STOCK") {
+      toast("Out of stock", "warning");
+      return;
     }
+    throw new Error("Add failed");
+  }
+
+  toast("Added to cart");
+
+} catch (err) {
+  console.error("ADD TO CART ERROR:", err);
+
+  // ✅ Only redirect/login when token is actually invalid
+  if (err.message.includes("401")) {
+    toast("Session expired. Please login again", "warning");
+    redirectToLogin();
+  } else {
+    toast("Out of stock", "error");
+  }
+}
+
   });
 
 })();
@@ -593,4 +705,143 @@ if (!token) {
   closeBtn?.addEventListener("click", closeFilter);
   overlay.addEventListener("click", closeFilter);
 })();
+</script>
+<script>
+(function () {
+  const breadcrumb = document.getElementById("breadcrumbList");
+  if (!breadcrumb) return;
+
+  const pathParts = location.pathname
+    .replace(/^\/+|\/+$/g, "") // trim slashes
+    .split("/");
+
+  // Force breadcrumb to always start from /shop
+  const crumbs = [
+    { name: "Shop", url: "/shop" }
+  ];
+
+  // If URL is exactly /shop → stop here
+  if (pathParts.length === 1 && pathParts[0] === "shop") {
+    breadcrumb.innerHTML = `
+      <li class="breadcrumb-item active">Shop</li>
+    `;
+    return;
+  }
+
+  let currentPath = "/shop";
+
+  // Build hierarchy AFTER shop
+  for (let i = 1; i < pathParts.length; i++) {
+    currentPath += "/" + pathParts[i];
+
+    crumbs.push({
+      name: pathParts[i]
+        .replace(/-/g, " ")
+        .replace(/\b\w/g, c => c.toUpperCase()),
+      url: currentPath
+    });
+  }
+
+  breadcrumb.innerHTML = crumbs
+    .map((c, i) => {
+      const isLast = i === crumbs.length - 1;
+      return `
+        <li class="breadcrumb-item ${isLast ? "active" : ""}">
+          ${isLast ? c.name : `<a href="${c.url}">${c.name}</a>`}
+        </li>
+      `;
+    })
+    .join("");
+})();
+</script>
+
+<script>
+let allItems = [];
+let currentPage = 1;
+let itemsPerPage = 0;
+
+function calculateItemsPerPage() {
+  const items = [...document.querySelectorAll(".grid-item")];
+  if (!items.length) return 8;
+
+  const firstTop = items[0].offsetTop;
+  let itemsPerRow = 0;
+
+  for (const item of items) {
+    if (item.offsetTop !== firstTop) break;
+    itemsPerRow++;
+  }
+
+  return itemsPerRow * 4; // ✅ EXACTLY 4 rows
+}
+
+
+function paginate(items) {
+  allItems = items;
+  itemsPerPage = calculateItemsPerPage();
+  currentPage = 1;
+  renderPage();
+  renderPagination();
+}
+
+function renderPage() {
+  const start = (currentPage - 1) * itemsPerPage;
+  const end = start + itemsPerPage;
+
+  document.querySelectorAll(".grid-item").forEach((el, i) => {
+    el.style.display = i >= start && i < end ? "block" : "none";
+  });
+}
+
+function renderPagination() {
+  const totalPages = Math.ceil(allItems.length / itemsPerPage);
+  const pagination = document.getElementById("pagination");
+
+  if (!pagination) return; // ✅ hard stop
+
+  if (totalPages <= 1) {
+    pagination.innerHTML = "";
+    return;
+  }
+
+  pagination.innerHTML = "";
+
+  for (let i = 1; i <= totalPages; i++) {
+    const li = document.createElement("li");
+    const btn = document.createElement("button");
+
+    btn.textContent = i;
+    btn.classList.toggle("active", i === currentPage);
+
+    btn.onclick = () => {
+      currentPage = i;
+      renderPage();
+      renderPagination();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
+    li.appendChild(btn);
+    pagination.appendChild(li);
+  }
+}
+
+// Recalculate on resize
+window.addEventListener("resize", () => {
+  const newItemsPerPage = calculateItemsPerPage();
+  if (newItemsPerPage !== itemsPerPage) {
+    itemsPerPage = newItemsPerPage;
+    currentPage = 1; // reset safely
+    renderPage();
+    renderPagination();
+  }
+});
+
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const items = document.querySelectorAll(".grid-item");
+  if (items.length) {
+    paginate(items);
+  }
+});
 </script>

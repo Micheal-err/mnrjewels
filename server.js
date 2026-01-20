@@ -4,10 +4,16 @@ const express = require("express");
 const path = require("path");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
+const session = require("express-session");
 const passport = require("./config/passport");
 const { engine } = require("express-handlebars");
 
 const app = express();
+
+/* ===============================
+   TRUST PROXY (REQUIRED ON RENDER)
+================================ */
+app.set("trust proxy", 1);
 
 /* ===============================
    HANDLEBARS
@@ -36,28 +42,64 @@ app.set("views", path.join(__dirname, "views"));
 /* ===============================
    CORE MIDDLEWARE
 ================================ */
-app.use(cors({
-  origin: [
-    "https://mnrjewels.onrender.com",
-    "https://localhost:5000"
-  ],
-  credentials: true  
-}));
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      const allowedOrigins = [
+        "https://your-site.onrender.com",
+        "https://your-domain.com"
+      ];
+
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("CORS blocked"));
+      }
+    },
+    credentials: true
+  })
+);
 
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 /* ===============================
-   PASSPORT (NO SESSIONS)
-   Only for OAuth callbacks
+   SESSION (PRODUCTION SAFE)
+================================ */
+app.use(
+  session({
+    name: "session",
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    proxy: true,
+    cookie: {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      maxAge: 1000 * 60 * 60 * 24 // 1 day
+    }
+  })
+);
+
+/* ===============================
+   PASSPORT
 ================================ */
 app.use(passport.initialize());
+app.use(passport.session());
 
 /* ===============================
    STATIC FILES
 ================================ */
 app.use(express.static(path.join(__dirname, "public")));
+
+/*
+⚠️ IMPORTANT:
+Render filesystem is ephemeral.
+Only keep this if files are static/seeded.
+For uploads → use Cloudinary / S3
+*/
 app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
 
 /* ===============================
@@ -79,14 +121,17 @@ app.use("/api/users", require("./routes/userRoutes"));
 app.use("/api/reviews", require("./routes/reviewRoutes"));
 app.use("/api/wishlist", require("./routes/wishlistRoutes"));
 app.use("/api/coupons", require("./routes/couponsRoutes"));
+app.use("/newsletter", require("./routes/newsletter"));
+app.use("/api", require("./routes/searchRoutes"));
 
 // 🛒 CART + CHECKOUT
 app.use("/cart", require("./routes/cartRoutes"));
 app.use("/checkout", require("./routes/checkoutRoutes"));
 
-// 🌐 PUBLIC PAGES (LAST)
-// 🎁 GIFTS (CLEAN & ISOLATED)
+// 🎁 GIFTS
 app.use("/gifting", require("./routes/giftRoutes"));
+
+// 🌐 PUBLIC PAGES (LAST)
 app.use("/", require("./routes/pageRoutes"));
 
 /* ===============================

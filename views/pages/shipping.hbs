@@ -2,16 +2,12 @@
   <div class="container">
 
     <!-- HEADER -->
-    <div class="terms-header text-center">
-      <div class="col-12 col-md-12 text-center d-flex justify-content-center align-items-center flex-column">
-        <h2 class="alt-font ls-minus-1px text-dark-gray text-center primary-text text-white mb-0">
-          Shipping Policy
-        </h2>
-        <p class="terms-subtitle">
-          (please read this shipping policy carefully before placing an order)
-        </p>
+     <div class="row mb-0">
+      <div class="heading">
+        <h3 class="text-uppercase mb-1 text-center" style="font-size: 2rem; "><a  class="text-white border-bottom"> Shipping Policy</a></h3>
       </div>
     </div>
+
 
     <!-- CONTENT -->
     <div class="terms-content alt-font">
@@ -33,7 +29,7 @@
       <p>
         All shipments to Colleges, Schools, or Hostels are placed strictly at the
         customer’s risk. If the package is refused or not accepted by the
-        institution’s authorities, <strong>mnrjewels.com</strong> will not issue
+        institution’s authorities, <strong>mnrjewels.in</strong> will not issue
         any refund or credit under any circumstances.
       </p>
 
@@ -49,7 +45,7 @@
         Some courier companies impose penalties for incorrect or mismatched
         shipping addresses and PIN codes. Any such penalties or additional fees
         will be borne entirely by the customer and not by
-        <strong>mnrjewels.com</strong>.
+        <strong>mnrjewels.in</strong>.
       </p>
 
       <p>
@@ -59,7 +55,7 @@
 
       <p>
         If an incorrect or incomplete address is provided and the package is
-        lost, misplaced, or undelivered, <strong>mnrjewels.com</strong> shall not
+        lost, misplaced, or undelivered, <strong>mnrjewels.in</strong> shall not
         be responsible and will not initiate any refund, replacement, or credit
         under any circumstances.
       </p>
@@ -114,6 +110,12 @@
 ================================ */
 
 
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
 .terms-header {
   margin-bottom: 20px !important;
 }
@@ -138,35 +140,43 @@
 
 .terms-content h3 {
   margin-top: 40px;
-  margin-bottom: 15px;
-  font-size: 27px !important;
-  letter-spacing: 1px;
+  margin-bottom: 0px;
+  font-size: 16px !important;
   text-transform: uppercase;
+  font-weight: 600;
+  font-family: 'Times New Roman', Times, serif;
+  display: inline-block;
+  padding-bottom: 0rem;
+  text-decoration: underline;
+ 
 }
 
 .terms-content h4 {
   margin-top: 25px;
-  margin-bottom: 10px;
+  margin-bottom: 0px;
   font-size: 20px !important;
   font-weight: 600;
   letter-spacing: normal !important;
 }
 
 .terms-content p {
-  margin-bottom: 15px;
-  opacity: 0.95;
+  margin-bottom: 5px;
+  font-size: 15px;
+  font-family: 'Times New Roman', Times, serif;
   
 }
 
 .terms-content ol {
-  padding-left: 20px;
-  margin-bottom: 20px;
+  margin-bottom: 5px;
+  font-size: 15px;
+  font-family: 'Times New Roman', Times, serif;
 }
 
 .terms-content li {
-  margin-bottom: 8px;
+   margin-bottom: 5px;
+  font-size: 15px;
+  font-family: 'Times New Roman', Times, serif;
 }
-
 /* ===============================
    RESPONSIVE
 ================================ */
@@ -180,4 +190,15 @@
     font-size: 14px;
   }
 }
+@media (max-width: 991px) {
+ .terms-page{
+  margin-top: 10rem !important;
+ }
+}
+@media (max-width: 575px) {
+ .heading h3{
+  font-size: 1.7rem !important;
+ }
+}
+
 </style>

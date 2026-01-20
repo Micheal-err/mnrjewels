@@ -12,8 +12,7 @@ router.get("/view/:section", adminAuth, (req, res) => {
     "users",
     "allProducts",
     "allReviews",
-    "messages",
-    "settings"
+       "newsletter",
   ];
 
   if (!allowed.includes(section)) {

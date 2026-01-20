@@ -37,6 +37,9 @@ router.get("/view/reviews", adminAuth, (req, res) => {
 router.get("/view/messages", adminAuth, (req, res) => {
   res.render("admin/sections/messages", { layout: false });
 });
+router.get("/view/newsletter", adminAuth, (req, res) => {
+  res.render("admin/sections/newsletter", { layout: false });
+});
 
 
 router.get("/dashboard/stats", adminAuth, async (req, res) => {
@@ -104,6 +107,22 @@ router.get("/dashboard/most-carted", adminAuth, async (req, res) => {
     console.error("MOST CARTED ERROR:", err);
     res.status(500).json([]);
   }
+});
+router.get("/newsletter", adminAuth, async (req, res) => {
+  const [rows] = await db.query(`
+    SELECT id, email, subscribed_at
+    FROM newsletter_subscribers
+    ORDER BY id DESC
+  `);
+
+  res.json({ subscribers: rows });
+});
+router.post("/newsletter/:id/delete", adminAuth, async (req, res) => {
+  await db.query(
+    "DELETE FROM newsletter_subscribers WHERE id = ?",
+    [req.params.id]
+  );
+  res.json({ success: true });
 });
 
 
@@ -791,54 +810,63 @@ router.get("/orders/:id", adminAuth, async (req, res) => {
 router.post("/orders/:id/status", adminAuth, async (req, res) => {
   const { status, comment } = req.body;
   const orderId = req.params.id;
+  const conn = await db.getConnection();
 
   try {
-    const [[order]] = await db.query(
-      `SELECT payment_status FROM orders WHERE id=?`,
+    await conn.beginTransaction();
+
+    const [[order]] = await conn.query(
+      `SELECT status, payment_status FROM orders WHERE id=? FOR UPDATE`,
       [orderId]
     );
 
-    if (!order) {
-      return res.status(404).json({ success: false });
+    if (!order) throw new Error("Order not found");
+
+    // ✅ Handle CANCELLED here
+    if (status === "cancelled" && order.status !== "cancelled") {
+
+      // restore stock ONLY if paid
+      if (order.payment_status === "paid") {
+        const [items] = await conn.query(
+          `SELECT variant_id, quantity FROM order_items WHERE order_id=?`,
+          [orderId]
+        );
+
+        for (const i of items) {
+          await conn.query(
+            `UPDATE product_variants
+             SET stock = stock + ?
+             WHERE id = ?`,
+            [i.quantity, i.variant_id]
+          );
+        }
+      }
     }
 
-    // ⛔ Payment lock ONLY for forward statuses
-    const paymentLockedStatuses = [
-      "confirmed",
-      "processing",
-      "shipped",
-      "delivered"
-    ];
-
-    if (
-      paymentLockedStatuses.includes(status) &&
-      order.payment_status !== "paid"
-    ) {
-      return res.status(400).json({
-        success: false,
-        message: "Payment must be PAID before moving order forward"
-      });
-    }
-
-    // ✅ CANCELLED is ALWAYS allowed
-    await db.query(
+    // update order
+    await conn.query(
       `UPDATE orders SET status=?, updated_at=NOW() WHERE id=?`,
       [status, orderId]
     );
 
-    await db.query(`
+    await conn.query(`
       INSERT INTO order_status_history
       (order_id, status, changed_by, comment)
       VALUES (?, ?, 'admin', ?)
     `, [orderId, status, comment || null]);
 
+    await conn.commit();
     res.json({ success: true });
 
   } catch (err) {
+    await conn.rollback();
     console.error("ORDER STATUS UPDATE ERROR:", err);
     res.status(500).json({ success: false });
+  } finally {
+    conn.release();
   }
 });
+
 
 
 /**
@@ -867,21 +895,22 @@ router.post("/orders/:id/cancel", adminAuth, async (req, res) => {
     }
 
     // 🔁 Restore stock ONLY if payment was done
-    if (order.payment_status === "paid") {
-      const [items] = await conn.query(`
-        SELECT variant_id, quantity
-        FROM order_items
-        WHERE order_id=?
-      `, [orderId]);
+if (order.payment_status === "paid") {
+  const [items] = await conn.query(`
+    SELECT variant_id, quantity
+    FROM order_items
+    WHERE order_id=?
+  `, [orderId]);
 
-      for (const i of items) {
-        await conn.query(`
-          UPDATE product_variants
-          SET stock = stock + ?
-          WHERE id = ?
-        `, [i.quantity, i.variant_id]);
-      }
-    }
+  for (const i of items) {
+    await conn.query(`
+      UPDATE product_variants
+      SET stock = stock + ?
+      WHERE id = ?
+    `, [i.quantity, i.variant_id]);
+  }
+}
+
 
     // ❌ Cancel order
     await conn.query(`

@@ -1,7 +1,6 @@
 const db = require("../config/db");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-
 /* ============================================================
    REGISTER USER
 ============================================================ */
@@ -29,10 +28,16 @@ exports.registerUser = async (req, res) => {
       first_name,
       last_name,
       email,
-      admin: 0
+      is_admin : 0
     };
 
     const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+res.cookie("token", token, {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+  maxAge: 7 * 24 * 60 * 60 * 1000
+});
 
     return res.json({
       success: true,
@@ -69,17 +74,22 @@ exports.loginUser = async (req, res) => {
       return res.status(400).json({ success: false, message: "Incorrect password" });
 
     const token = jwt.sign(
-      { id: user.id, admin: user.is_admin },
+      { id: user.id, is_admin: user.is_admin },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
 
     // ✅ SET COOKIE
+    // res.cookie("token", token, {
+    //   httpOnly: true,
+    //   sameSite: "lax",
+    //   secure: false, // MUST be false for local IP testing
+    //   maxAge: 7 * 24 * 60 * 60 * 1000
+    // });
     res.cookie("token", token, {
   httpOnly: true,
-  secure: true,        // Render = HTTPS ONLY
-  sameSite: "none",    // REQUIRED for cross-origin
-  path: "/",           // IMPORTANT
+  secure: process.env.NODE_ENV === "production",
+  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
   maxAge: 7 * 24 * 60 * 60 * 1000
 });
 
@@ -93,7 +103,7 @@ exports.loginUser = async (req, res) => {
         first_name: user.first_name,
         last_name: user.last_name,
         email: user.email,
-        admin: user.is_admin === 1
+        is_admin: user.is_admin
       }
     });
 

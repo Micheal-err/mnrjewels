@@ -1,9 +1,85 @@
-<section class="position-relative md-pt-0 mt-5">
+<style>
+  @media (max-width: 991px) {
+
+  #down-section .row {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  #down-section .row > .col {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+
+  /* Remove borders that look wrong in 2-col layout */
+  #down-section .border-end {
+    border-right: none !important;
+  }
+
+  #down-section .feature-box {
+    text-align: center;
+  }
+}
+
+/* Desktop (lg+) → keep 3 per row */
+@media (min-width: 992px) {
+  #down-section .row > .col {
+    flex: 0 0 33.3333%;
+    max-width: 33.3333%;
+  }
+
+}
+@media (max-width: 992px) {
+  #down-section .row > .col {
+    flex: 0 0 33.3333%;
+    max-width: 33.3333%;
+  }
+  #about-container{
+    margin-top: 10rem !important;
+  }
+}
+
+@media (max-width: 525px) {
+.feature-box-icon {
+  height: 60px !important;
+  width: 60px !important;
+}
+
+.feature-box-icon img{
+  height: 55px !important;
+  width: 55px !important;
+}
+
+.icon-with-text-style{
+  margin-bottom: 0 !important;
+}
+.feature-box-content span{
+font-size: 15px;
+}
+#down-section{
+  margin-bottom: -2rem;
+}
+#down-section .feature-box{
+  height: 140px;
+}
+.shop-section .swiper-slide{
+  width: 290px !important;
+}
+}
+
+</style>
+
+<section class="position-relative md-pt-0 mt-5" id="about-container">
   <div class="container">
-    <div class="row justify-content-center mb-8 md-mb-0">
+      <div class="row mb-2">
+      <div class="">
+        <h3 class="text-uppercase mb-1 text-center" style="font-size: 2rem; "><a  class="text-base-color" style="border-bottom: 1px solid #9FA878;"> About us</a></h3>
+      </div>
+    </div>
+    <div class="row justify-content-center mb-8 md-mb-0 ">
 
       <!-- IMAGE -->
-      <div class="col-lg-4 col-md-5 col-sm-11 sm-mb-30px">
+      <div class="col-lg-4 col-md-5 col-sm-11 sm-mb-30px " id="about-img-container">
         <div class="outside-box-left-5 md-outside-box-left-0 position-relative">
           <img
             src="/images/brand-story-main.jpg"
@@ -14,25 +90,22 @@
       </div>
 
       <!-- TEXT -->
-      <div class="col-lg-6 col-md-7 ps-60px pt-40px pb-40px lg-p-15px text-center text-md-start">
+      <div class="col-lg-6 col-md-7 ps-60px lg-p-15px text-center text-md-start">
 
-        <h4 class="alt-font text-dark-gray mb-20px ls-minus-1px">
-          Brand Story
-        </h4>
 
-        <p class="mb-15px">
+        <p class="mb-15px fs-15">
           Celebrating <strong>25 years of heritage and trust</strong> from Rathod Jewellers,
           M&R Jewels fuses the beauty of tradition with a modern vision,
           all captured in timeless <strong>925 sterling silver</strong>.
         </p>
 
-        <p class="mb-15px">
+        <p class="mb-15px fs-15">
           M&R Jewels delivers luxury and style through finely crafted
           <strong>92.5 sterling silver</strong> pieces that embody authenticity.
           Our mission is to bring a bold, global vision to local artistry.
         </p>
 
-        <p class="mb-0">
+        <p class="mb-0 fs-15">
           At M&R Jewels, jewellery is a medium of fearless self-expression —
           unrestricted by gender. We inspire individuals to adorn themselves
           and their loved ones fearlessly, while redefining what luxury truly means.
@@ -43,62 +116,246 @@
     </div>
   </div>
 
-                <div class="position-absolute bottom-minus-130px sm-bottom-minus-40px xs-bottom-minus-25px left-0px right-0px text-center w-100 fs-225 lg-fs-200 md-fs-170 sm-fs-150 xs-fs-100 alt-font text-very-light-gray z-index-minus-2 ls-minus-8px" data-anime='{ "translateY": [50, 0], "opacity": [0,1], "duration": 1200, "delay": 0, "staggervalue": 150, "easing": "easeOutQuad" }'>M&R Jeweles</div>
+          
             </section>
             <!-- end section -->
-            
-            <!-- start section -->
-            <section class="position-relative overflow-hidden pt-30px md-pt-60px mt-minus-30px d-none d-md-block">
-                <div class="shape-image-animation p-0 w-100"> 
-                    <svg xmlns="http://www.w3.org/2000/svg" widht="auto" height="100" viewBox="0 150 3000 100">
-                    <path class="st1" d="M 0 190 C 1200 400 1200 50 3000 190 L 3000 350 L 0 350 L 0 190" fill="#e9e2e3">
-                    <animate
-                        attributeName="d"
-                        dur="8s"
-                        values="M 0 190 C 1200 400 1200 50 3000 190 L 3000 350 L 0 350 L 0 190;
-                        M 0 190 C 400 50 400 400 3000 190 L 3000 350 L 0 350 L 0 190;
-                        M 0 190 C 1200 400 1200 50 3000 190 L 3000 350 L 0 350 L 0 190"
-                        repeatCount="indefinite"
-                        />
-                    </path>
-                    <path class="st1" d="M 0 190 C 1200 400 1200 50 3000 190 L 3000 350 L 0 350 L 0 190" fill="#f8f2f3">
-                    <animate
-                        attributeName="d"
-                        dur="5s"
-                        values="M 0 190 C 1200 400 1200 50 3000 190 L 3000 350 L 0 350 L 0 190;
-                        M 0 190 C 400 50 400 400 3000 190 L 3000 350 L 0 350 L 0 190;
-                        M 0 190 C 1200 400 1200 50 3000 190 L 3000 350 L 0 350 L 0 190"
-                        repeatCount="indefinite"
-                        />
-                    </path> 
-                    </svg> 
-                </div> 
-            </section>
-            <!-- end section -->
-    
+        
 
-        <section class="overlap-height bg-very-light-gray pt-80px pb-80px sm-pt-50px">
+      <section class="overlap-height bg-base-color pt-40px pb-80px sm-pt-50px">
   <div class="container">
-    <div class="row justify-content-center">
 
-      <div class="col-lg-8 text-center">
+    <!-- ================= MISSION ================= -->
+    <div class="row align-items-center mb-80px">
 
-        <h4 class="alt-font text-dark-gray mb-20px">Our Mission</h4>
-        <p class="mb-40px">
-          To craft heirloom pieces that do justice to the unseen local silver
-          artistry of India, while making it accessible to those who aim to
-          express themselves fearlessly — with confidence and style.
+      <!-- TEXT -->
+      <div class="col-lg-6 d-flex justify-content-center align-items-center flex-column">
+        <h4 class=" text-white mb-20px mt-30px border-bottom text-uppercase">Our Mission</h4>
+        <p class="text-center w-80 text-white">
+         To craft heirloom pieces that do justice to the unseen local silver artistry of India, while making it accessible to those who aim to express themselves fearlessly, and with style!
         </p>
-
-        <h4 class="alt-font text-dark-gray mb-20px">Our Vision</h4>
-        <p class="mb-0">
-          To carry the timeless artistry of silver jewellery from its local
-          roots to the world, redefining it as a global symbol of
-          <strong>affordable luxury</strong>.
-        </p>
-
       </div>
 
+      <!-- IMAGE -->
+      {{!-- <div class="col-lg-6">
+        <img src="/images/sample-blog-img.jpg" class="w-100 border-radius-12px" alt="Our Mission">
+      </div> --}}
+
     </div>
+
+    <!-- ================= VISION ================= -->
+    <div class="row align-items-center flex-lg-row-reverse">
+
+      <!-- TEXT -->
+      <div class="col-lg-6 d-flex justify-content-center align-items-center flex-column">
+        <h4 class="  mb-20px mt-30px text-white border-bottom text-uppercase">Our Vision</h4>
+        <p class="text-center w-80 text-white">
+          To carry the timeless artistry of silver jewellery from its local roots to the world, redefining it as a global symbol of affordable luxury. 
+        </p>
+      </div>
+
+      <!-- IMAGE -->
+      {{!-- <div class="col-lg-6">
+        <img src="/images/sample-blog-img.jpg" class="w-100 border-radius-12px" alt="Our Vision">
+      </div> --}}
+
+    </div>
+
   </div>
 </section>
+
+
+ <section id="down-section" class="position-relative pt-4 pb-0 ">
+            <div class="container">
+                
+                <div class="row justify-content-center">
+                     <div class="col-10 col-md-11 text-center d-flex justify-content-between align-items-center ">
+                        <h2 class="alt-font ls-minus-1px text-dark-gray  primary-text  text-center w-100" style="font-size: 2rem;" ><a href="/about-us">Our promise to you</a> </h2>
+                    </div>
+                </div>
+<div class="d-flex  flex-column ">
+
+                <div class="row row-cols-1 row-cols-lg-3 row-cols-sm-2 align-items-center justify-content-center mb-5 md-mb-9" data-anime='{ "el": "childs", "translateY": [30, 0], "opacity": [0,1], "duration": 600, "delay": 0, "staggervalue": 150, "easing": "easeOutQuad" }'>
+                    <!-- start features box item -->  
+                    <div class="col icon-with-text-style-10 md-mb-50px mb-30px sm-mb-0 border-end border-color-extra-medium-gray">
+                        <div class="feature-box">
+                            <div class="feature-box-icon feature-box-icon-rounded w-80px h-80px rounded-circle mb-25px p-1">
+                                <img src="/images/silver.png" class="h-80px" alt="">
+                            </div>
+                            <div class="feature-box-content last-paragraph-no-margin">
+                                <span class="d-inline-block primary-font fw-500 text-dark-gray mb-5px fs-19">925 sterling silver</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- end features box item -->
+                    <!-- start features box item -->
+                    <div class="col icon-with-text-style-10 md-mb-50px mb-30px sm-mb-0
+                     border-end md-border-end-0 border-color-extra-medium-gray">
+                        <div class="feature-box">
+                            <div class="feature-box-icon feature-box-icon-rounded w-80px h-80px rounded-circle mb-25px p-1">
+                                <img src="/images/hypoallergenic.png" class="h-80px" alt="">
+                            </div>
+                            <div class="feature-box-content last-paragraph-no-margin">
+                                <span class="d-inline-block primary-font fw-500 text-dark-gray mb-5px fs-19">Hypoallergenic </span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- end features box item -->
+                    <!-- start features box item -->
+                    <div class="col icon-with-text-style-10 mb-30px border-color-extra-medium-gray sm-mb-0">
+                        <div class="feature-box">
+                            <div class="feature-box-icon feature-box-icon-rounded w-80px h-80px rounded-circle mb-25px p-1">
+                                <img src="/images/warrenty'.png" class="h-80px" alt="">
+                            </div>
+                            <div class="feature-box-content last-paragraph-no-margin">
+                                <span class="d-inline-block primary-font fw-500 text-dark-gray mb-5px fs-19">6 month warranty </span>
+                            </div>
+                        </div>
+                    </div>
+                           <!-- start features box item -->  
+                    <div class="col icon-with-text-style-10 md-mb-50px mb-30px border-end border-color-extra-medium-gray sm-mb-0">
+                        <div class="feature-box">
+                            <div class="feature-box-icon feature-box-icon-rounded w-80px h-80px rounded-circle mb-25px p-1">
+                                <img src="/images/safe-for-sensitive-skin.png" class="h-80px" alt="">
+                            </div>
+                            <div class="feature-box-content last-paragraph-no-margin">
+                                <span class="d-inline-block primary-font fw-500 text-dark-gray mb-5px fs-19">Safe for sensitive skin</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- end features box item -->
+                    <!-- start features box item -->
+                    <div class="col icon-with-text-style-10 md-mb-50px mb-30px border-end md-border-end-0 border-color-extra-medium-gray sm-mb-0">
+                        <div class="feature-box">
+                            <div class="feature-box-icon feature-box-icon-rounded w-80px h-80px rounded-circle mb-25px p-1">
+                                <img src="/images/certified.png" class="h-80px" alt="">
+                            </div>
+                            <div class="feature-box-content last-paragraph-no-margin">
+                                <span class="d-inline-block primary-font fw-500 text-dark-gray mb-5px fs-19">Certified authenticity </span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- end features box item -->
+                    <!-- start features box item -->
+                    <div class="col icon-with-text-style-10 mb-30px border-color-extra-medium-gray sm-mb-0">
+                        <div class="feature-box">
+                            <div class="feature-box-icon feature-box-icon-rounded w-80px h-80px rounded-circle mb-25px p-1">
+                                <img src="/images/timeless-investment.png" class="h-80px" alt="">
+                            </div>
+                            <div class="feature-box-content last-paragraph-no-margin">
+                                <span class="d-inline-block primary-font fw-500 text-dark-gray mb-5px fs-19">Timeless investment
+                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- end features box item -->
+                    </div>
+                    <!-- end features box item -->
+              
+</div>
+
+                </div>
+            </div>  
+        </section>
+        <!-- end section -->
+
+        <style>
+          
+
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+          .text-very-light-green{
+            color: #9FA878;
+          }
+@media (max-width: 575px) {
+
+          #about-img-container{
+margin-top: 3rem  !important;
+          }
+}
+        </style>
+
+        
+<style>
+
+
+/* ================= PROMISE SECTION RESPONSIVE FIX ================= */
+
+/* Mobile + Tablet → 2 items per row */
+@media (max-width: 991px) {
+
+  #down-section .row {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  #down-section .row > .col {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+
+  /* Remove borders that look wrong in 2-col layout */
+  #down-section .border-end {
+    border-right: none !important;
+  }
+
+  #down-section .feature-box {
+    text-align: center;
+  }
+}
+
+/* Desktop (lg+) → keep 3 per row */
+@media (min-width: 992px) {
+  #down-section .row > .col {
+    flex: 0 0 33.3333%;
+    max-width: 33.3333%;
+  }
+}
+
+@media (max-width: 525px) {
+.feature-box-icon {
+  height: 60px !important;
+  width: 60px !important;
+}
+
+.feature-box-icon img{
+  height: 55px !important;
+  width: 55px !important;
+}
+
+.icon-with-text-style{
+  margin-bottom: 0 !important;
+}
+.feature-box-content span{
+font-size: 10px;
+}
+#down-section{
+  margin-top: 2rem;
+}
+#down-section .feature-box{
+  height: 140px;
+}
+.shop-section .swiper-slide{
+  width: 290px !important;
+}
+
+}
+.swiper-pagination-bullet-active
+
+ {
+background: white !important;
+ }
+ .shop-swiper .swiper-wrapper {
+  transition-timing-function: linear !important;
+}
+
+.shop-swiper .swiper-slide {
+  width: 320px; /* or whatever your card width is */
+}
+
+
+
+
+</style>

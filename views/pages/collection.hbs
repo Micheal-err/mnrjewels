@@ -2,6 +2,9 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <style>
+  html, body{
+    overflow-x: hidden;
+  }
 
 /* ================= SIDEBAR ================= */
 .filter-sidebar {
@@ -9,7 +12,7 @@
   border-radius: 14px;
   padding: 22px;
   box-shadow: 0 20px 50px rgba(0,0,0,.08);
-  height: 80vh;
+  height:fit-content;
 }
 
 .filter-block { margin-bottom: 22px; }
@@ -85,7 +88,7 @@
 .shop-image img {
 
   width: 100%;  
-  height: 336px;
+  height: 280px;
   border-radius: 10px;
 }
 
@@ -210,11 +213,19 @@
 
 }
 .grid-item{
-  width: 30%;
+  width: 25%;
 }
-.filter-sidebar {
-  margin-top: 4.5rem;
+
 }
+@media (max-width: 1200px) {
+.shop-modern{
+      margin-right: -53px;
+
+}
+.grid-item{
+  width: 28%;
+}
+
 }
 
 @media (max-width: 991px) {
@@ -223,11 +234,16 @@
 
 }
 .grid-item{
-  width: 30%;
+  width: 27%;
 }
 .filter-sidebar {
   margin-top: 0rem;
 }
+
+.shop-breadcrumb {
+ margin-top: 7rem !important;
+}
+
 }
 
 @media (max-width: 768px) {
@@ -237,22 +253,36 @@
 
 }
 .grid-item{
-  width: 50%;
+  width: 30%;
+}
+}
+@media (max-width: 680px) {
+.shop-modern{
+      margin-right: -0px;
+      justify-content: center;
+
+}
+.grid-item{
+  width: 38%;
 }
 }
 @media (max-width: 575px) {
 
 .grid-item{
-  width: 80%;
+  width: 50%;
 }
-
+.shop-image img{
+  height: 250px !important;
+}
 }
 @media (max-width: 425px) {
 
 .grid-item{
-  width: 90%;
+  width: 80%;
 }
-
+.shop-breadcrumb {
+ margin-top: 8rem !important;
+}
 }
 @media (max-width: 375px) {
 
@@ -262,15 +292,69 @@
 
 }
 
+.shop-breadcrumb {
+  font-size: 0.95rem;
+}
 
+.shop-breadcrumb .breadcrumb {
+  background: transparent;
+  padding: 0;
+}
+
+.shop-breadcrumb .breadcrumb-item a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.shop-breadcrumb .breadcrumb-item a:hover {
+  text-decoration: underline;
+}
+
+.shop-breadcrumb .breadcrumb-item.active {
+  color: #fff;
+  font-weight: 600;
+}
+
+.add-cart-btn{
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 15px !important;
+}
+
+.pagination {
+  gap: 6px;
+}
+
+.pagination li {
+  list-style: none;
+}
+
+.pagination button {
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  background: #fff;
+  color: #9FA878;
+  font-weight: 600;
+}
+
+.pagination button.active {
+  background: #9FA878;
+  color: #fff;
+}
 
 </style>
+<div class="mt-0">
 <div id="filterOverlay" class="filter-overlay"></div>
 
-<div class=" mt-6 bg-base-color overflow-hidden">
-  <div class="row justify-content-center">
+
+<div class="mt-8 bg-base-color overflow-hidden d-flex flex-column justify-space-between">
+  <nav class="shop-breadcrumb mb-2 mt-3 d-block ps-4" aria-label="breadcrumb">
+  <ol id="breadcrumbList" class="breadcrumb mb-0"></ol>
+</nav>
+  <div class="row justify-content-center" >
 <!-- MOBILE FILTER TOGGLE -->
-<div class="d-lg-none mb-3" style="margin-top: 6rem;">
+<div class="d-lg-none mb-3 " >
   <button id="filterToggle" class="btn bg-base-color text-white w-100">
     <i class="fa-solid fa-sliders"></i> Filters
   </button>
@@ -318,14 +402,6 @@
 
     <!-- PRODUCTS -->
     <main class="col-10 col-lg-9 col-sm-12">
-
-      <div class="mb-0">
-       <h3 class="mb-0 mt-5 text-white text-capitalize">
-  {{categoryTitle}}
-</h3>
-<span id="productCount">{{totalProducts}} products</span>
-
-      </div>
 
       <div id="productsContainer">
 
@@ -526,37 +602,52 @@
 
     btn.disabled = true;
 
-    try {
-      const vr = await fetch(`/cart/product/${btn.dataset.id}/variants`);
-      const vdata = await safeJson(vr);
+   try {
+  const vr = await fetch(`/cart/product/${btn.dataset.id}/variants`);
+  const vdata = await safeJson(vr);
 
-      if (!vdata.variants || vdata.variants.length !== 1) {
-        location.href = `/product/${btn.dataset.id}`;
-        return;
-      }
+  if (vdata.outOfStock || !vdata.variants || !vdata.variants.length) {
+    toast("Out of stock", "warning");
+    return;
+  }
 
-      const add = await fetch("/cart/add", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + token
-        },
-        body: JSON.stringify({
-          variant_id: vdata.variants[0].id,
-          quantity: 1
-        })
-      });
+  if (vdata.variants.length !== 1) {
+    location.href = `/product/${btn.dataset.id}`;
+    return;
+  }
 
-      const data = await safeJson(add);
-      if (!data.success) throw new Error();
+  const add = await fetch("/cart/add", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + token
+    },
+    body: JSON.stringify({
+      variant_id: vdata.variants[0].id,
+      quantity: 1
+    })
+  });
 
-      toast("Added to cart");
-    } catch (err) {
-      console.error("ADD TO CART ERROR:", err);
-      toast("Please login again", "warning");
-    } finally {
-      btn.disabled = false;
+  const data = await safeJson(add);
+
+  if (!data.success) {
+    if (data.reason === "OUT_OF_STOCK") {
+      toast("Out of stock", "warning");
+      return;
     }
+    throw new Error("Add failed");
+  }
+
+  toast("Added to cart");
+
+} catch (err) {
+  if (err.message.includes("401")) {
+    toast("Session expired. Please login again", "warning");
+  } else {
+    toast("Out of stock", "error");
+  }
+}
+
   });
 
 })();
@@ -586,5 +677,127 @@
   toggleBtn.addEventListener("click", openFilter);
   closeBtn?.addEventListener("click", closeFilter);
   overlay.addEventListener("click", closeFilter);
+})();
+
+let allItems = [];
+let currentPage = 1;
+let itemsPerPage = 0;
+
+function calculateItemsPerPage() {
+  const items = [...document.querySelectorAll(".grid-item")];
+  if (!items.length) return 8;
+
+  const firstTop = items[0].offsetTop;
+  let itemsPerRow = 0;
+
+  for (const item of items) {
+    if (item.offsetTop !== firstTop) break;
+    itemsPerRow++;
+  }
+
+  return itemsPerRow * 4;
+}
+
+function paginate(items) {
+  allItems = items;
+  itemsPerPage = calculateItemsPerPage();
+  currentPage = 1;
+  renderPage();
+  renderPagination();
+}
+
+function renderPage() {
+  const start = (currentPage - 1) * itemsPerPage;
+  const end = start + itemsPerPage;
+
+  document.querySelectorAll(".grid-item").forEach((el, i) => {
+    el.style.display = i >= start && i < end ? "block" : "none";
+  });
+}
+
+function renderPagination() {
+  const totalPages = Math.ceil(allItems.length / itemsPerPage);
+  const pagination = document.getElementById("pagination");
+
+  if (!pagination || totalPages <= 1) {
+    pagination.innerHTML = "";
+    return;
+  }
+
+  pagination.innerHTML = "";
+
+  for (let i = 1; i <= totalPages; i++) {
+    const li = document.createElement("li");
+    const btn = document.createElement("button");
+
+    btn.textContent = i;
+    btn.classList.toggle("active", i === currentPage);
+
+    btn.onclick = () => {
+      currentPage = i;
+      renderPage();
+      renderPagination();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
+    li.appendChild(btn);
+    pagination.appendChild(li);
+  }
+}
+
+window.addEventListener("resize", () => {
+  const newItemsPerPage = calculateItemsPerPage();
+  if (newItemsPerPage !== itemsPerPage) {
+    itemsPerPage = newItemsPerPage;
+    currentPage = 1;
+    renderPage();
+    renderPagination();
+  }
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  const items = document.querySelectorAll(".grid-item");
+  if (items.length) paginate(items);
+});
+
+</script>
+<script>
+(function () {
+  const breadcrumb = document.getElementById("breadcrumbList");
+  if (!breadcrumb) return;
+
+  const path = location.pathname.split("/").filter(Boolean);
+
+  // Always start with Shop
+  const crumbs = [
+    { name: "Shop", url: "/shop" }
+  ];
+
+  let currentPath = "";
+  for (let i = 1; i < path.length; i++) {
+    currentPath += "/" + path[i];
+
+    crumbs.push({
+      name: decodeURIComponent(path[i])
+        .replace(/-/g, " ")
+        .replace(/\b\w/g, l => l.toUpperCase()),
+      url: currentPath
+    });
+  }
+
+  breadcrumb.innerHTML = crumbs
+    .map((c, i) => {
+      const isLast = i === crumbs.length - 1;
+      return `
+        <li class="breadcrumb-item ${isLast ? "active" : ""}">
+          ${
+            isLast
+              ? c.name
+              : `<a href="${c.url}">${c.name}</a>`
+          }
+        </li>
+      `;
+    })
+    .join("");
 })();
 </script>

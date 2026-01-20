@@ -171,6 +171,24 @@ color: white;
 font-size: 15px;
 position: relative;
 }
+
+
+
+.search-results {
+  position: fixed;
+  top: 150px; /* just below topbar + nav */
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(720px, 92vw);
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 20px 40px rgba(0,0,0,.12);
+  max-height: 500px;
+  overflow-y: auto;
+  z-index: 1000000;
+  display: none;
+}
+
 /* ================= MOBILE NAV FIX ================= */
 @media (max-width: 991px) {
 
@@ -208,8 +226,6 @@ header .push-menu {
 
 .search-results {
   position: absolute;
-  top: 100%;
-  left: 0;
   right: 0;
   background: #fff;
   border: 1px solid #e5e5e5;
@@ -224,26 +240,237 @@ header .push-menu {
   gap: 10px;
   padding: 10px;
   cursor: pointer;
+  align-items: center;
 }
 
-.search-item:hover {
-  background: #f5f5f5;
-}
 
 .search-item img {
-  width: 50px;
-  height: 50px;
+  width: 70px;
+  height: 70px;
   object-fit: cover;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1200px) {
   #navbarNav ul li{
-margin-right: 1.3rem;
+margin-right: 1rem !important;
   }
 }
 
+@media (max-width: 991px) {
 
-            </style>
+
+  /* Center content fully */
+  .topbar-center {
+    width: 100%;
+    text-align: center;
+  }
+
+  .topbar-inner {
+    justify-content: center;
+    gap: 24px;
+    font-size: 12px;
+  }
+
+  /* Reduce header padding */
+  .header-top-bar {
+    padding: 6px 0;
+  }
+
+
+
+}
+@media (max-width: 575px) {
+
+  /* One message only (clean look) */
+  .topbar-inner {
+    gap: 0;
+  }
+
+  .topbar-inner .slide-item {
+    display: none;
+  }
+
+  .topbar-inner .slide-item:first-child {
+    display: block;
+  }
+
+  .topbar-inner {
+    font-size: 11px;
+  }
+
+
+
+}
+
+/* ================= TOP BAR CORE FIX ================= */
+
+/* Remove rigid height issues */
+.header-top-bar {
+  overflow: hidden;
+}
+
+.header-top-bar .row {
+  min-height: 30px;
+}
+
+.slide-item{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ---------------- DESKTOP ---------------- */
+.topbar-center {
+  position: relative;
+}
+
+/* ---------------- MOBILE FIX ---------------- */
+@media (max-width: 991px) {
+
+  /* Kill side blocks */
+  .topbar-left a{
+    font-size: 11px !important;
+    word-break:keep-all;
+    margin-left: 10px;
+  }
+  .topbar-right a i{
+    font-size: 14px !important;
+    margin-right: 15px;
+
+  }
+
+  /* Full width center */
+  .topbar-center {
+    width: 100%;
+    padding: 6px 12px;
+    text-align: center;
+  }
+
+  .topbar-wrapper {
+    width: 100%;
+  }
+
+  /* Stop flex collapse */
+  .topbar-inner {
+    display: block !important;
+    font-size: 12px;
+    line-height: 1.4;
+    white-space: normal;
+    text-align: center;
+  }
+
+  .slide-item {
+    width: 100%;
+    display: block;
+  }
+
+  /* Header padding control */
+  .header-top-bar {
+    padding: 6px 0;
+  }
+    .topbar-inner .slide-item {
+        display: flex !important;
+        justify-content: center;
+        align-items: center;
+      }
+}
+
+/* ---------------- SMALL MOBILE (CLEAN SINGLE LINE) ---------------- */
+@media (max-width: 575px) {
+
+
+
+  /* Font tuning */
+  .topbar-inner {
+    font-size: 11px;
+    line-height: 1.35;
+  }
+    
+}
+
+/* ---------------- EXTRA SAFETY ---------------- */
+.topbar-center,
+.topbar-inner,
+.slide-item {
+  max-width: 100%;
+  overflow: hidden;
+}
+/* ================= FORCE WRAP FOR LONG TOPBAR TEXT ================= */
+
+/* Desktop stays single line */
+.topbar-inner {
+  white-space: nowrap;
+}
+
+/* Mobile: allow wrapping properly */
+@media (max-width: 991px) {
+
+  .topbar-inner {
+    white-space: normal !important;
+    word-break: break-word;
+    overflow: visible !important;
+  }
+
+  .slide-item {
+    white-space: normal !important;
+    word-break: break-word;
+    line-height: 1.4;
+    padding: 2px 0;
+    display: block;
+  }
+
+  /* Remove any height restriction */
+  .header-top-bar,
+  .header-top-bar .row {
+    height: auto !important;
+    min-height: unset !important;
+  }
+}
+
+/* Small phones — still wrapped, readable */
+@media (max-width: 575px) {
+  .slide-item {
+    font-size: 8px;
+    line-height: 1.35;
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+  }
+  
+.topbar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  white-space: nowrap;
+  height: 20px;
+}
+
+.header-top-bar{
+  height: 40px !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+}
+
+.cart-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: #9FA878;
+  font-size: 16px;
+  opacity: 0.8;
+}
+.cart-empty a {
+  display: inline-block;
+  margin-top: 12px;
+  text-decoration: underline;
+  color: #9FA878;
+  font-weight: 500;
+}
+
+       </style>
 
 
 
@@ -257,7 +484,7 @@ margin-right: 1.3rem;
         <div class="d-flex justify-content-between align-items-center w-100">
 
           <!-- LEFT SECTION -->
-          <div class="topbar-left text-white alt-font">
+          <div class="topbar-left text-white alt-font ">
             <a href="/faqs" class="text-white text-decoration-underline fs-14 text-base-font">FAQs</a>
           </div>
 
@@ -265,11 +492,11 @@ margin-right: 1.3rem;
           <div class="topbar-center flex-grow-1 text-center position-relative">
             <div class="topbar-wrapper d-inline-block">
               <div class="topbar-inner">
-                <div class="slide-item ls-1px">Hypoallergenic • fine 925 silver • 6 months warranty</div>
-                <div class="slide-item ls-1px">Pan India shipping</div>
+                <div class="slide-item ls-1px">Hypoallergenic • fine 925 silver </div>
+                <div class="slide-item ls-1px">Pan India shipping • 6 months warranty</div>
                 <div class="slide-item">
-                  <a href="#" class="text-white text-decoration-underline ls-1px">
-                    Curated gifts for him & her from ₹499
+                  <a href="/gifting/under-699" class="text-white text-decoration-underline ls-1px">
+                    Curated gifts for him & her from ₹699
                   </a>
                 </div>
               </div>
@@ -277,7 +504,7 @@ margin-right: 1.3rem;
           </div>
 
           <!-- RIGHT SECTION -->
-          <div class="topbar-right">
+          <div class="topbar-right ">
             <a href="https://wa.me/919930411751" class="text-white" target="_blank">
               <i class="bi bi-whatsapp fs-12px"></i>
             </a>
@@ -290,7 +517,7 @@ margin-right: 1.3rem;
   </div>
 </div>
                 <!-- start navigation -->
-                <nav class="navbar navbar-expand-lg bg-white header-light disable-fixed" >
+                <nav class="navbar navbar-expand-lg bg-white header-light disable-fixed" style="top: -10px !important">
                     <div class="container-fluid">
                         <div class="col-auto col-xxl-2 col-lg-2 me-lg-0 me-auto">
                             <div class="header-icon">
@@ -321,7 +548,7 @@ margin-right: 1.3rem;
                                
                                 
                                 <li class="nav-item dropdown simple-dropdown">
-                                    <a  href="javascript:void(0)" class="nav-link">Men</a>
+                                    <a  href="javascript:void(0)" class="nav-link">Mens</a>
                                     <i class="fa-solid fa-angle-down dropdown-toggle" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false"></i>
                                     <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink" style="left: auto !important; box-shadow: none; margin-top: -1rem;"> 
                                         <li><a href="/shop/men/rings">Rings</a></li>
@@ -333,7 +560,7 @@ margin-right: 1.3rem;
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown simple-dropdown">
-                                    <a  href="javascript:void(0)" class="nav-link">Women</a>
+                                    <a  href="javascript:void(0)" class="nav-link">Womens</a>
                                     <i class="fa-solid fa-angle-down dropdown-toggle" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false"></i>
                                     <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink" style="left: auto !important; box-shadow: none; margin-top: -1rem;"> 
                                         <li><a href="/shop/women/rings">Rings</a></li>
@@ -359,10 +586,13 @@ margin-right: 1.3rem;
                                     <a  href="/" class="nav-link">Gifting</a>
                                     <i class="fa-solid fa-angle-down dropdown-toggle" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false"></i>
                                     <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink" style="left: auto !important; box-shadow: none; margin-top: -1rem;"> 
-                                        <li><a href="/">For him</a></li>
-                                        <li><a href="/">For her</a></li>
-                                        <li><a href="/">Under ₹699</a></li>
-                                        <li><a href="/">Under ₹1599</a></li>
+                                        <li><a href="/gifting/for-him">For him</a></li>
+                                        <li><a href="/gifting/for-her">For her</a></li>
+                                        <li><a href="/gifting/under-699">Under ₹699</a></li>
+                                        <li><a href="/gifting/under-1599">Under ₹1599</a></li>
+                                        <li><a href="/gifting/for-protection">For protection</a></li>
+                                        <li><a href="/gifting/for-everyday-gifting">For everyday gifting</a></li>
+                                        <li><a href="/gifting/for-party-gifting">For party gifting</a></li>
                                      
                                     </ul>
                                 </li>
@@ -401,7 +631,7 @@ margin-right: 1.3rem;
                     type="text"
                     autocomplete="off"
                   />
-                  <button type="button" class="search-button">
+                  <button type="submit" class="search-button">
                     <i
                       class="feather icon-feather-search"
                       aria-hidden="true"
@@ -444,7 +674,7 @@ margin-right: 1.3rem;
   <div id="cartItemsContainer" class="cart-items"></div>
 
   <div class="cart-footer">
-    <div class="gift-note-toggle">
+    <div class="gift-note-toggle" id="couponSection">
       <button id="giftNoteToggle">
         Available coupon - NEW10
       </button>
@@ -483,10 +713,10 @@ margin-right: 1.3rem;
       <ul class="text-dark-gray menu-item-list alt-font fw-700 ls-minus-1px main-menu">
         <li class="nav-item"><a href="index.html" class="nav-link">Home</a></li>
         <li class="nav-item has-submenu">
-          <a href="javascript:void(0);" class="nav-link submenu-toggle" data-submenu="men">Men</a>
+          <a href="javascript:void(0);" class="nav-link submenu-toggle" data-submenu="men">Mens</a>
         </li>
         <li class="nav-item has-submenu">
-          <a href="javascript:void(0);" class="nav-link submenu-toggle" data-submenu="women">Women</a>
+          <a href="javascript:void(0);" class="nav-link submenu-toggle" data-submenu="women">Womens</a>
         </li>
         <li class="nav-item has-submenu">
           <a href="javascript:void(0);" class="nav-link submenu-toggle" data-submenu="unisex">Unisex</a>
@@ -498,7 +728,7 @@ margin-right: 1.3rem;
           <a href="shop-all.html" class="nav-link">Shop All</a>
         </li>
         <li class="nav-item">
-          <a href="journal.html" class="nav-link">M&R &nbsp; Journal</a>
+          <a href="/mnr-journal" class="nav-link">M&R &nbsp; Journal</a>
         </li>
       </ul>
     </div>
@@ -520,10 +750,10 @@ margin-right: 1.3rem;
           <a href="javascript:void(0);" class="nav-link submenu-toggle" data-submenu="men-earrings">Earrings</a>
         </li>
         <li class="nav-item">
-          <a href="men-chains.html" class="nav-link">Chains</a>
+          <a href="/shop/unisex/chains" class="nav-link">Chains</a>
         </li>
         <li class="nav-item">
-          <a href="men-chains.html" class="nav-link">Shop All</a>
+          <a href="/shop/men" class="nav-link">Shop All</a>
         </li>
       </ul>
     </div>
@@ -586,11 +816,21 @@ margin-right: 1.3rem;
           <a href="javascript:void(0);" class="nav-link submenu-toggle" data-submenu="for-her">For her</a>
         </li>
         <li class="nav-item">
+          <a href="/gifting/for-protection" class="nav-link">For protection</a>
+        </li>
+        <li class="nav-item">
+          <a href="/gifting/for-everyday-gfiting" class="nav-link">For everyday gifting</a>
+        </li>
+        <li class="nav-item">
+          <a href="/gifting/for-party-gifting" class="nav-link">For party gifting</a>
+        </li>
+        <li class="nav-item">
           <a href="/gifting/under-699" class="nav-link">Under ₹699</a>
         </li>
         <li class="nav-item">
           <a href="/gifting/under-1599" class="nav-link">Under ₹1599</a>
         </li>
+        
       </ul>
     </div>
 
@@ -749,21 +989,31 @@ margin-right: 1.3rem;
 
 
             <script>
-              
+              document.addEventListener("DOMContentLoaded", () => {
+  const countEl = document.getElementById("headerCartCount");
+  if (countEl && !countEl.textContent.trim()) {
+    countEl.textContent = "0";
+  }
+});
+
               
 async function updateCartCount() {
+  const countEl = document.getElementById("headerCartCount");
   const token = localStorage.getItem("token");
-  if (!token) return;
+
+  if (!token) {
+    countEl.textContent = "0";
+    return;
+  }
 
   const res = await fetch("/cart", {
     headers: { "Authorization": "Bearer " + token }
   });
 
   const json = await res.json();
-  const count = json.cart.length;
-
-  document.querySelector(".cart-count").textContent = count;
+  countEl.textContent = json.cart.length || "0";
 }
+
 
 updateCartCount();
 
@@ -774,6 +1024,10 @@ updateCartCount();
            
 
             <script>
+              window.addEventListener("error", e => {
+  console.error("JS ERROR:", e.message);
+});
+
               const openCartBtn = document.getElementById("openCartBtn");
 const cartSidebar = document.getElementById("cartSidebar");
 const cartOverlay = document.getElementById("cartOverlay");
@@ -800,7 +1054,29 @@ cartOverlay.addEventListener("click", closeCart);
 /* ----------------------- LOAD CART -------------------------- */
 async function loadCart(){
   const token = localStorage.getItem("token");
-  if(!token) return;
+
+  // 🚨 NOT LOGGED IN STATE
+  if (!token) {
+    cartItemsContainer.innerHTML = `
+      <div class="cart-empty">
+        <p class="mb-1 text-uppercase">Please login</p>
+        <p class="fs-12 ls-1px">
+          Login to view items in your cart
+        </p>
+        <a href="/account" class="checkout-btn mt-3 text-white" style="text-align:center">
+          Login
+        </a>
+      </div>
+    `;
+
+    // hide footer & coupon completely
+    const cartFooter = document.querySelector(".cart-footer");
+    if (cartFooter) cartFooter.style.display = "none";
+
+    headerCartCount.textContent = "0";
+    return;
+  }
+
 
   const res = await fetch("/cart", {
     headers: { "Authorization": "Bearer " + token }
@@ -810,48 +1086,65 @@ async function loadCart(){
   if(!json.success) return;
 
 const items = json.cart;
+const couponSection = document.getElementById("couponSection");
 
-  headerCartCount.textContent = items.length ;
-  cartItemsContainer.innerHTML = "";
+headerCartCount.textContent = items.length;
+cartItemsContainer.innerHTML = "";
+cartTotalAmount.textContent = "₹0";
 
-  let total = 0;
+
+// 🚨 EMPTY CART STATE
+// 🚨 EMPTY CART STATE
+if (!items.length) {
+  couponSection.style.display = "none";
+
+  cartItemsContainer.innerHTML = `
+    <div class="cart-empty">
+      <p class="mb-0 text-uppercase">Your cart is empty!</p>
+      <p class="fs-12 ls-1px">you have products in your <a href="/wishlist">wishlist</a> waiting to be yours</p>
+    </div>
+  `;
+  return;
+}
+
+let total = 0;
+
 
  items.forEach(item => {
   total += Number(item.price) * Number(item.quantity);
+couponSection.style.display = "block";
 
   cartItemsContainer.insertAdjacentHTML("beforeend", `
-    <div class="cart-item" data-cart-id="${item.cart_id}" data-stock="${item.stock}">
-      <img src="/uploads/${item.image1}">
-      
-      <div class="cart-details">
-        <div class="name">${item.name}</div>
-        <div class="price">₹${item.price}</div>
+  <div class="cart-item" data-cart-id="${item.cart_id}" data-stock="${item.stock}">
+    <img src="/uploads/${item.image1}">
+    <div class="cart-details">
+      <div class="name">${item.name}</div>
+      <div class="price">₹${item.price}</div>
 
-        <div class="qty-box">
-          <button class="qty-btn minus" onclick="updateQty(${item.cart_id}, -1)">−</button>
-          <span class="qty-value">${item.quantity}</span>
-          <button class="qty-btn plus" onclick="updateQty(${item.cart_id}, 1)">+</button>
-        </div>
-
-        <small class="stock-msg" style="display:none;color:#ff4d4d">
-          Max stock reached
-        </small>
+      <div class="qty-box">
+        <button class="qty-btn minus" onclick="updateQty(${item.cart_id}, -1)">−</button>
+        <span class="qty-value">${item.quantity}</span>
+        <button class="qty-btn plus">+</button>
       </div>
 
-      <span class="remove-item" onclick="removeCartItem(${item.cart_id})">×</span>
+      <div class="stock-msg" style="display:none; font-size:12px; opacity:.7;">
+        Stock limit reached
+      </div>
     </div>
-  `);
+
+    <span class="remove-item" onclick="removeCartItem(${item.cart_id})">×</span>
+  </div>
+`);
+
 
   /* ✅ NOW DOM EXISTS — SAFE TO TOUCH */
   const cartItem = cartItemsContainer.lastElementChild;
   const plusBtn = cartItem.querySelector(".plus");
-  const stockMsg = cartItem.querySelector(".stock-msg");
+if (item.quantity >= item.stock) {
+  plusBtn.disabled = true;
+  plusBtn.style.opacity = "0.4";
+}
 
-  if (item.quantity >= item.stock) {
-    plusBtn.disabled = true;
-    plusBtn.style.opacity = "0.4";
-    stockMsg.style.display = "block";
-  }
 });
 
   cartTotalAmount.textContent = "₹" + total;
@@ -922,69 +1215,21 @@ async function removeCartItem(cartId){
   }
 }
 
-document.querySelector(".header-push-button").addEventListener("click", () => {
-  document.body.classList.add("menu-open");
-});
-
-document.querySelector(".menu-overlay").addEventListener("click", () => {
-  document.body.classList.remove("menu-open");
-});
 
 
 
 document.addEventListener("DOMContentLoaded", () => {
-
-  const searchIcon = document.querySelector(".search-form-icon");
-  const searchWrapper = document.querySelector(".search-form-wrapper");
   const searchInput = document.querySelector(".search-input");
-  const searchCloseBtn = document.querySelector(".search-close");
   const searchResults = document.getElementById("searchResults");
   const searchForm = document.getElementById("search-form");
 
-  if (!searchIcon || !searchWrapper || !searchInput || !searchCloseBtn || !searchResults) {
-    console.error("Search elements missing", {
-      searchIcon,
-      searchWrapper,
-      searchInput,
-      searchCloseBtn,
-      searchResults
-    });
-    return;
-  }
-
   let debounceTimer;
 
-  /* ---------- OPEN ---------- */
-searchIcon.addEventListener("click", (e) => {
-  e.preventDefault();
-  e.stopImmediatePropagation();
-  searchWrapper.style.display = "block";
-  setTimeout(() => searchInput.focus(), 50);
-}, true);
-
-  /* ---------- CLOSE ---------- */
-  searchCloseBtn.addEventListener("click", closeSearch);
-
-  function closeSearch() {
-    searchWrapper.style.display = "none";
-    searchInput.value = "";
-    hideResults();
+  function hideResults() {
+    searchResults.style.display = "none";
+    searchResults.innerHTML = "";
   }
 
-  /* ---------- INPUT ---------- */
-  searchInput.addEventListener("input", () => {
-    const q = searchInput.value.trim();
-    clearTimeout(debounceTimer);
-
-    if (q.length < 2) {
-      hideResults();
-      return;
-    }
-
-    debounceTimer = setTimeout(() => runSearch(q), 250);
-  });
-
-  /* ---------- SEARCH ---------- */
   async function runSearch(q) {
     searchResults.style.display = "block";
     searchResults.innerHTML = `<div class="p-2 text-muted">Searching…</div>`;
@@ -998,38 +1243,50 @@ searchIcon.addEventListener("click", (e) => {
         return;
       }
 
-      searchResults.innerHTML = data.products.map(p => `
-        <div class="search-item" data-id="${p.id}">
-          <img src="/uploads/${p.image1}">
-          <div>
-            <div class="fw-500">${p.name}</div>
-            <div class="fs-13 text-muted">From ₹${p.price}</div>
-          </div>
-        </div>
-      `).join("");
+     searchResults.innerHTML = data.products.map(p => `
+  <div class="search-item" data-id="${p.id}">
+    <img src="/uploads/${p.image1}" alt="${p.name}">
+    <div>
+      <div class="fw-500">${p.name}</div>
+    </div>
+  </div>
+`).join("");
 
     } catch {
       searchResults.innerHTML = `<div class="p-2 text-danger">Search failed</div>`;
     }
   }
 
-  /* ---------- CLICK RESULT ---------- */
+  // INPUT SEARCH
+  searchInput.addEventListener("input", () => {
+    const q = searchInput.value.trim();
+    clearTimeout(debounceTimer);
+
+    if (q.length < 2) {
+      hideResults();
+      return;
+    }
+
+    debounceTimer = setTimeout(() => runSearch(q), 250);
+  });
+
+  // 🔥 MAIN SEARCH ICON / BUTTON (FORM SUBMIT)
+  searchForm.addEventListener("submit", e => {
+    e.preventDefault(); // ⛔ stop reload / Crafto
+
+    const q = searchInput.value.trim();
+    if (q.length >= 2) runSearch(q);
+  });
+
+  // RESULT CLICK
   searchResults.addEventListener("mousedown", e => {
     const item = e.target.closest(".search-item");
     if (!item) return;
     window.location.href = `/product/${item.dataset.id}`;
   });
-
-  /* ---------- HIDE ---------- */
-  function hideResults() {
-    searchResults.style.display = "none";
-    searchResults.innerHTML = "";
-  }
-
-  /* ---------- FORM ---------- */
-  searchForm.addEventListener("submit", e => {
-    e.preventDefault(); // ⛔ NEVER reload page
-  });
-
 });
+
+
+
+
 </script>

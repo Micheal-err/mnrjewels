@@ -20250,10 +20250,6 @@
     padding-left: 0;
     padding-right: 0;
   }
-  header .header-top-bar {
-    display: none;
-    height: 0;
-  }
   header .header-top-bar + .navbar {
     top: 0;
   }
